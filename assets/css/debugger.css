@@ -1,0 +1,900 @@
+/* ==========================================================================
+   WTE DEV ZONE — Inspector Styles
+   ========================================================================== */
+
+/* Layout wrapper */
+.wte-debugger-wrap {
+	max-width: 100%;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* -------------------------------------------------------------------------
+   Page header bar
+   ------------------------------------------------------------------------- */
+.wte-dbg-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	background: linear-gradient( 135deg, #163f78 0%, #0c2c55 100% );
+	padding: 14px 20px 0;
+	border-radius: 6px 6px 0 0;
+	margin-top: 16px;
+}
+
+.wte-dbg-header-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wte-dbg-header-brand-link {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	opacity: 1;
+	transition: opacity 0.15s;
+}
+
+.wte-dbg-header-brand-link:hover {
+	opacity: 0.8;
+}
+
+.wte-dbg-header-icon {
+	font-size: 20px;
+	opacity: 0.85;
+}
+
+.wte-dbg-header-product {
+	font-size: 15px;
+	font-weight: 600;
+	color: #fff;
+	letter-spacing: -0.01em;
+}
+
+.wte-dbg-header-divider {
+	display: block;
+	width: 1px;
+	height: 15px;
+	background: rgba( 255, 255, 255, 0.25 );
+	flex-shrink: 0;
+}
+
+.wte-dbg-header-zone {
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: rgba( 255, 255, 255, 0.55 );
+}
+
+.wte-dbg-header-meta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding-bottom: 14px;
+}
+
+.wte-dbg-meta-pill {
+	font-size: 10.5px;
+	font-weight: 500;
+	color: rgba( 255, 255, 255, 0.5 );
+	background: rgba( 255, 255, 255, 0.08 );
+	border: 1px solid rgba( 255, 255, 255, 0.12 );
+	border-radius: 4px;
+	padding: 2px 7px;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------
+   Tab Navigation
+   ------------------------------------------------------------------------- */
+.wte-dbg-tabs {
+	display: flex;
+	align-items: stretch;
+	gap: 0;
+	background: linear-gradient( 135deg, #163f78 0%, #0c2c55 100% );
+	border-radius: 0;
+	padding: 0 8px;
+	margin-top: 0;
+	border-top: 1px solid rgba( 255, 255, 255, 0.1 );
+	border-bottom: none;
+}
+
+.wte-dbg-tab {
+	padding: 12px 18px;
+	font-size: 11.5px;
+	font-weight: 600;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: rgba( 255, 255, 255, 0.5 );
+	text-decoration: none;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	position: static;
+	bottom: auto;
+	transition: color 0.15s;
+	white-space: nowrap;
+}
+
+.wte-dbg-tab:hover {
+	color: rgba( 255, 255, 255, 0.85 );
+	background: transparent;
+}
+
+.wte-dbg-tab.is-active {
+	color: #fff;
+	background: transparent;
+	font-weight: 700;
+	box-shadow: inset 0 -3px 0 #fff;
+}
+
+/* -------------------------------------------------------------------------
+   Content area
+   ------------------------------------------------------------------------- */
+.wte-dbg-content {
+	background: #f0f0f1;
+	border: 1px solid #dcdcde;
+	border-top: 3px solid #0c2c55;
+	min-height: 600px;
+}
+
+/* -------------------------------------------------------------------------
+   Master-detail layout (Trips / Bookings / Customers)
+   ------------------------------------------------------------------------- */
+.wte-dbg-master-detail {
+	display: flex;
+	height: calc( 100vh - 190px );
+	min-height: 500px;
+}
+
+.wte-dbg-list-panel {
+	width: 280px;
+	min-width: 220px;
+	max-width: 340px;
+	border-right: 1px solid #dcdcde;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	overflow: hidden;
+}
+
+.wte-dbg-list-header {
+	padding: 12px 16px 8px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #646970;
+	border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.wte-dbg-list-count {
+	font-size: 11px;
+	font-weight: 400;
+	color: #8c8f94;
+}
+
+.wte-dbg-search-wrap {
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-search {
+	width: 100%;
+	padding: 6px 10px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	font-size: 12px;
+	box-sizing: border-box;
+	background: #f6f7f7;
+	color: #1d2327;
+}
+
+.wte-dbg-search:focus {
+	outline: none;
+	border-color: #2271b1;
+	background: #fff;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wte-dbg-list-items {
+	flex: 1;
+	overflow-y: auto;
+	padding: 4px 0;
+}
+
+
+.wte-dbg-list-item {
+	display: flex;
+	flex-direction: column;
+	padding: 8px 16px;
+	cursor: pointer;
+	border-left: 3px solid transparent;
+	border-bottom: 1px solid #f6f7f7;
+	transition: background 0.1s;
+}
+
+.wte-dbg-list-item:hover {
+	background: #f6f7f7;
+}
+
+.wte-dbg-list-item.is-active {
+	background: #f0f6fc;
+	border-left-color: #2271b1;
+}
+
+.wte-dbg-list-item-title {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.wte-dbg-list-item-meta {
+	font-size: 11px;
+	color: #8c8f94;
+	margin-top: 2px;
+}
+
+/* Status badges */
+.wte-dbg-status {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 10px;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wte-dbg-status-publish   { background: #d7f1e2; color: #1a7a40; }
+.wte-dbg-status-pending    { background: #fef8e1; color: #a67c00; }
+.wte-dbg-status-draft      { background: #f0f0f1; color: #646970; }
+.wte-dbg-status-trash      { background: #fce8e8; color: #8a1f1f; }
+.wte-dbg-status-completed  { background: #d7f1e2; color: #1a7a40; }
+.wte-dbg-status-booked     { background: #d7f1e2; color: #1a7a40; }
+.wte-dbg-status-cancelled  { background: #fce8e8; color: #8a1f1f; }
+
+.wte-dbg-pagination {
+	padding: 8px 12px;
+	border-top: 1px solid #f0f0f1;
+	display: flex;
+	gap: 6px;
+	justify-content: center;
+}
+
+.wte-dbg-page-btn {
+	padding: 3px 8px;
+	font-size: 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+	cursor: pointer;
+	color: #2271b1;
+}
+
+.wte-dbg-page-btn:hover:not(:disabled) {
+	background: #f0f6fc;
+}
+
+.wte-dbg-page-btn:disabled {
+	color: #a7aaad;
+	cursor: default;
+}
+
+/* -------------------------------------------------------------------------
+   Inspector panel
+   ------------------------------------------------------------------------- */
+.wte-dbg-inspector-panel {
+	flex: 1;
+	overflow-y: auto;
+	background: #fff;
+	padding: 0;
+}
+
+.wte-dbg-inspector-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: #8c8f94;
+	font-size: 14px;
+}
+
+.wte-dbg-inspector-header {
+	padding: 16px 20px 12px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-inspector-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: #1d2327;
+	margin: 0 0 4px;
+}
+
+.wte-dbg-inspector-subtitle {
+	font-size: 12px;
+	color: #8c8f94;
+}
+
+.wte-dbg-inspector-body {
+	padding: 0;
+}
+
+/* Inspector sections */
+.wte-dbg-section {
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-section-header {
+	padding: 10px 20px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #646970;
+	background: #f6f7f7;
+	cursor: pointer;
+	user-select: none;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wte-dbg-section-header::before {
+	content: '▼';
+	font-size: 9px;
+	transition: transform 0.15s;
+}
+
+.wte-dbg-section.is-collapsed .wte-dbg-section-header::before {
+	transform: rotate(-90deg);
+}
+
+.wte-dbg-section-body {
+	padding: 4px 0;
+}
+
+.wte-dbg-section.is-collapsed .wte-dbg-section-body {
+	display: none;
+}
+
+/* -------------------------------------------------------------------------
+   Tree (Settings tab)
+   ------------------------------------------------------------------------- */
+.wte-dbg-settings-tab {
+	padding: 16px 20px;
+}
+
+.wte-dbg-help {
+	font-size: 13px;
+	color: #50575e;
+	margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.wte-dbg-count-badge {
+	background: #e0e0e0;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #646970;
+}
+
+.wte-dbg-settings-tree {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.wte-dbg-option-block {
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+	overflow: hidden;
+	display: flex;
+	align-items: stretch;
+}
+
+.wte-dbg-option-block > details {
+	flex: 1;
+	min-width: 0;
+}
+
+.wte-dbg-delete-option-btn {
+	background: none;
+	border: none;
+	border-left: 1px solid #dcdcde;
+	cursor: pointer;
+	color: #c0c2c5;
+	padding: 0 12px;
+	font-size: 14px;
+	flex-shrink: 0;
+	transition: background 0.1s, color 0.1s;
+}
+
+.wte-dbg-delete-option-btn:hover {
+	background: #fce8e8;
+	color: #8a1f1f;
+}
+
+.wte-dbg-delete-option-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+
+.wte-dbg-option-name {
+	padding: 10px 14px;
+	font-size: 12px;
+	font-weight: 700;
+	font-family: "SFMono-Regular", Consolas, monospace;
+	color: #135e96;
+	cursor: pointer;
+	user-select: none;
+	background: #f6f7f7;
+	list-style: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wte-dbg-option-name::-webkit-details-marker { display: none; }
+
+details[open] > .wte-dbg-option-name::before { content: '▼'; font-size: 9px; color: #646970; }
+details:not([open]) > .wte-dbg-option-name::before { content: '▶'; font-size: 9px; color: #646970; }
+
+.wte-dbg-option-body {
+	padding: 4px 0;
+}
+
+details[open] > .wte-dbg-option-name {
+	border-left: 3px solid #2271b1;
+	padding-left: 11px;
+}
+
+/* Settings search */
+.wte-dbg-option-search {
+	display: block;
+	width: 100%;
+	padding: 7px 12px;
+	margin-bottom: 12px;
+	font-size: 13px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+	color: #1d2327;
+	box-sizing: border-box;
+}
+
+.wte-dbg-option-search:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+/* Skeleton loader */
+@keyframes wte-dbg-shimmer {
+	0%   { background-position: -400px 0; }
+	100% { background-position: 400px 0; }
+}
+
+.wte-dbg-skeleton {
+	min-height: 60px;
+	background: linear-gradient(
+		90deg,
+		#f0f0f1 25%,
+		#e8e8ea 50%,
+		#f0f0f1 75%
+	);
+	background-size: 800px 100%;
+	animation: wte-dbg-shimmer 1.4s infinite linear;
+	border-radius: 3px;
+	margin: 8px 14px;
+}
+
+/* Recursive tree nodes */
+.wte-dbg-node {
+	margin-left: 0;
+}
+
+.wte-dbg-node > summary {
+	padding: 4px 14px 4px 0;
+	list-style: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wte-dbg-node > summary::-webkit-details-marker { display: none; }
+
+details[open] > .wte-dbg-key::before  { content: '▼'; font-size: 8px; color: #8c8f94; margin-right: 4px; }
+details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; color: #8c8f94; margin-right: 4px; }
+
+.wte-dbg-children {
+	margin-left: 20px;
+	border-left: 3px solid #2271b1; /* depth 1 — blue */
+	padding-left: 8px;
+}
+.wte-dbg-children .wte-dbg-children                                                                     { border-left-color: #00897b; } /* teal   */
+.wte-dbg-children .wte-dbg-children .wte-dbg-children                                                   { border-left-color: #7b5ea7; } /* purple */
+.wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children                                 { border-left-color: #e07b39; } /* orange */
+.wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children               { border-left-color: #d63638; } /* red    */
+
+.wte-dbg-children .wte-dbg-node > summary {
+	background: #f0f6fc;
+	border-radius: 2px;
+}
+
+.wte-dbg-children > .wte-dbg-row {
+	display: flex;
+	align-items: center;
+	padding: 4px 14px 4px 20px;
+	margin: 0;
+}
+
+.wte-dbg-children > .wte-dbg-node {
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Row (key + value + edit button)
+   ------------------------------------------------------------------------- */
+.wte-dbg-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 14px;
+	font-size: 12px;
+	line-height: 1.5;
+	min-height: 28px;
+}
+
+.wte-dbg-row.is-stripe {
+	background: #f6f7f7;
+}
+
+/* Stripe only the summary header of a node, not its expanded children */
+.wte-dbg-node.is-stripe > summary {
+	background: #f6f7f7;
+}
+
+.wte-dbg-row:hover {
+	background: #e8f0f8;
+}
+
+.wte-dbg-key {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	color: #135e96;
+	flex-shrink: 0;
+	min-width: 160px;
+	white-space: nowrap;
+}
+
+/* When .wte-dbg-key is used as a summary inside details */
+summary.wte-dbg-key {
+	min-width: unset;
+	padding-left: 20px;
+}
+
+.wte-dbg-value {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	color: #1d2327;
+	word-break: break-all;
+	flex: 1;
+	background: #f0f6fc;
+	border-radius: 3px;
+	padding: 1px 5px;
+}
+
+.wte-dbg-value[data-raw="true"]  { color: #1a7a40; background: #d7f1e2; }
+.wte-dbg-value[data-raw="false"] { color: #8a1f1f; background: #fce8e8; }
+.wte-dbg-value[data-raw="1"]     { color: #1a7a40; background: #d7f1e2; }
+.wte-dbg-value[data-raw=""]      { color: #8c8f94; font-style: italic; background: transparent; }
+
+.wte-dbg-count {
+	font-size: 10px;
+	font-weight: 400;
+	color: #8c8f94;
+	font-family: -apple-system, sans-serif;
+}
+
+.wte-dbg-edit-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 12px;
+	color: #a7aaad;
+	padding: 0 2px;
+	line-height: 1;
+	flex-shrink: 0;
+	opacity: 0;
+	transition: color 0.1s, opacity 0.1s;
+}
+
+.wte-dbg-row:hover .wte-dbg-edit-btn {
+	opacity: 1;
+}
+
+.wte-dbg-edit-btn:hover {
+	color: #2271b1;
+}
+
+/* -------------------------------------------------------------------------
+   Inline edit controls
+   ------------------------------------------------------------------------- */
+.wte-dbg-input {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 12px;
+	padding: 3px 6px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	flex: 1;
+	min-width: 100px;
+	box-shadow: 0 0 0 1px #2271b1;
+	color: #1d2327;
+}
+
+textarea.wte-dbg-input {
+	resize: vertical;
+	min-height: 60px;
+}
+
+.wte-dbg-save,
+.wte-dbg-cancel {
+	background: none;
+	border: 1px solid;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 11px;
+	padding: 2px 6px;
+	font-weight: 600;
+	flex-shrink: 0;
+}
+
+.wte-dbg-save {
+	border-color: #1a7a40;
+	color: #1a7a40;
+}
+
+.wte-dbg-save:hover {
+	background: #d7f1e2;
+}
+
+.wte-dbg-cancel {
+	border-color: #8a1f1f;
+	color: #8a1f1f;
+}
+
+.wte-dbg-cancel:hover {
+	background: #fce8e8;
+}
+
+/* Flash feedback */
+@keyframes wte-flash-ok {
+	0%   { background: #d7f1e2; }
+	100% { background: transparent; }
+}
+
+@keyframes wte-flash-err {
+	0%   { background: #fce8e8; }
+	100% { background: transparent; }
+}
+
+.wte-dbg-row.flash-ok  { animation: wte-flash-ok  1.2s ease-out forwards; }
+.wte-dbg-row.flash-err { animation: wte-flash-err 1.2s ease-out forwards; }
+
+/* -------------------------------------------------------------------------
+   Inspector meta section (dynamic, inside right panel)
+   ------------------------------------------------------------------------- */
+.wte-dbg-meta-section .wte-dbg-row {
+	padding-left: 20px;
+}
+
+.wte-dbg-taxonomy-list {
+	padding: 6px 20px 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.wte-dbg-tax-term {
+	background: #e0e0e0;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	color: #1d2327;
+}
+
+.wte-dbg-tax-empty {
+	font-size: 12px;
+	color: #8c8f94;
+	padding: 6px 20px;
+	font-style: italic;
+}
+
+/* Post field editable rows */
+.wte-dbg-post-field select.wte-dbg-input {
+	font-family: -apple-system, sans-serif;
+	font-size: 13px;
+}
+
+/* Loading / empty states */
+.wte-dbg-loading,
+.wte-dbg-empty {
+	padding: 20px;
+	color: #8c8f94;
+	font-size: 13px;
+	text-align: center;
+}
+
+/* Clickable ID links in inspector */
+.wte-dbg-link {
+	color: #2271b1;
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.wte-dbg-link:hover {
+	color: #135e96;
+}
+
+/* Error notice inside inspector */
+.wte-dbg-error-notice {
+	padding: 12px 20px;
+	background: #fce8e8;
+	color: #8a1f1f;
+	font-size: 13px;
+}
+
+/* Meta key styling in dynamic inspector */
+.wte-dbg-meta-key-label {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	color: #135e96;
+}
+
+/* Nested meta tree inside inspector panel */
+.wte-dbg-meta-tree {
+	padding: 0 0 0 8px;
+}
+
+.wte-dbg-meta-tree > .wte-dbg-row {
+	display: flex;
+	align-items: center;
+	padding: 4px 14px 4px 20px;
+	margin: 0;
+}
+
+.wte-dbg-meta-tree > .wte-dbg-node {
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Overview tab — named sections
+   ------------------------------------------------------------------------- */
+.wte-dbg-settings-tab .wte-dbg-section {
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+	margin-bottom: 16px;
+	overflow: hidden;
+}
+
+.wte-dbg-settings-tab .wte-dbg-section-header {
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	padding: 10px 16px;
+	cursor: pointer;
+	user-select: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wte-dbg-settings-tab .wte-dbg-section.is-collapsed .wte-dbg-section-body {
+	display: none;
+}
+
+.wte-dbg-settings-tab .wte-dbg-section-body {
+	padding: 16px;
+}
+
+.wte-dbg-settings-tab .wte-dbg-section-body .wte-dbg-settings-tree {
+	margin-top: 12px;
+}
+
+/* Options pagination sits at bottom of Options section */
+.wte-dbg-options-pagination {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 12px;
+	justify-content: flex-end;
+}
+
+/* -------------------------------------------------------------------------
+   Price Category table
+   ------------------------------------------------------------------------- */
+.wte-dbg-price-cat-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.wte-dbg-price-cat-table th,
+.wte-dbg-price-cat-table td {
+	padding: 6px 10px;
+	text-align: left;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-price-cat-table th {
+	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #646970;
+	background: #f9f9f9;
+}
+
+.wte-dbg-price-cat-table tr:last-child td { border-bottom: none; }
+.wte-dbg-price-cat-table tbody tr:nth-child(even) td { background: #f6f7f7; }
+.wte-dbg-price-cat-table tr:hover td { background: #f6f7f7; }
+
+.wte-dbg-price-cat-primary {
+	color: #d63638;
+	font-size: 16px;
+	line-height: 1;
+}
+
+/* -------------------------------------------------------------------------
+   Taxonomy terms table (inside details blocks)
+   ------------------------------------------------------------------------- */
+.wte-dbg-tax-terms-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+.wte-dbg-tax-terms-table th,
+.wte-dbg-tax-terms-table td {
+	padding: 4px 10px;
+	text-align: left;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-tax-terms-table th {
+	font-weight: 600;
+	color: #646970;
+	background: #fafafa;
+}
+
+.wte-dbg-tax-terms-table tbody tr:nth-child(even) td { background: #f6f7f7; }
+.wte-dbg-tax-terms-table tr:last-child td { border-bottom: none; }

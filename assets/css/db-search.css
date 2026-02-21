@@ -1,0 +1,642 @@
+/* ==========================================================================
+   WTE DEV ZONE — DB Search tab styles
+   Loaded only on ?tab=search (conditionally enqueued by class-admin.php).
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------
+   DB Search layout
+   ------------------------------------------------------------------------- */
+.wte-dbg-db-search {
+	display: flex;
+	height: calc( 100vh - 190px );
+	min-height: 500px;
+}
+
+/* Left: table list */
+.wte-dbg-db-tables-panel {
+	width: 240px;
+	min-width: 180px;
+	border-right: 1px solid #dcdcde;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.wte-dbg-db-tables-header {
+	padding: 12px 16px 8px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #646970;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-db-tables-search-wrap {
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-db-tables-filter {
+	width: 100%;
+	padding: 5px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	font-size: 12px;
+	box-sizing: border-box;
+	background: #f6f7f7;
+	color: #1d2327;
+}
+
+.wte-dbg-db-tables-filter:focus {
+	outline: none;
+	border-color: #2271b1;
+	background: #fff;
+}
+
+.wte-dbg-db-tables-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 4px 0;
+}
+
+.wte-dbg-table-group-hdr {
+	padding: 6px 14px 4px;
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #8c8f94;
+	background: #f6f7f7;
+	border-top: 1px solid #f0f0f1;
+	border-bottom: 1px solid #f0f0f1;
+	margin-top: 2px;
+}
+
+.wte-dbg-table-group-hdr:first-child {
+	margin-top: 0;
+	border-top: none;
+}
+
+.wte-dbg-table-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 7px 14px;
+	cursor: pointer;
+	border-left: 3px solid transparent;
+	border-bottom: 1px solid #f6f7f7;
+	transition: background 0.1s;
+	gap: 6px;
+}
+
+.wte-dbg-table-item:hover {
+	background: #f6f7f7;
+}
+
+.wte-dbg-table-item.is-active {
+	background: #f0f6fc;
+	border-left-color: #2271b1;
+}
+
+.wte-dbg-table-name {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	color: #1d2327;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wte-dbg-table-rows {
+	font-size: 10px;
+	color: #8c8f94;
+	flex-shrink: 0;
+	background: #f0f0f1;
+	padding: 1px 5px;
+	border-radius: 8px;
+}
+
+/* Right: query panel */
+.wte-dbg-db-query-panel {
+	flex: 1;
+	overflow-y: auto;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+}
+
+.wte-dbg-db-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	color: #8c8f94;
+	font-size: 14px;
+}
+
+/* Query builder */
+.wte-dbg-query-builder {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+.wte-dbg-query-header {
+	padding: 12px 20px;
+	border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	background: #f6f7f7;
+}
+
+.wte-dbg-query-title {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 13px;
+	font-weight: 700;
+	color: #135e96;
+}
+
+.wte-dbg-query-cols-hint {
+	font-size: 11px;
+	color: #8c8f94;
+}
+
+/* Filters */
+.wte-dbg-filters-section {
+	padding: 12px 20px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-filters-label {
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #646970;
+	margin-bottom: 8px;
+}
+
+.wte-dbg-filter-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.wte-dbg-filter-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.wte-dbg-filter-col,
+.wte-dbg-filter-op {
+	font-size: 12px;
+	padding: 4px 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+	color: #1d2327;
+	cursor: pointer;
+}
+
+.wte-dbg-filter-col { min-width: 130px; }
+.wte-dbg-filter-op  { min-width: 100px; }
+
+.wte-dbg-filter-val {
+	flex: 1;
+	min-width: 120px;
+	font-size: 12px;
+	padding: 4px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	color: #1d2327;
+}
+
+.wte-dbg-filter-val:focus,
+.wte-dbg-filter-col:focus,
+.wte-dbg-filter-op:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wte-dbg-filter-remove {
+	background: none;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 14px;
+	color: #8c8f94;
+	padding: 2px 6px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.wte-dbg-filter-remove:hover {
+	border-color: #8a1f1f;
+	color: #8a1f1f;
+	background: #fce8e8;
+}
+
+.wte-dbg-add-filter-btn {
+	background: none;
+	border: 1px dashed #2271b1;
+	border-radius: 3px;
+	color: #2271b1;
+	cursor: pointer;
+	font-size: 12px;
+	padding: 4px 10px;
+}
+
+.wte-dbg-add-filter-btn:hover {
+	background: #f0f6fc;
+}
+
+/* Filter toolbar: Add Filter + Limit + Run Query on one line, above the rows */
+.wte-dbg-filter-footer {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding-bottom: 10px;
+	margin-bottom: 8px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wte-dbg-limit-label {
+	font-size: 12px;
+	color: #50575e;
+	display: flex;
+	align-items: center;
+}
+
+.wte-dbg-limit-select {
+	font-size: 12px;
+	padding: 3px 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+}
+
+.wte-dbg-run-btn {
+	background: #2271b1;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 14px;
+}
+
+.wte-dbg-run-btn:hover {
+	background: #135e96;
+}
+
+/* Results */
+.wte-dbg-results {
+	flex: 1;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.wte-dbg-results-summary {
+	padding: 8px 20px;
+	font-size: 12px;
+	color: #50575e;
+	border-bottom: 1px solid #f0f0f1;
+	background: #fafafa;
+}
+
+.wte-dbg-table-wrap {
+	flex: 1;
+	overflow: auto;
+}
+
+.wte-dbg-result-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+	font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+.wte-dbg-result-table th {
+	position: sticky;
+	top: 0;
+	background: #f6f7f7;
+	padding: 6px 12px;
+	text-align: left;
+	font-weight: 700;
+	color: #1d2327;
+	border-bottom: 2px solid #dcdcde;
+	white-space: nowrap;
+	z-index: 1;
+}
+
+.wte-dbg-result-table td {
+	padding: 5px 12px;
+	border-bottom: 1px solid #f0f0f1;
+	color: #1d2327;
+	max-width: 240px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wte-dbg-result-table tr:hover td {
+	background: #f6f7f7;
+}
+
+.wte-dbg-result-table td.is-null {
+	color: #8c8f94;
+	font-style: italic;
+}
+
+.wte-dbg-result-table td {
+	cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='34'%3E%3Cpath d='M1,1 L1,20 L5,15 L9,25 L12,24 L8,14 L14,14 Z' fill='white' stroke='black' stroke-width='1.5' stroke-linejoin='round'/%3E%3Crect x='11' y='16' width='36' height='15' rx='3' fill='%232271b1'/%3E%3Ctext x='29' y='27' font-size='10' font-family='sans-serif' fill='white' font-weight='700' text-anchor='middle'%3Ecopy%3C/text%3E%3C/svg%3E") 1 1, copy;
+}
+
+.wte-dbg-result-table td.is-copied {
+	background: #d7f1e2 !important;
+	color: #1a7a40;
+	font-style: normal;
+	font-weight: 600;
+	text-align: center;
+}
+
+/* -------------------------------------------------------------------------
+   Unserializer resize handle
+   ------------------------------------------------------------------------- */
+.wte-dbg-unser-resize-handle {
+	width: 5px;
+	flex-shrink: 0;
+	cursor: ew-resize;
+	background: transparent;
+	transition: background 0.15s;
+	position: relative;
+	z-index: 1;
+}
+
+.wte-dbg-unser-resize-handle:hover {
+	background: rgba( 34, 113, 177, 0.25 );
+}
+
+.wte-dbg-db-search.unser-closed .wte-dbg-unser-resize-handle {
+	display: none;
+}
+
+/* -------------------------------------------------------------------------
+   Unserializer toggle button — thin rule + floating pill handle
+   ------------------------------------------------------------------------- */
+.wte-dbg-unser-toggle {
+	width: 20px;
+	/* flex-shrink: 0;
+	position: relative;
+	isolation: isolate;
+	background: transparent; */
+	border: none;
+	cursor: pointer;
+	color: #50575e;
+	/* font-size: 9px; */
+	/* display: flex; */
+	/* align-items: flex-start; */
+	justify-content: center;
+	padding: 14px 0 0;
+	transition: color 0.15s;
+}
+
+/* Full-height thin vertical rule */
+/* .wte-dbg-unser-toggle::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+	width: 1px;
+	background: #c3c4c7;
+	transform: translateX( -50% );
+	z-index: -1;
+	transition: background 0.15s;
+} */
+
+/* Pill handle pinned near the top of the rule */
+/* .wte-dbg-unser-toggle::before {
+	content: '';
+	position: absolute;
+	top: 14px;
+	left: 50%;
+	width: 20px;
+	height: 44px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 10px;
+	box-shadow: 0 1px 4px rgba( 0, 0, 0, 0.08 );
+	transform: translateX( -50% );
+	z-index: -1;
+	transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+} */
+
+/* .wte-dbg-unser-toggle:hover {
+	color: #fff;
+} */
+
+.wte-dbg-unser-toggle:hover::before {
+	background: #2271b1;
+	border-color: #2271b1;
+	box-shadow: 0 2px 8px rgba( 34, 113, 177, 0.4 );
+}
+
+.wte-dbg-unser-toggle:hover::after {
+	background: #2271b1;
+}
+
+/* -------------------------------------------------------------------------
+   Unserializer sidebar
+   ------------------------------------------------------------------------- */
+.wte-dbg-unserializer {
+	width: 320px;
+	flex-shrink: 0;
+	border-left: 1px solid #dcdcde;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	overflow: hidden;
+	transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.wte-dbg-db-search.unser-closed .wte-dbg-unserializer {
+	width: 0;
+	opacity: 0;
+	border-left: none;
+}
+
+.wte-dbg-unser-header {
+	padding: 12px 16px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #135e96;
+	border-bottom: 1px solid #f0f0f1;
+	background: #f6f7f7;
+}
+
+.wte-dbg-unser-body {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	padding: 12px;
+	gap: 10px;
+	overflow-y: auto;
+}
+
+.wte-dbg-unser-input {
+	width: 100%;
+	min-height: 100px;
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	padding: 6px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	resize: vertical;
+	box-sizing: border-box;
+	color: #1d2327;
+}
+
+.wte-dbg-unser-input:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wte-dbg-unser-formats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 12px;
+	font-size: 12px;
+	color: #1d2327;
+}
+
+.wte-dbg-unser-formats label {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	cursor: pointer;
+}
+
+.wte-dbg-unser-btn {
+	align-self: flex-start;
+	background: #2271b1;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 14px;
+}
+
+.wte-dbg-unser-btn:hover { background: #135e96; }
+
+.wte-dbg-unser-output {
+	flex: 1;
+	overflow: auto;
+}
+
+/* Unserializer tree — force vertical stacking.
+   debugger.css rules (.wte-dbg-meta-tree > *, .wte-dbg-children > *)
+   apply display:flex to <details> elements, making summary and children
+   render side-by-side. The unserializer uses wte-dbg-unser-children (not
+   wte-dbg-children) so those rules don't reach nested nodes. Top-level
+   nodes live directly in wte-dbg-unser-tree which has no > * flex rule.
+   The explicit display:block here ensures every <details> stays block
+   regardless of any ancestor flex context or inherited styles. */
+.wte-dbg-unser-tree {
+	padding-left: 8px;
+}
+
+.wte-dbg-unser-tree details,
+.wte-dbg-unser-children details {
+	display: block !important;
+	width: 100%;
+}
+
+/* Indented container for nested tree nodes — depth 1 (blue) */
+.wte-dbg-unser-children {
+	display: block;
+	margin-left: 16px;
+	border-left: 3px solid #2271b1;
+	padding-left: 10px;
+	margin-top: 2px;
+	margin-bottom: 4px;
+}
+
+/* Depth 2 (teal) */
+.wte-dbg-unser-children .wte-dbg-unser-children {
+	border-left-color: #00897b;
+}
+
+/* Depth 3 (purple) */
+.wte-dbg-unser-children .wte-dbg-unser-children .wte-dbg-unser-children {
+	border-left-color: #7b5ea7;
+}
+
+/* Depth 4 (orange) */
+.wte-dbg-unser-children .wte-dbg-unser-children .wte-dbg-unser-children .wte-dbg-unser-children {
+	border-left-color: #e07b39;
+}
+
+/* Depth 5+ (red) */
+.wte-dbg-unser-children .wte-dbg-unser-children .wte-dbg-unser-children .wte-dbg-unser-children .wte-dbg-unser-children {
+	border-left-color: #d63638;
+}
+
+/* Nested leaf rows */
+.wte-dbg-unser-children > .wte-dbg-row {
+	border-radius: 2px;
+	padding-left: 8px;
+}
+
+/* Parent summary (expandable node header) — light blue tint so it reads
+   as a container header rather than a peer leaf row */
+.wte-dbg-unser-tree .wte-dbg-node > summary,
+.wte-dbg-unser-children .wte-dbg-node > summary {
+	background: #f0f6fc;
+	border-radius: 2px;
+	padding: 4px 8px;
+	margin-bottom: 2px;
+}
+
+.wte-dbg-unser-pre {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	color: #1d2327;
+	white-space: pre-wrap;
+	word-break: break-all;
+	margin: 0;
+	padding: 8px;
+	background: #f6f7f7;
+	border-radius: 3px;
+	border: 1px solid #f0f0f1;
+}
+
+/* ---- Value type colors (tree view) ---- */
+.wte-dbg-value[data-type="number"]  { color: #b45309; background: #fef3c7; }
+.wte-dbg-value[data-type="boolean"] { color: #6d28d9; background: #ede9fe; }
+.wte-dbg-value[data-type="null"]    { color: #8c8f94; background: transparent; font-style: italic; }
+
+/* ---- Fallback / unknown format ---- */
+.wte-dbg-unser-unknown-notice {
+	font-size: 11px;
+	color: #a67c00;
+	background: #fef8e1;
+	border: 1px solid #f0e08a;
+	border-radius: 3px;
+	padding: 5px 10px;
+	margin-bottom: 8px;
+}
