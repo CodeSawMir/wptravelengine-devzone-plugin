@@ -1,16 +1,16 @@
 /**
- * WTE Dev Zone — DB Search tab JS
+ * WPTE Dev Zone — DB Search tab JS
  * Handles: table list, query builder, results, and the Unserializer sidebar.
  *
  * Loaded only on ?tab=search (conditionally enqueued by class-admin.php).
- * Depends on the core `wte-debugger` script for the `wteDbg` global.
+ * Depends on the core `wpte-devzone` script for the `wpteDbg` global.
  */
-/* global wteDbg */
+/* global wpteDbg */
 
 ( function () {
 	'use strict';
 
-	const { ajaxurl, nonce } = wteDbg;
+	const { ajaxurl, nonce } = wpteDbg;
 
 	// -----------------------------------------------------------------------
 	// Bootstrap
@@ -57,7 +57,7 @@
 
 		function fetchTables() {
 			const params = new URLSearchParams( {
-				action:      'wte_devzone_db_tables',
+				action:      'wpte_devzone_db_tables',
 				_ajax_nonce: nonce,
 			} );
 
@@ -117,7 +117,7 @@
 			queryPanel.appendChild( makePara( 'wte-dbg-loading', 'Loading columns\u2026' ) );
 
 			const params = new URLSearchParams( {
-				action:      'wte_devzone_db_columns',
+				action:      'wpte_devzone_db_columns',
 				table:       tableName,
 				_ajax_nonce: nonce,
 			} );
@@ -285,7 +285,7 @@
 			resultsWrap.appendChild( makePara( 'wte-dbg-loading', 'Running query\u2026' ) );
 
 			const params = new URLSearchParams( {
-				action:      'wte_devzone_db_query',
+				action:      'wpte_devzone_db_query',
 				table:       tableName,
 				limit,
 				offset,
@@ -475,6 +475,20 @@
 			toggleBtn.textContent = isOpen ? '\u25C4' : '\u25BA'; // ► / ◄
 		} );
 
+		// Maximize / restore
+		const maximizeBtn = wrap.querySelector( '.wte-dbg-unser-maximize' );
+		if ( maximizeBtn ) {
+			maximizeBtn.addEventListener( 'click', () => {
+				const isMaximized = wrap.classList.toggle( 'unser-maximized' );
+				if ( isMaximized && wrap.classList.contains( 'unser-closed' ) ) {
+					wrap.classList.remove( 'unser-closed' );
+					if ( toggleBtn ) toggleBtn.textContent = '\u25C4';
+				}
+				maximizeBtn.textContent = isMaximized ? '\u29C1' : '\u2922'; // ⧁ / ⤢
+				maximizeBtn.title = isMaximized ? 'Restore' : 'Maximize';
+			} );
+		}
+
 		// Unserialize button
 		runBtn.addEventListener( 'click', () => {
 			const data = input.value.trim();
@@ -483,7 +497,7 @@
 			outputEl.textContent = 'Processing\u2026';
 
 			const body = new URLSearchParams( {
-				action:      'wte_devzone_unserialize',
+				action:      'wpte_devzone_unserialize',
 				data,
 				_ajax_nonce: nonce,
 			} );
@@ -525,7 +539,7 @@
 	}
 
 	// -----------------------------------------------------------------------
-	// Unserializer tree renderer (mirrors meta tree in debugger.js, read-only)
+	// Unserializer tree renderer (mirrors meta tree in devzone.js, read-only)
 	// -----------------------------------------------------------------------
 
 	function buildUnserTree( data ) {
@@ -642,7 +656,7 @@
 	}
 
 	// -----------------------------------------------------------------------
-	// Pagination helper (mirrors core debugger.js)
+	// Pagination helper (mirrors core devzone.js)
 	// -----------------------------------------------------------------------
 
 	function buildPagination( paginEl, page, totalPages, onPage ) {
@@ -692,5 +706,5 @@
 		if ( text ) el.textContent = text;
 	}
 
-	window.wteDbgInitSearch = initDbSearch;
+	window.wpteDbgInitSearch = initDbSearch;
 } )();

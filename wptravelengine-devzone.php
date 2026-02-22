@@ -12,26 +12,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WTE_DEVZONE_VERSION', '1.0.0' );
-define( 'WTE_DEVZONE_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WTE_DEVZONE_URL', plugin_dir_url( __FILE__ ) );
+define( 'WPTE_DEVZONE_VERSION', '1.0.0' );
+define( 'WPTE_DEVZONE_DIR', plugin_dir_path( __FILE__ ) );
+define( 'WPTE_DEVZONE_URL', plugin_dir_url( __FILE__ ) );
 
-spl_autoload_register( function ( $class ) {
-	$prefix = 'WPTravelEngineDevZone\\';
-	if ( strpos( $class, $prefix ) !== 0 ) {
-		return;
-	}
-
-	// Convert namespace path to file path:
-	// WPTravelEngineDevZone\AjaxHandler => includes/class-ajax-handler.php
-	$relative = substr( $class, strlen( $prefix ) );
-	$filename  = 'class-' . strtolower( preg_replace( '/([A-Z])/', '-$1', lcfirst( $relative ) ) ) . '.php';
-	$file      = WTE_DEVZONE_DIR . 'includes/' . $filename;
-
-	if ( file_exists( $file ) ) {
-		require_once $file;
-	}
+register_activation_hook( __FILE__, function () {
+	set_transient( 'wpte_devzone_activation_pointer', true, DAY_IN_SECONDS );
 } );
+
+require_once WPTE_DEVZONE_DIR . 'includes/class-plugin.php';
+\WPTravelEngineDevZone\Plugin::register_autoloader();
 
 add_action( 'plugins_loaded', function () {
 	// Only boot in the admin context (includes admin-ajax.php for AJAX handlers).

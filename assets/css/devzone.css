@@ -2,10 +2,229 @@
    WTE DEV ZONE — Inspector Styles
    ========================================================================== */
 
-/* Layout wrapper */
-.wte-debugger-wrap {
+/* Remove WordPress admin container padding so the plugin fills edge-to-edge */
+body.tools_page_wptravelengine-devzone #wpcontent,
+body.tools_page_wptravelengine-devzone #wpbody,
+body.tools_page_wptravelengine-devzone #wpbody-content {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	padding-top: 0 !important;
+}
+
+/* Layout wrapper — CSS custom properties (light theme defaults) */
+.wte-devzone-wrap {
+	--dbg-bg:          #f0f0f1;
+	--dbg-surface:     #fff;
+	--dbg-surface-alt: #f6f7f7;
+	--dbg-border:      #dcdcde;
+	--dbg-border-faint:#f0f0f1;
+	--dbg-text:        #1d2327;
+	--dbg-text-muted:  #646970;
+	--dbg-text-dim:    #8c8f94;
+	--dbg-accent:      #2271b1;
+	--dbg-accent-dark: #135e96;
+	--dbg-active-bg:   #f0f6fc;
+	--dbg-hover-bg:    #f6f7f7;
 	max-width: 100%;
+	margin: 0 !important; /* override WordPress .wrap { margin: 10px 20px 0 2px } */
+	min-height: calc( 100vh - 32px ); /* 32px = WP admin bar height */
+	display: flex;
+	flex-direction: column;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Dark body background — set on <body> so WP admin chrome matches */
+body.wte-dbg-page-dark,
+body.wte-dbg-page-dark #wpcontent,
+body.wte-dbg-page-dark #wpbody,
+body.wte-dbg-page-dark #wpbody-content {
+	background: #1a1a1a !important;
+}
+
+/* Dark theme overrides */
+.wte-devzone-wrap.wte-dbg-dark {
+	--dbg-bg:          #1a1a1a;
+	--dbg-surface:     #242424;
+	--dbg-surface-alt: #2e2e2e;
+	--dbg-border:      #3a3a3a;
+	--dbg-border-faint:#242424;
+	--dbg-text:        #e0ddd8;
+	--dbg-text-muted:  #999;
+	--dbg-text-dim:    #666;
+	--dbg-accent:      #7eb8f7;
+	--dbg-accent-dark: #a0ccf8;
+	--dbg-active-bg:   #1c2c3c;
+	--dbg-hover-bg:    #2e2e2e;
+}
+
+/* Dark mode header + tab strip */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-header,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-tabs {
+	background: linear-gradient( 135deg, #0d2240 0%, #060f1a 100% );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-content {
+	border-top-color: #060f1a;
+}
+
+/* -------------------------------------------------------------------------
+   Dark mode — explicit overrides for browser / WP-admin default backgrounds
+   WP-admin forces background:#fff on form elements and table cells;
+   those override CSS custom-property values set on container divs.
+   ------------------------------------------------------------------------- */
+
+/* Form elements */
+.wte-devzone-wrap.wte-dbg-dark input:not([type="checkbox"]):not([type="radio"]),
+.wte-devzone-wrap.wte-dbg-dark textarea,
+.wte-devzone-wrap.wte-dbg-dark select {
+	background-color: var(--dbg-surface-alt);
+	color: var(--dbg-text);
+	border-color: var(--dbg-border);
+}
+
+.wte-devzone-wrap.wte-dbg-dark input:focus:not([type="checkbox"]):not([type="radio"]),
+.wte-devzone-wrap.wte-dbg-dark textarea:focus,
+.wte-devzone-wrap.wte-dbg-dark select:focus {
+	border-color: var(--dbg-accent);
+	box-shadow: 0 0 0 1px var(--dbg-accent);
+	outline: none;
+}
+
+/* Table cells — all tables inside the plugin */
+.wte-devzone-wrap.wte-dbg-dark td {
+	background-color: var(--dbg-surface);
+	color: var(--dbg-text);
+}
+
+.wte-devzone-wrap.wte-dbg-dark th {
+	background-color: var(--dbg-surface-alt);
+	color: var(--dbg-text-muted);
+}
+
+/* Even-row stripes */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table tbody tr:nth-child(even) td,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-tax-terms-table tbody tr:nth-child(even) td,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-result-table tbody tr:nth-child(even) td {
+	background-color: var(--dbg-surface-alt);
+}
+
+/* Row hover */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-result-table tr:hover td,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table tr:hover td {
+	background-color: var(--dbg-hover-bg);
+}
+
+/* Badges with hardcoded light backgrounds */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-tax-term {
+	background: var(--dbg-surface-alt);
+	color: var(--dbg-text-muted);
+	border: 1px solid var(--dbg-border);
+}
+
+
+/* Help text uses hardcoded #50575e which disappears on dark bg */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-help {
+	color: var(--dbg-text-dim);
+}
+
+/* Copied cell feedback — keep readable in dark */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-result-table td.is-copied {
+	background-color: #1a3a28 !important;
+	color: #6ee7b7;
+}
+
+/* Semantic value colors — replace light-on-light with dark-tinted equivalents */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-value[data-raw="true"],
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-value[data-raw="1"] {
+	color: #6ee7b7;
+	background: #0f2a1e;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-value[data-raw="false"] {
+	color: #fca5a5;
+	background: #2a0f0f;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-value[data-type="number"] {
+	color: #fbbf24;
+	background: #2a1c06;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-value[data-type="boolean"] {
+	color: #c4b5fd;
+	background: #1a1628;
+}
+
+/* Buttons — inline edit save / cancel */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-save {
+	border-color: #6ee7b7;
+	color: #6ee7b7;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-save:hover {
+	background: #0f2a1e;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cancel {
+	border-color: #fca5a5;
+	color: #fca5a5;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cancel:hover {
+	background: #2a0f0f;
+}
+
+/* Delete option button hover */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-delete-option-btn:hover {
+	background: #2a0f0f;
+	color: #fca5a5;
+}
+
+/* Edit pencil and disabled pagination buttons */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-edit-btn {
+	color: var(--dbg-text-dim);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-page-btn:disabled {
+	color: var(--dbg-text-dim);
+}
+
+/* Primary action buttons (Run Query, Beautify) — solid accent bg is too bright in dark mode */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-run-btn,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-unser-btn {
+	background: #1e3a5f;
+	color: #a0ccf8;
+	border: 1px solid #2d5a8e;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-run-btn:hover,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-unser-btn:hover {
+	background: #254a75;
+	color: #c4dcf5;
+}
+
+/* Status badges — muted dark equivalents of the bright light-mode colours */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-publish,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-completed,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-booked {
+	background: #0f2a1e;
+	color: #6ee7b7;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-pending {
+	background: #2a1c06;
+	color: #fbbf24;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-trash,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-cancelled {
+	background: #2a0f0f;
+	color: #fca5a5;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-draft {
+	background: var(--dbg-surface-alt);
+	color: var(--dbg-text-dim);
 }
 
 /* -------------------------------------------------------------------------
@@ -18,8 +237,8 @@
 	gap: 16px;
 	background: linear-gradient( 135deg, #163f78 0%, #0c2c55 100% );
 	padding: 14px 20px 0;
-	border-radius: 6px 6px 0 0;
-	margin-top: 16px;
+	border-radius: 0;
+	margin-top: 0;
 }
 
 .wte-dbg-header-brand {
@@ -42,8 +261,11 @@
 }
 
 .wte-dbg-header-icon {
-	font-size: 20px;
+	width: 22px;
+	height: 22px;
+	flex-shrink: 0;
 	opacity: 0.85;
+	vertical-align: middle;
 }
 
 .wte-dbg-header-product {
@@ -136,10 +358,10 @@
    Content area
    ------------------------------------------------------------------------- */
 .wte-dbg-content {
-	background: #f0f0f1;
-	border: 1px solid #dcdcde;
+	background: var(--dbg-bg);
+	border: 1px solid var(--dbg-border);
 	border-top: 3px solid #0c2c55;
-	min-height: 600px;
+	flex: 1;
 }
 
 /* -------------------------------------------------------------------------
@@ -155,10 +377,10 @@
 	width: 280px;
 	min-width: 220px;
 	max-width: 340px;
-	border-right: 1px solid #dcdcde;
+	border-right: 1px solid var(--dbg-border);
 	display: flex;
 	flex-direction: column;
-	background: #fff;
+	background: var(--dbg-surface);
 	overflow: hidden;
 }
 
@@ -168,8 +390,8 @@
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	color: #646970;
-	border-bottom: 1px solid #f0f0f1;
+	color: var(--dbg-text-muted);
+	border-bottom: 1px solid var(--dbg-border-faint);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -178,30 +400,30 @@
 .wte-dbg-list-count {
 	font-size: 11px;
 	font-weight: 400;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 }
 
 .wte-dbg-search-wrap {
 	padding: 8px 12px;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
 .wte-dbg-search {
 	width: 100%;
 	padding: 6px 10px;
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--dbg-border);
 	border-radius: 3px;
 	font-size: 12px;
 	box-sizing: border-box;
-	background: #f6f7f7;
-	color: #1d2327;
+	background: var(--dbg-surface-alt);
+	color: var(--dbg-text);
 }
 
 .wte-dbg-search:focus {
 	outline: none;
-	border-color: #2271b1;
-	background: #fff;
-	box-shadow: 0 0 0 1px #2271b1;
+	border-color: var(--dbg-accent);
+	background: var(--dbg-surface);
+	box-shadow: 0 0 0 1px var(--dbg-accent);
 }
 
 .wte-dbg-list-items {
@@ -217,23 +439,23 @@
 	padding: 8px 16px;
 	cursor: pointer;
 	border-left: 3px solid transparent;
-	border-bottom: 1px solid #f6f7f7;
+	border-bottom: 1px solid var(--dbg-surface-alt);
 	transition: background 0.1s;
 }
 
 .wte-dbg-list-item:hover {
-	background: #f6f7f7;
+	background: var(--dbg-hover-bg);
 }
 
 .wte-dbg-list-item.is-active {
-	background: #f0f6fc;
-	border-left-color: #2271b1;
+	background: var(--dbg-active-bg);
+	border-left-color: var(--dbg-accent);
 }
 
 .wte-dbg-list-item-title {
 	font-size: 13px;
 	font-weight: 500;
-	color: #1d2327;
+	color: var(--dbg-text);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -241,7 +463,7 @@
 
 .wte-dbg-list-item-meta {
 	font-size: 11px;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 	margin-top: 2px;
 }
 
@@ -258,7 +480,7 @@
 
 .wte-dbg-status-publish   { background: #d7f1e2; color: #1a7a40; }
 .wte-dbg-status-pending    { background: #fef8e1; color: #a67c00; }
-.wte-dbg-status-draft      { background: #f0f0f1; color: #646970; }
+.wte-dbg-status-draft      { background: var(--dbg-bg); color: var(--dbg-text-muted); }
 .wte-dbg-status-trash      { background: #fce8e8; color: #8a1f1f; }
 .wte-dbg-status-completed  { background: #d7f1e2; color: #1a7a40; }
 .wte-dbg-status-booked     { background: #d7f1e2; color: #1a7a40; }
@@ -266,7 +488,7 @@
 
 .wte-dbg-pagination {
 	padding: 8px 12px;
-	border-top: 1px solid #f0f0f1;
+	border-top: 1px solid var(--dbg-border-faint);
 	display: flex;
 	gap: 6px;
 	justify-content: center;
@@ -275,15 +497,15 @@
 .wte-dbg-page-btn {
 	padding: 3px 8px;
 	font-size: 12px;
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--dbg-border);
 	border-radius: 3px;
-	background: #fff;
+	background: var(--dbg-surface);
 	cursor: pointer;
-	color: #2271b1;
+	color: var(--dbg-accent);
 }
 
 .wte-dbg-page-btn:hover:not(:disabled) {
-	background: #f0f6fc;
+	background: var(--dbg-active-bg);
 }
 
 .wte-dbg-page-btn:disabled {
@@ -297,7 +519,7 @@
 .wte-dbg-inspector-panel {
 	flex: 1;
 	overflow-y: auto;
-	background: #fff;
+	background: var(--dbg-surface);
 	padding: 0;
 }
 
@@ -306,25 +528,25 @@
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 	font-size: 14px;
 }
 
 .wte-dbg-inspector-header {
 	padding: 16px 20px 12px;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
 .wte-dbg-inspector-title {
 	font-size: 16px;
 	font-weight: 600;
-	color: #1d2327;
+	color: var(--dbg-text);
 	margin: 0 0 4px;
 }
 
 .wte-dbg-inspector-subtitle {
 	font-size: 12px;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 }
 
 .wte-dbg-inspector-body {
@@ -333,7 +555,7 @@
 
 /* Inspector sections */
 .wte-dbg-section {
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
 .wte-dbg-section-header {
@@ -342,8 +564,8 @@
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	color: #646970;
-	background: #f6f7f7;
+	color: var(--dbg-text-muted);
+	background: var(--dbg-surface-alt);
 	cursor: pointer;
 	user-select: none;
 	display: flex;
@@ -363,6 +585,7 @@
 
 .wte-dbg-section-body {
 	padding: 4px 0;
+	margin: 12px;
 }
 
 .wte-dbg-section.is-collapsed .wte-dbg-section-body {
@@ -386,12 +609,14 @@
 }
 
 .wte-dbg-count-badge {
-	background: #e0e0e0;
-	padding: 2px 8px;
+	background: var(--dbg-active-bg);
+	border: 1px solid var(--dbg-border);
+	padding: 1px 7px;
 	border-radius: 10px;
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 600;
-	color: #646970;
+	color: var(--dbg-accent);
+	letter-spacing: 0.02em;
 }
 
 .wte-dbg-settings-tree {
@@ -401,9 +626,9 @@
 }
 
 .wte-dbg-option-block {
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--dbg-border);
 	border-radius: 4px;
-	background: #fff;
+	background: var(--dbg-surface);
 	overflow: hidden;
 	display: flex;
 	align-items: stretch;
@@ -417,18 +642,20 @@
 .wte-dbg-delete-option-btn {
 	background: none;
 	border: none;
-	border-left: 1px solid #dcdcde;
+	border-left: 1px solid var(--dbg-border);
 	cursor: pointer;
-	color: #c0c2c5;
+	color: var(--dbg-border);
 	padding: 0 12px;
-	font-size: 14px;
 	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	transition: background 0.1s, color 0.1s;
 }
 
 .wte-dbg-delete-option-btn:hover {
 	background: #fce8e8;
-	color: #8a1f1f;
+	color: #c0392b;
 }
 
 .wte-dbg-delete-option-btn:disabled {
@@ -438,31 +665,36 @@
 
 
 .wte-dbg-option-name {
-	padding: 10px 14px;
+	padding: 7px 14px;
 	font-size: 12px;
 	font-weight: 700;
 	font-family: "SFMono-Regular", Consolas, monospace;
-	color: #135e96;
+	color: var(--dbg-accent-dark);
 	cursor: pointer;
 	user-select: none;
-	background: #f6f7f7;
+	background: var(--dbg-surface-alt);
 	list-style: none;
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	transition: background 0.1s;
+}
+
+.wte-dbg-option-name:hover {
+	background: var(--dbg-hover-bg);
 }
 
 .wte-dbg-option-name::-webkit-details-marker { display: none; }
 
-details[open] > .wte-dbg-option-name::before { content: '▼'; font-size: 9px; color: #646970; }
-details:not([open]) > .wte-dbg-option-name::before { content: '▶'; font-size: 9px; color: #646970; }
+details[open] > .wte-dbg-option-name::before { content: '▼'; font-size: 9px; color: var(--dbg-text-muted); }
+details:not([open]) > .wte-dbg-option-name::before { content: '▶'; font-size: 9px; color: var(--dbg-text-muted); }
 
 .wte-dbg-option-body {
 	padding: 4px 0;
 }
 
 details[open] > .wte-dbg-option-name {
-	border-left: 3px solid #2271b1;
+	border-left: 3px solid var(--dbg-accent);
 	padding-left: 11px;
 }
 
@@ -473,17 +705,17 @@ details[open] > .wte-dbg-option-name {
 	padding: 7px 12px;
 	margin-bottom: 12px;
 	font-size: 13px;
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--dbg-border);
 	border-radius: 3px;
-	background: #fff;
-	color: #1d2327;
+	background: var(--dbg-surface);
+	color: var(--dbg-text);
 	box-sizing: border-box;
 }
 
 .wte-dbg-option-search:focus {
 	outline: none;
-	border-color: #2271b1;
-	box-shadow: 0 0 0 1px #2271b1;
+	border-color: var(--dbg-accent);
+	box-shadow: 0 0 0 1px var(--dbg-accent);
 }
 
 /* Skeleton loader */
@@ -496,9 +728,9 @@ details[open] > .wte-dbg-option-name {
 	min-height: 60px;
 	background: linear-gradient(
 		90deg,
-		#f0f0f1 25%,
+		var(--dbg-bg) 25%,
 		#e8e8ea 50%,
-		#f0f0f1 75%
+		var(--dbg-bg) 75%
 	);
 	background-size: 800px 100%;
 	animation: wte-dbg-shimmer 1.4s infinite linear;
@@ -522,12 +754,12 @@ details[open] > .wte-dbg-option-name {
 
 .wte-dbg-node > summary::-webkit-details-marker { display: none; }
 
-details[open] > .wte-dbg-key::before  { content: '▼'; font-size: 8px; color: #8c8f94; margin-right: 4px; }
-details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; color: #8c8f94; margin-right: 4px; }
+details[open] > .wte-dbg-key::before  { content: '▼'; font-size: 8px; color: var(--dbg-text-dim); margin-right: 4px; }
+details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; color: var(--dbg-text-dim); margin-right: 4px; }
 
 .wte-dbg-children {
 	margin-left: 20px;
-	border-left: 3px solid #2271b1; /* depth 1 — blue */
+	border-left: 3px solid var(--dbg-accent); /* depth 1 — blue */
 	padding-left: 8px;
 }
 .wte-dbg-children .wte-dbg-children                                                                     { border-left-color: #00897b; } /* teal   */
@@ -536,7 +768,7 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children               { border-left-color: #d63638; } /* red    */
 
 .wte-dbg-children .wte-dbg-node > summary {
-	background: #f0f6fc;
+	background: var(--dbg-active-bg);
 	border-radius: 2px;
 }
 
@@ -559,7 +791,7 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 .wte-dbg-row {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 12px;
 	padding: 4px 14px;
 	font-size: 12px;
 	line-height: 1.5;
@@ -567,53 +799,64 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 }
 
 .wte-dbg-row.is-stripe {
-	background: #f6f7f7;
+	background: var(--dbg-surface-alt);
 }
 
 /* Stripe only the summary header of a node, not its expanded children */
 .wte-dbg-node.is-stripe > summary {
-	background: #f6f7f7;
+	background: var(--dbg-surface-alt);
 }
 
 .wte-dbg-row:hover {
-	background: #e8f0f8;
+	background: var(--dbg-active-bg);
 }
 
 .wte-dbg-key {
 	font-family: "SFMono-Regular", Consolas, monospace;
 	font-size: 11px;
-	color: #135e96;
+	color: var(--dbg-accent-dark);
 	flex-shrink: 0;
-	min-width: 160px;
+	min-width: 60px;
 	white-space: nowrap;
 }
 
-/* When .wte-dbg-key is used as a summary inside details */
+.wte-dbg-key::after {
+	content: ':';
+	color: var(--dbg-text-dim);
+	margin-left: 1px;
+}
+
+/* When .wte-dbg-key is used as a summary inside details — no colon */
 summary.wte-dbg-key {
 	min-width: unset;
 	padding-left: 20px;
 }
 
+summary.wte-dbg-key::after {
+	content: none;
+}
+
 .wte-dbg-value {
 	font-family: "SFMono-Regular", Consolas, monospace;
 	font-size: 11px;
-	color: #1d2327;
+	color: var(--dbg-text-muted);
 	word-break: break-all;
 	flex: 1;
-	background: #f0f6fc;
+	background: var(--dbg-surface);
+	border: 1px solid var(--dbg-border);
 	border-radius: 3px;
-	padding: 1px 5px;
+	padding: 1px 7px;
 }
 
-.wte-dbg-value[data-raw="true"]  { color: #1a7a40; background: #d7f1e2; }
-.wte-dbg-value[data-raw="false"] { color: #8a1f1f; background: #fce8e8; }
-.wte-dbg-value[data-raw="1"]     { color: #1a7a40; background: #d7f1e2; }
-.wte-dbg-value[data-raw=""]      { color: #8c8f94; font-style: italic; background: transparent; }
+.wte-dbg-value[data-raw="true"]  { color: #1a7a40; background: #d7f1e2; border-color: #b2dfca; }
+.wte-dbg-value[data-raw="false"] { color: #8a1f1f; background: #fce8e8; border-color: #f5c0c0; }
+.wte-dbg-value[data-raw="1"]     { color: #1a7a40; background: #d7f1e2; border-color: #b2dfca; }
+.wte-dbg-value[data-raw=""]      { color: var(--dbg-text-dim); font-style: italic; background: transparent; border-color: transparent; }
 
 .wte-dbg-count {
 	font-size: 10px;
 	font-weight: 400;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 	font-family: -apple-system, sans-serif;
 }
 
@@ -635,7 +878,7 @@ summary.wte-dbg-key {
 }
 
 .wte-dbg-edit-btn:hover {
-	color: #2271b1;
+	color: var(--dbg-accent);
 }
 
 /* -------------------------------------------------------------------------
@@ -645,12 +888,12 @@ summary.wte-dbg-key {
 	font-family: "SFMono-Regular", Consolas, monospace;
 	font-size: 12px;
 	padding: 3px 6px;
-	border: 1px solid #2271b1;
+	border: 1px solid var(--dbg-accent);
 	border-radius: 3px;
 	flex: 1;
 	min-width: 100px;
-	box-shadow: 0 0 0 1px #2271b1;
-	color: #1d2327;
+	box-shadow: 0 0 0 1px var(--dbg-accent);
+	color: var(--dbg-text);
 }
 
 textarea.wte-dbg-input {
@@ -721,12 +964,12 @@ textarea.wte-dbg-input {
 	padding: 2px 8px;
 	border-radius: 10px;
 	font-size: 11px;
-	color: #1d2327;
+	color: var(--dbg-text);
 }
 
 .wte-dbg-tax-empty {
 	font-size: 12px;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 	padding: 6px 20px;
 	font-style: italic;
 }
@@ -741,21 +984,21 @@ textarea.wte-dbg-input {
 .wte-dbg-loading,
 .wte-dbg-empty {
 	padding: 20px;
-	color: #8c8f94;
+	color: var(--dbg-text-dim);
 	font-size: 13px;
 	text-align: center;
 }
 
 /* Clickable ID links in inspector */
 .wte-dbg-link {
-	color: #2271b1;
+	color: var(--dbg-accent);
 	cursor: pointer;
 	text-decoration: underline;
 	text-underline-offset: 2px;
 }
 
 .wte-dbg-link:hover {
-	color: #135e96;
+	color: var(--dbg-accent-dark);
 }
 
 /* Error notice inside inspector */
@@ -770,7 +1013,7 @@ textarea.wte-dbg-input {
 .wte-dbg-meta-key-label {
 	font-family: "SFMono-Regular", Consolas, monospace;
 	font-size: 11px;
-	color: #135e96;
+	color: var(--dbg-accent-dark);
 }
 
 /* Nested meta tree inside inspector panel */
@@ -795,21 +1038,23 @@ textarea.wte-dbg-input {
    Overview tab — named sections
    ------------------------------------------------------------------------- */
 .wte-dbg-settings-tab .wte-dbg-section {
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--dbg-border);
 	border-radius: 4px;
-	background: #fff;
-	margin-bottom: 16px;
+	background: var(--dbg-surface);
+	margin-bottom: 10px;
 	overflow: hidden;
 }
 
 .wte-dbg-settings-tab .wte-dbg-section-header {
-	background: #f6f7f7;
-	border-bottom: 1px solid #dcdcde;
-	font-size: 12px;
+	background: var(--dbg-surface-alt);
+	border-bottom: 1px solid var(--dbg-border);
+	border-left: 3px solid var(--dbg-accent);
+	font-size: 11px;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	padding: 10px 16px;
+	letter-spacing: 0.07em;
+	color: var(--dbg-text-muted);
+	padding: 8px 14px;
 	cursor: pointer;
 	user-select: none;
 	display: flex;
@@ -822,11 +1067,56 @@ textarea.wte-dbg-input {
 }
 
 .wte-dbg-settings-tab .wte-dbg-section-body {
-	padding: 16px;
+	padding: 0;
+}
+
+/* Restore padding for text/input content that lives outside tables */
+.wte-dbg-settings-tab .wte-dbg-section-body > .wte-dbg-help {
+	padding: 10px 16px 4px;
+	margin: 0;
+}
+
+.wte-dbg-settings-tab .wte-dbg-option-search {
+	display: block;
+	width: calc( 100% - 32px );
+	margin: 12px 16px 10px;
+	padding: 8px 12px 8px 34px;
+	font-size: 13px;
+	border: 1px solid var(--dbg-border);
+	border-radius: 6px;
+	background: var(--dbg-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238c8f94' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") no-repeat 11px center;
+	color: var(--dbg-text);
+	box-sizing: border-box;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wte-dbg-settings-tab .wte-dbg-option-search:focus {
+	outline: none;
+	border-color: var(--dbg-accent);
+	box-shadow: 0 0 0 2px color-mix( in srgb, var(--dbg-accent) 20%, transparent );
+}
+
+.wte-dbg-settings-tab .wte-dbg-option-search::placeholder {
+	color: var(--dbg-text-dim);
+}
+
+/* Options tree — same indentation treatment as taxonomy tree */
+.wte-dbg-options-tree .wte-dbg-option-block {
+	margin-top: 4px;
+	margin-left: 16px;
+}
+
+.wte-dbg-options-tree .wte-dbg-option-block:first-child {
+	margin-top: 0;
+}
+
+.wte-dbg-settings-tab .wte-dbg-options-pagination {
+	padding: 6px 16px 10px;
+	margin-top: 0;
 }
 
 .wte-dbg-settings-tab .wte-dbg-section-body .wte-dbg-settings-tree {
-	margin-top: 12px;
+	margin-top: 0;
 }
 
 /* Options pagination sits at bottom of Options section */
@@ -836,6 +1126,37 @@ textarea.wte-dbg-input {
 	gap: 6px;
 	margin-top: 12px;
 	justify-content: flex-end;
+}
+
+/* -------------------------------------------------------------------------
+   Taxonomy tree — flat rows, not individual cards
+   ------------------------------------------------------------------------- */
+.wte-dbg-tax-tree {
+	gap: 0;
+	margin-top: 8px;
+}
+
+.wte-dbg-tax-tree .wte-dbg-option-block {
+	border: none;
+	border-bottom: 1px solid var(--dbg-border-faint);
+	border-radius: 0;
+	padding-right: 4px;
+}
+
+.wte-dbg-tax-tree .wte-dbg-option-block:first-child {
+	margin-top: 0;
+}
+
+.wte-dbg-tax-tree .wte-dbg-option-block:last-child {
+	border-bottom: none;
+}
+
+.wte-dbg-tax-tree .wte-dbg-option-name {
+	background: var(--dbg-surface);
+}
+
+.wte-dbg-tax-tree .wte-dbg-option-name:hover {
+	background: var(--dbg-hover-bg);
 }
 
 /* -------------------------------------------------------------------------
@@ -849,28 +1170,30 @@ textarea.wte-dbg-input {
 
 .wte-dbg-price-cat-table th,
 .wte-dbg-price-cat-table td {
-	padding: 6px 10px;
+	padding: 5px 14px;
 	text-align: left;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
 .wte-dbg-price-cat-table th {
-	font-weight: 600;
-	font-size: 11px;
+	font-weight: 700;
+	font-size: 10px;
 	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	color: #646970;
-	background: #f9f9f9;
+	letter-spacing: 0.07em;
+	color: var(--dbg-accent-dark);
+	background: var(--dbg-surface-alt);
+	border-bottom: 2px solid var(--dbg-border);
 }
 
 .wte-dbg-price-cat-table tr:last-child td { border-bottom: none; }
-.wte-dbg-price-cat-table tbody tr:nth-child(even) td { background: #f6f7f7; }
-.wte-dbg-price-cat-table tr:hover td { background: #f6f7f7; }
+.wte-dbg-price-cat-table tbody tr:nth-child(even) td { background: var(--dbg-surface-alt); }
+.wte-dbg-price-cat-table tr:hover td { background: var(--dbg-hover-bg); }
 
 .wte-dbg-price-cat-primary {
 	color: #d63638;
-	font-size: 16px;
+	font-size: 13px;
 	line-height: 1;
+	margin-right: 4px;
 }
 
 /* -------------------------------------------------------------------------
@@ -885,16 +1208,36 @@ textarea.wte-dbg-input {
 
 .wte-dbg-tax-terms-table th,
 .wte-dbg-tax-terms-table td {
-	padding: 4px 10px;
+	padding: 4px 14px;
 	text-align: left;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
 .wte-dbg-tax-terms-table th {
-	font-weight: 600;
-	color: #646970;
-	background: #fafafa;
+	font-weight: 700;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--dbg-accent-dark);
+	background: var(--dbg-surface-alt);
+	border-bottom: 2px solid var(--dbg-border);
 }
 
-.wte-dbg-tax-terms-table tbody tr:nth-child(even) td { background: #f6f7f7; }
+.wte-dbg-tax-terms-table tbody tr:nth-child(even) td { background: var(--dbg-surface-alt); }
 .wte-dbg-tax-terms-table tr:last-child td { border-bottom: none; }
+
+/* -------------------------------------------------------------------------
+   Theme toggle button (in header)
+   ------------------------------------------------------------------------- */
+.wte-dbg-theme-toggle {
+	background: rgba(255,255,255,.12);
+	border: 1px solid rgba(255,255,255,.2);
+	border-radius: 4px;
+	color: rgba(255,255,255,.85);
+	cursor: pointer;
+	font-size: 14px;
+	padding: 4px 8px;
+	line-height: 1;
+	transition: background 0.15s;
+}
+.wte-dbg-theme-toggle:hover { background: rgba(255,255,255,.22); }

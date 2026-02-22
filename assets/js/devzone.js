@@ -1,17 +1,17 @@
 /**
- * WTE Dev Zone — Frontend JS
+ * WPTE Dev Zone — Frontend JS
  * Handles: inline editing, AJAX save/load, list rendering, inspector panel.
  *
  * Security note: All server-supplied strings are HTML-escaped via esc() before
  * any innerHTML assignment. No raw user input is ever inserted unescaped.
  */
-/* global wteDbg */
+/* global wpteDbg */
 
 ( function () {
 	'use strict';
 
 	// Injected via wp_localize_script
-	const { ajaxurl, nonce } = wteDbg;
+	const { ajaxurl, nonce } = wpteDbg;
 
 	// State
 	let currentPostId   = null;
@@ -27,8 +27,25 @@
 
 	document.addEventListener( 'DOMContentLoaded', () => {
 		initTabSwitching();
-		initMasterDetailPanels();
-		initSettingsTree();
+		initThemeToggle();
+
+		// Restore last active tab across reloads.
+		// PHP renders 'settings' by default (no ?tab= in URL); if the user was
+		// on a different tab, load it via AJAX (which calls initMasterDetailPanels
+		// + initSettingsTree internally after the content is replaced).
+		const TAB_KEY  = 'wte_dbg_tab';
+		let savedTab   = null;
+		try { savedTab = localStorage.getItem( TAB_KEY ); } catch ( e ) {}
+
+		const content     = document.querySelector( '.wte-dbg-content' );
+		const renderedTab = ( content && content.dataset.renderedTab ) || 'settings';
+
+		if ( savedTab && savedTab !== renderedTab ) {
+			loadTabContent( savedTab ); // also calls initMasterDetailPanels + initSettingsTree
+		} else {
+			initMasterDetailPanels();
+			initSettingsTree();
+		}
 	} );
 
 	// -----------------------------------------------------------------------
@@ -36,24 +53,14 @@
 	// -----------------------------------------------------------------------
 
 	function initTabSwitching() {
-		const activeLink = document.querySelector( '.wte-dbg-tab.is-active' );
-		if ( activeLink ) {
-			const initialSlug = new URL( activeLink.href ).searchParams.get( 'tab' ) || 'settings';
-			history.replaceState( { tab: initialSlug }, '' );
-		}
-
+		const TAB_KEY = 'wte_dbg_tab';
 		document.querySelectorAll( '.wte-dbg-tab' ).forEach( ( tabLink ) => {
 			tabLink.addEventListener( 'click', ( e ) => {
 				e.preventDefault();
 				const slug = new URL( tabLink.href ).searchParams.get( 'tab' ) || 'settings';
-				history.pushState( { tab: slug }, '', tabLink.href );
+				try { localStorage.setItem( TAB_KEY, slug ); } catch ( e ) {}
 				loadTabContent( slug );
 			} );
-		} );
-
-		window.addEventListener( 'popstate', ( e ) => {
-			const slug = ( e.state && e.state.tab ) ? e.state.tab : 'settings';
-			loadTabContent( slug );
 		} );
 	}
 
@@ -74,7 +81,7 @@
 		fetch( ajaxurl, {
 			method: 'POST',
 			body:   new URLSearchParams( {
-				action:      'wte_devzone_load_tab',
+				action:      'wpte_devzone_load_tab',
 				tab:         slug,
 				_ajax_nonce: nonce,
 			} ),
@@ -82,6 +89,7 @@
 			.then( ( r ) => r.json() )
 			.then( ( res ) => {
 				setTextContent( content, '' );
+				content.style.visibility = '';
 				if ( ! res.success ) {
 					content.appendChild( makePara( 'wte-dbg-empty', 'Failed to load tab.' ) );
 					return;
@@ -89,12 +97,13 @@
 				setServerHtml( content, res.data.html );
 				initMasterDetailPanels();
 				initSettingsTree();
-				if ( typeof window.wteDbgInitSearch === 'function' ) {
-					window.wteDbgInitSearch();
+				if ( typeof window.wpteDbgInitSearch === 'function' ) {
+					window.wpteDbgInitSearch();
 				}
 			} )
 			.catch( () => {
 				setTextContent( content, '' );
+				content.style.visibility = '';
 				content.appendChild( makePara( 'wte-dbg-empty', 'Request failed.' ) );
 			} );
 	}
@@ -181,7 +190,7 @@
 				body.classList.add( 'wte-dbg-skeleton' );
 
 				const params = new URLSearchParams( {
-					action:      'wte_devzone_get_option',
+					action:      'wpte_devzone_get_option',
 					option_name: details.dataset.optionName,
 					_ajax_nonce: nonce,
 				} );
@@ -271,7 +280,7 @@
 		listEl.appendChild( makePara( 'wte-dbg-loading', 'Loading…' ) );
 
 		const params = new URLSearchParams( {
-			action:      'wte_devzone_list_posts',
+			action:      'wpte_devzone_list_posts',
 			post_type:   postType,
 			search:      search || '',
 			paged:       page,
@@ -390,7 +399,7 @@
 		inspector.appendChild( makePara( 'wte-dbg-loading', 'Loading inspector…' ) );
 
 		const params = new URLSearchParams( {
-			action:      'wte_devzone_get_post',
+			action:      'wpte_devzone_get_post',
 			post_id:     postId,
 			_ajax_nonce: nonce,
 		} );
@@ -710,14 +719,14 @@
 
 		if ( isOption ) {
 			body = {
-				action:      'wte_devzone_save_option',
+				action:      'wpte_devzone_save_option',
 				option_name: row.dataset.optionName,
 				key_path:    row.dataset.path || '',
 				value,
 			};
 		} else if ( isPostFld ) {
 			body = {
-				action:  'wte_devzone_save_post_field',
+				action:  'wpte_devzone_save_post_field',
 				post_id: row.dataset.postId || currentPostId,
 				field:   row.dataset.field,
 				value,
@@ -725,7 +734,7 @@
 		} else {
 			const metaKey = row.dataset.metaKey || ( row.dataset.path ? row.dataset.path.split( '.' )[ 0 ] : '' );
 			body = {
-				action:   'wte_devzone_save_meta',
+				action:   'wpte_devzone_save_meta',
 				post_id:  currentPostId,
 				meta_key: metaKey,
 				value,
@@ -753,12 +762,19 @@
 
 	function doDeleteOption( btn, optionName ) {
 		btn.disabled = true;
-		btn.textContent = '\u231b'; // ⌛ hourglass
+		// Preserve SVG icon; swap to hourglass while request is in flight
+		const svgIcon = btn.querySelector( 'svg' ) ? btn.querySelector( 'svg' ).cloneNode( true ) : null;
+		btn.textContent = '\u231b';
+
+		const restoreIcon = () => {
+			btn.textContent = '';
+			if ( svgIcon ) btn.appendChild( svgIcon.cloneNode( true ) );
+		};
 
 		fetch( ajaxurl, {
 			method: 'POST',
 			body:   new URLSearchParams( {
-				action:      'wte_devzone_delete_option',
+				action:      'wpte_devzone_delete_option',
 				option_name: optionName,
 				_ajax_nonce: nonce,
 			} ),
@@ -773,15 +789,15 @@
 						setTimeout( () => block.remove(), 300 );
 					}
 				} else {
-					btn.disabled    = false;
-					btn.textContent = '\ud83d\uddd1'; // 🗑
+					btn.disabled = false;
+					restoreIcon();
 					// eslint-disable-next-line no-alert
 					window.alert( 'Error: ' + ( res.data && res.data.message ? res.data.message : 'Delete failed' ) );
 				}
 			} )
 			.catch( () => {
-				btn.disabled    = false;
-				btn.textContent = '\ud83d\uddd1';
+				btn.disabled = false;
+				restoreIcon();
 				// eslint-disable-next-line no-alert
 				window.alert( 'Network error — could not delete option.' );
 			} );
@@ -789,7 +805,7 @@
 
 	function savePostField( postId, field, value, selectEl ) {
 		const body = new URLSearchParams( {
-			action:      'wte_devzone_save_post_field',
+			action:      'wpte_devzone_save_post_field',
 			post_id:     postId,
 			field,
 			value,
@@ -925,6 +941,32 @@
 			}
 		}
 		container.querySelectorAll( '.wte-dbg-children' ).forEach( applyRowStripes );
+	}
+
+	// -----------------------------------------------------------------------
+	// Dark / light mode toggle
+	// -----------------------------------------------------------------------
+
+	function initThemeToggle() {
+		const wrap = document.querySelector( '.wte-devzone-wrap' );
+		const btn  = document.querySelector( '.wte-dbg-theme-toggle' );
+		const icon = btn && btn.querySelector( '.wte-dbg-theme-icon' );
+		const KEY  = 'wte_dbg_theme';
+
+		if ( ! wrap || ! btn ) return;
+
+		// Dark class already applied by the inline script in layout.php
+		// (before first paint — no flash). Just sync the icon to match.
+		if ( wrap.classList.contains( 'wte-dbg-dark' ) ) {
+			if ( icon ) icon.textContent = '\u263e'; // ☾
+		}
+
+		btn.addEventListener( 'click', () => {
+			const isDark = wrap.classList.toggle( 'wte-dbg-dark' );
+			document.body.classList.toggle( 'wte-dbg-page-dark', isDark );
+			if ( icon ) icon.textContent = isDark ? '\u263e' : '\u2600'; // ☾ / ☀
+			localStorage.setItem( KEY, isDark ? 'dark' : 'light' );
+		} );
 	}
 
 	function formatScalar( value ) {

@@ -67,7 +67,6 @@ $primary_cat_id = (int) get_option( 'primary_pricing_category', 0 );
 				<table class="wte-dbg-price-cat-table">
 					<thead>
 						<tr>
-							<th><?php esc_html_e( 'Primary', 'wptravelengine-devzone' ); ?></th>
 							<th><?php esc_html_e( 'ID', 'wptravelengine-devzone' ); ?></th>
 							<th><?php esc_html_e( 'Label', 'wptravelengine-devzone' ); ?></th>
 							<th><?php esc_html_e( 'Slug', 'wptravelengine-devzone' ); ?></th>
@@ -78,13 +77,13 @@ $primary_cat_id = (int) get_option( 'primary_pricing_category', 0 );
 					<tbody>
 						<?php foreach ( $price_terms as $term ) : ?>
 							<tr>
+								<td><?php echo esc_html( $term->term_id ); ?></td>
 								<td>
+									<?php echo esc_html( $term->name ); ?>
 									<?php if ( $term->term_id === $primary_cat_id ) : ?>
 										<span class="wte-dbg-price-cat-primary" title="<?php esc_attr_e( 'Primary category', 'wptravelengine-devzone' ); ?>">&#9733;</span>
 									<?php endif; ?>
 								</td>
-								<td><?php echo esc_html( $term->term_id ); ?></td>
-								<td><?php echo esc_html( $term->name ); ?></td>
 								<td><?php echo esc_html( $term->slug ); ?></td>
 								<td>
 									<?php
@@ -111,7 +110,7 @@ $primary_cat_id = (int) get_option( 'primary_pricing_category', 0 );
 			<?php if ( empty( $seen_taxs ) ) : ?>
 				<p class="wte-dbg-empty"><?php esc_html_e( 'No taxonomies found.', 'wptravelengine-devzone' ); ?></p>
 			<?php else : ?>
-				<div class="wte-dbg-settings-tree">
+				<div class="wte-dbg-settings-tree wte-dbg-tax-tree">
 					<?php foreach ( $seen_taxs as $tax_name => $tax ) : ?>
 						<?php
 						$tax_terms  = get_terms( [ 'taxonomy' => $tax_name, 'hide_empty' => false, 'orderby' => 'term_id' ] );
@@ -180,7 +179,11 @@ $primary_cat_id = (int) get_option( 'primary_pricing_category', 0 );
 						</details>
 						<button class="wte-dbg-delete-option-btn"
 							data-option-name="<?php echo esc_attr( $option_name ); ?>"
-							title="<?php esc_attr_e( 'Delete option', 'wptravelengine-devzone' ); ?>">&#128465;</button>
+							title="<?php esc_attr_e( 'Delete option', 'wptravelengine-devzone' ); ?>">
+							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+							</svg>
+						</button>
 					</div>
 				<?php endforeach; ?>
 

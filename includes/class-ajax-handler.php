@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 
 class AjaxHandler {
 
-	// Meta keys that must never be written via the debugger.
+	// Meta keys that must never be written via the Dev Zone.
 	private const BLOCKED_META_KEYS = [
 		'_wp_trash_meta_time',
 		'_wp_trash_meta_status',
@@ -21,19 +21,19 @@ class AjaxHandler {
 
 	public function register(): void {
 		$actions = [
-			'wte_devzone_load_tab'        => 'load_tab',
-			'wte_devzone_get_options'     => 'get_options',
-			'wte_devzone_get_option'      => 'get_option_value',
-			'wte_devzone_save_option'     => 'save_option',
-			'wte_devzone_delete_option'   => 'delete_option_entry',
-			'wte_devzone_list_posts'      => 'list_posts',
-			'wte_devzone_get_post'        => 'get_post',
-			'wte_devzone_save_meta'       => 'save_meta',
-			'wte_devzone_save_post_field' => 'save_post_field',
-			'wte_devzone_db_tables'       => 'db_tables',
-			'wte_devzone_db_columns'      => 'db_columns',
-			'wte_devzone_db_query'        => 'db_query',
-			'wte_devzone_unserialize'     => 'unserialize_data',
+			'wpte_devzone_load_tab'        => 'load_tab',
+			'wpte_devzone_get_options'     => 'get_options',
+			'wpte_devzone_get_option'      => 'get_option_value',
+			'wpte_devzone_save_option'     => 'save_option',
+			'wpte_devzone_delete_option'   => 'delete_option_entry',
+			'wpte_devzone_list_posts'      => 'list_posts',
+			'wpte_devzone_get_post'        => 'get_post',
+			'wpte_devzone_save_meta'       => 'save_meta',
+			'wpte_devzone_save_post_field' => 'save_post_field',
+			'wpte_devzone_db_tables'       => 'db_tables',
+			'wpte_devzone_db_columns'      => 'db_columns',
+			'wpte_devzone_db_query'        => 'db_query',
+			'wpte_devzone_unserialize'     => 'unserialize_data',
 		];
 
 		foreach ( $actions as $action => $method ) {
@@ -79,12 +79,12 @@ class AjaxHandler {
 		}
 
 		$map = [
-			'settings'  => WTE_DEVZONE_DIR . 'templates/tab-settings.php',
-			'trips'     => WTE_DEVZONE_DIR . 'templates/tab-trips.php',
-			'bookings'  => WTE_DEVZONE_DIR . 'templates/tab-bookings.php',
-			'payment'   => WTE_DEVZONE_DIR . 'templates/tab-payment.php',
-			'customers' => WTE_DEVZONE_DIR . 'templates/tab-customers.php',
-			'search'    => WTE_DEVZONE_DIR . 'templates/tab-search.php',
+			'settings'  => WPTE_DEVZONE_DIR . 'templates/tab-overview.php',
+			'trips'     => WPTE_DEVZONE_DIR . 'templates/tab-trips.php',
+			'bookings'  => WPTE_DEVZONE_DIR . 'templates/tab-bookings.php',
+			'payment'   => WPTE_DEVZONE_DIR . 'templates/tab-payments.php',
+			'customers' => WPTE_DEVZONE_DIR . 'templates/tab-customers.php',
+			'search'    => WPTE_DEVZONE_DIR . 'templates/tab-query.php',
 		];
 
 		ob_start();

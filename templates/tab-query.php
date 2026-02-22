@@ -27,7 +27,11 @@ defined( 'ABSPATH' ) || exit;
 	<button class="wte-dbg-unser-toggle" title="<?php esc_attr_e( 'Toggle Beautifier', 'wptravelengine-devzone' ); ?>">►</button>
 
 	<div class="wte-dbg-unserializer">
-		<div class="wte-dbg-unser-header"><?php esc_html_e( 'Beautifier', 'wptravelengine-devzone' ); ?></div>
+		<div class="wte-dbg-unser-header">
+			<span><?php esc_html_e( 'Beautifier', 'wptravelengine-devzone' ); ?></span>
+			<button type="button" class="wte-dbg-unser-maximize"
+				title="<?php esc_attr_e( 'Maximize', 'wptravelengine-devzone' ); ?>">&#10562;</button>
+		</div>
 		<div class="wte-dbg-unser-body">
 			<textarea class="wte-dbg-unser-input"
 				placeholder="<?php esc_attr_e( 'Paste PHP serialized or JSON string…', 'wptravelengine-devzone' ); ?>"></textarea>
