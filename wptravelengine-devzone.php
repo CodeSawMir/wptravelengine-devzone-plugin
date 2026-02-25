@@ -7,7 +7,7 @@
  * Author:      Samir Shrestha
  * Text Domain: wptravelengine-devzone
  * Requires WP: 6.9
- * Requires PHP: 8.3
+ * Requires PHP: 7.4
  */
 
 defined( 'ABSPATH' ) || exit;
