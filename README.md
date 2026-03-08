@@ -11,7 +11,7 @@ This plugin is being developed as an internal developer tool to support the WP T
 ## Requirements
 
 - WordPress 6.9+
-- PHP 8.3+
+- PHP 7.4+
 - [WP Travel Engine](https://wptravelengine.com/) plugin (active)
 
 ## Installation
@@ -34,7 +34,31 @@ Once activated, navigate to **Tools → Dev Zone** in WP Admin.
 | Bookings | View booking records and their metadata |
 | Payments | Inspect payment entries linked to bookings |
 | Customers | View customer records |
-| Query | Run keyword searches directly against the database |
+| Query | Full table browser — select any DB table, apply column filters, paginate results, and copy cell values with a single click |
+
+## Query Tab
+
+The Query tab is a full interactive database browser:
+
+- **Table list** — left sidebar lists all DB tables grouped by WP Travel Engine, WordPress core, and Other; filterable by name; collapsible
+- **Query builder** — select a table to load its columns, add one or more column filters (`=`, `!=`, `LIKE`, `IS NULL`, etc.), set a row limit, and run the query
+- **Results table** — click any cell to copy its value to the clipboard
+- **Pagination** — navigate large result sets in pages
+
+### Beautifier sidebar
+
+A collapsible, resizable panel on the right edge of the Query tab for parsing raw serialized data:
+
+- Paste PHP-serialized strings, JSON, Base64-encoded data, `var_dump()` output, or URL query strings
+- Click **Beautify** to decode and render as an interactive tree with type badges (`string`, `int`, `float`, `bool`, `null`)
+- The input and result persist across tab switches and are cleared only on page reload
+- The sidebar can be collapsed, drag-resized, or maximized to full screen
+
+## UI
+
+- **Dark mode** — toggle via the ☀ button in the header; preference is saved across sessions
+- **Status bar** — live loading/error notices float in the tab bar
+- **Inline editing** — metadata values can be edited directly in the Trips, Bookings, Payments, and Customers tabs
 
 ## Warning
 

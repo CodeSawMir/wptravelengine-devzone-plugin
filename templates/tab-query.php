@@ -6,7 +6,8 @@ defined( 'ABSPATH' ) || exit;
 
 	<div class="wte-dbg-db-tables-panel">
 		<div class="wte-dbg-db-tables-header">
-			<?php esc_html_e( 'Tables', 'wptravelengine-devzone' ); ?>
+			<span><?php esc_html_e( 'Tables', 'wptravelengine-devzone' ); ?></span>
+			<button type="button" class="wte-dbg-sidebar-toggle" title="<?php esc_attr_e( 'Collapse sidebar', 'wptravelengine-devzone' ); ?>"><?php echo '&#x2039;'; ?></button>
 		</div>
 		<div class="wte-dbg-db-tables-search-wrap">
 			<input type="text"
@@ -24,19 +25,23 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 	</div>
 
-	<button class="wte-dbg-unser-toggle" title="<?php esc_attr_e( 'Toggle Beautifier', 'wptravelengine-devzone' ); ?>">►</button>
-
 	<div class="wte-dbg-unserializer">
 		<div class="wte-dbg-unser-header">
+			<button type="button" class="wte-dbg-sidebar-toggle" title="<?php esc_attr_e( 'Collapse sidebar', 'wptravelengine-devzone' ); ?>">&#x203a;</button>
 			<span><?php esc_html_e( 'Beautifier', 'wptravelengine-devzone' ); ?></span>
-			<button type="button" class="wte-dbg-unser-maximize"
+<button type="button" class="wte-dbg-unser-maximize"
 				title="<?php esc_attr_e( 'Maximize', 'wptravelengine-devzone' ); ?>">&#10562;</button>
 		</div>
 		<div class="wte-dbg-unser-body">
 			<textarea class="wte-dbg-unser-input"
 				placeholder="<?php esc_attr_e( 'Paste PHP serialized or JSON string…', 'wptravelengine-devzone' ); ?>"></textarea>
 
-			<button type="button" class="wte-dbg-unser-btn"><?php esc_html_e( 'Beautify', 'wptravelengine-devzone' ); ?></button>
+			<div class="wte-dbg-unser-actions">
+				<button type="button" class="wte-dbg-unser-btn"><?php esc_html_e( 'Beautify', 'wptravelengine-devzone' ); ?></button>
+				<!-- <button type="button" class="wte-dbg-vardump-btn"> -->
+					<?php // esc_html_e( 'Var Dump', 'wptravelengine-devzone' ); ?>
+				<!-- </button> -->
+			</div>
 			<div class="wte-dbg-unser-output"></div>
 		</div>
 	</div>

@@ -10,6 +10,8 @@
 	display: flex;
 	height: calc( 100vh - 190px );
 	min-height: 500px;
+	position: relative;
+	overflow: hidden;
 }
 
 /* Left: table list */
@@ -22,6 +24,7 @@
 	background: var(--dbg-surface);
 	overflow: hidden;
 	flex-shrink: 0;
+	transition: width 0.2s ease, min-width 0.2s ease;
 }
 
 .wte-dbg-db-tables-header {
@@ -32,6 +35,31 @@
 	letter-spacing: 0.06em;
 	color: var(--dbg-text-muted);
 	border-bottom: 1px solid var(--dbg-border-faint);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+/* Collapsed sidebar for query tab */
+.wte-dbg-db-search.sidebar-collapsed .wte-dbg-db-tables-panel {
+	width: 32px;
+	min-width: 32px;
+}
+
+.wte-dbg-db-search.sidebar-collapsed .wte-dbg-db-tables-header {
+	padding: 8px 6px;
+	justify-content: center;
+}
+
+.wte-dbg-db-search.sidebar-collapsed .wte-dbg-db-tables-header > :not( .wte-dbg-sidebar-toggle ) {
+	display: none;
+}
+
+.wte-dbg-db-search.sidebar-collapsed .wte-dbg-db-tables-search-wrap,
+.wte-dbg-db-search.sidebar-collapsed .wte-dbg-db-tables-list {
+	display: none;
 }
 
 .wte-dbg-db-tables-search-wrap {
@@ -388,73 +416,8 @@
 	background: rgba( 34, 113, 177, 0.25 );
 }
 
-.wte-dbg-db-search.unser-closed .wte-dbg-unser-resize-handle {
+.wte-dbg-db-search.unser-collapsed .wte-dbg-unser-resize-handle {
 	display: none;
-}
-
-/* -------------------------------------------------------------------------
-   Unserializer toggle button — thin rule + floating pill handle
-   ------------------------------------------------------------------------- */
-.wte-dbg-unser-toggle {
-	width: 20px;
-	/* flex-shrink: 0;
-	position: relative;
-	isolation: isolate;
-	background: transparent; */
-	border: none;
-	cursor: pointer;
-	color: #50575e;
-	/* font-size: 9px; */
-	/* display: flex; */
-	/* align-items: flex-start; */
-	justify-content: center;
-	padding: 14px 0 0;
-	transition: color 0.15s;
-}
-
-/* Full-height thin vertical rule */
-/* .wte-dbg-unser-toggle::after {
-	content: '';
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 50%;
-	width: 1px;
-	background: #c3c4c7;
-	transform: translateX( -50% );
-	z-index: -1;
-	transition: background 0.15s;
-} */
-
-/* Pill handle pinned near the top of the rule */
-/* .wte-dbg-unser-toggle::before {
-	content: '';
-	position: absolute;
-	top: 14px;
-	left: 50%;
-	width: 20px;
-	height: 44px;
-	background: #fff;
-	border: 1px solid #c3c4c7;
-	border-radius: 10px;
-	box-shadow: 0 1px 4px rgba( 0, 0, 0, 0.08 );
-	transform: translateX( -50% );
-	z-index: -1;
-	transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-} */
-
-/* .wte-dbg-unser-toggle:hover {
-	color: #fff;
-} */
-
-.wte-dbg-unser-toggle:hover::before {
-	background: var(--dbg-accent);
-	border-color: var(--dbg-accent);
-	box-shadow: 0 2px 8px rgba( 34, 113, 177, 0.4 );
-}
-
-.wte-dbg-unser-toggle:hover::after {
-	background: var(--dbg-accent);
 }
 
 /* -------------------------------------------------------------------------
@@ -468,17 +431,43 @@
 	flex-direction: column;
 	background: var(--dbg-surface);
 	overflow: hidden;
-	transition: width 0.2s ease, opacity 0.2s ease;
+	transition: width 0.25s ease;
 }
 
-.wte-dbg-db-search.unser-closed .wte-dbg-unserializer {
-	width: 0;
+/* Expand direction: body + header items slide in from the right after the sidebar opens. */
+.wte-dbg-unser-body {
+	transform: translateX( 0 );
+	transition: opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s;
+}
+
+.wte-dbg-unser-header > span,
+.wte-dbg-unser-header .wte-dbg-unser-maximize {
+	transform: translateX( 0 );
+	transition: opacity 0.15s ease 0.2s, transform 0.15s ease 0.2s;
+}
+
+/* Collapsed: content slides out to the right and fades, then sidebar slides shut. */
+.wte-dbg-db-search.unser-collapsed .wte-dbg-unserializer {
+	width: 32px;
+	min-width: 32px;
+}
+
+.wte-dbg-db-search.unser-collapsed .wte-dbg-unser-header > :not( .wte-dbg-sidebar-toggle ) {
 	opacity: 0;
-	border-left: none;
+	transform: translateX( 24px );
+	pointer-events: none;
+	transition: opacity 0.1s ease, transform 0.1s ease;
+}
+
+.wte-dbg-db-search.unser-collapsed .wte-dbg-unser-body {
+	opacity: 0;
+	transform: translateX( 32px );
+	pointer-events: none;
+	transition: opacity 0.1s ease, transform 0.1s ease;
 }
 
 .wte-dbg-unser-header {
-	padding: 12px 16px;
+	padding: 12px 8px;
 	font-size: 13px;
 	font-weight: 700;
 	color: var(--dbg-accent-dark);
@@ -486,7 +475,19 @@
 	background: var(--dbg-surface-alt);
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: flex-start;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+/* Override devzone.css rule that puts margin-left:auto on every sidebar-toggle.
+   In the Beautifier header the toggle sits at the LEFT edge, not the right. */
+.wte-dbg-unser-header .wte-dbg-sidebar-toggle {
+	margin-left: 0;
+}
+
+.wte-dbg-unser-maximize {
+	margin-left: auto;
 }
 
 .wte-dbg-unser-maximize {
@@ -494,7 +495,7 @@
 	border: none;
 	cursor: pointer;
 	color: var(--dbg-text-muted);
-	font-size: 15px;
+	font-size: 20px;
 	line-height: 1;
 	padding: 0;
 	flex-shrink: 0;
@@ -545,8 +546,13 @@
 	cursor: pointer;
 }
 
+.wte-dbg-unser-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
 .wte-dbg-unser-btn {
-	align-self: flex-start;
 	background: var(--dbg-accent);
 	color: #fff;
 	border: none;
@@ -558,6 +564,21 @@
 }
 
 .wte-dbg-unser-btn:hover { background: var(--dbg-accent-dark); }
+
+.wte-dbg-vardump-btn {
+	background: none;
+	color: var(--dbg-accent);
+	border: 1px solid var(--dbg-accent);
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 14px;
+}
+
+.wte-dbg-vardump-btn:hover {
+	background: var(--dbg-active-bg);
+}
 
 .wte-dbg-unser-output {
 	flex: 1;
@@ -646,6 +667,24 @@
 .wte-dbg-value[data-type="boolean"] { color: #6d28d9; background: #ede9fe; }
 .wte-dbg-value[data-type="null"]    { color: var(--dbg-text-dim); background: transparent; font-style: italic; }
 
+/* ---- Type badges (int / float / bool / string / null) ---- */
+.wte-dbg-type-badge {
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	padding: 1px 4px;
+	border-radius: 2px;
+	flex-shrink: 0;
+	line-height: 1.6;
+}
+
+.wte-dbg-type-string { color: #166534; background: #dcfce7; }
+.wte-dbg-type-int    { color: #92400e; background: #fef3c7; }
+.wte-dbg-type-float  { color: #9a3412; background: #fff7ed; }
+.wte-dbg-type-bool   { color: #4c1d95; background: #ede9fe; }
+.wte-dbg-type-null   { color: #6b7280; background: #f3f4f6; font-style: italic; }
+
 /* ---- Fallback / unknown format ---- */
 .wte-dbg-unser-unknown-notice {
 	font-size: 11px;
@@ -658,15 +697,57 @@
 }
 
 /* -------------------------------------------------------------------------
-   Maximize state — hide everything except the Beautifier sidebar
+   Maximize state — Beautifier expands to fill the container
    ------------------------------------------------------------------------- */
+
+/* Sibling panels fade out (but stay in the flex layout so no jarring shift) */
+.wte-dbg-db-tables-panel,
+.wte-dbg-db-query-panel {
+	transition: width 0.2s ease, min-width 0.2s ease, opacity 0.2s ease;
+}
+
 .wte-dbg-db-search.unser-maximized .wte-dbg-db-tables-panel,
 .wte-dbg-db-search.unser-maximized .wte-dbg-db-query-panel,
-.wte-dbg-db-search.unser-maximized .wte-dbg-unser-resize-handle,
-.wte-dbg-db-search.unser-maximized .wte-dbg-unser-toggle { display: none; }
-
-.wte-dbg-db-search.unser-maximized .wte-dbg-unserializer {
-	width: 100% !important;
-	opacity: 1 !important;
-	border-left: none;
+.wte-dbg-db-search.unser-maximized .wte-dbg-unser-resize-handle {
+	opacity: 0;
+	pointer-events: none;
 }
+
+/* Unserializer overlays the whole container and slides open from the right */
+.wte-dbg-db-search.unser-maximized .wte-dbg-unserializer {
+	position: absolute;
+	inset: 0;
+	width: auto !important;
+	min-width: 0 !important;
+	border-left: none;
+	z-index: 10;
+	animation: wte-dbg-unser-expand 0.3s ease forwards;
+}
+
+@keyframes wte-dbg-unser-expand {
+	from { clip-path: inset( 0 0 0 72% ); }
+	to   { clip-path: inset( 0 ); }
+}
+
+/* Restore animation — played when unser-restoring class is present */
+.wte-dbg-db-search.unser-restoring .wte-dbg-unserializer {
+	position: absolute;
+	inset: 0;
+	width: auto !important;
+	min-width: 0 !important;
+	border-left: none;
+	z-index: 10;
+	animation: wte-dbg-unser-collapse 0.25s ease forwards;
+}
+
+@keyframes wte-dbg-unser-collapse {
+	from { clip-path: inset( 0 ); }
+	to   { clip-path: inset( 0 0 0 72% ); }
+}
+
+/* ---- Type badges — dark mode overrides ---- */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-type-string { color: #86efac; background: #052e16; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-type-int    { color: #fcd34d; background: #1c1400; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-type-float  { color: #fb923c; background: #1f0d00; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-type-bool   { color: #c4b5fd; background: #1a1028; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-type-null   { color: #6b7280; background: #1f2937; }
