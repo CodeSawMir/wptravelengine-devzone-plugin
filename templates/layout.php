@@ -57,6 +57,7 @@ $active_slug = $active_tool->get_slug();
 		<div class="wte-dbg-status-note-wrap" id="wte-dbg-status-note" aria-live="polite" aria-atomic="true">
 			<span class="wte-dbg-loader-note"></span>
 		</div>
+		<button type="button" class="wte-dbg-back-btn" title="<?php esc_attr_e( 'Go back', 'wptravelengine-devzone' ); ?>">&#8592; <?php esc_html_e( 'Back', 'wptravelengine-devzone' ); ?></button>
 	</nav>
 
 	<div class="wte-dbg-content" data-rendered-tab="<?php echo esc_attr( $active_slug ); ?>">

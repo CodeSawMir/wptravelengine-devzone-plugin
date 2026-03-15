@@ -3,7 +3,8 @@
  * Shared master-detail template for all post-type tools.
  *
  * Expected variables (set by SharedAjax::load_tab or Admin::render_page):
- *   $tool  WPTravelEngineDevZone\Tools\AbstractPostTool
+ * 
+ * @var \WPTravelEngineDevZone\Tools\AbstractPostTool $tool
  */
 defined( 'ABSPATH' ) || exit;
 
@@ -38,6 +39,18 @@ $label     = strtoupper( $tool->get_label() );
 				/* translators: %s: singular noun for the post type, e.g. "trip" */
 				echo esc_html( sprintf( __( '← Select a %s to inspect', 'wptravelengine-devzone' ), $noun ) );
 			?></p>
+		</div>
+	</div>
+
+	<div class="wte-dbg-relations-resize-handle"></div>
+
+	<div class="wte-dbg-relations-sidebar">
+		<div class="wte-dbg-relations-sidebar-header">
+			<button type="button" class="wte-dbg-relations-toggle" title="<?php esc_attr_e( 'Collapse sidebar', 'wptravelengine-devzone' ); ?>">&#x203a;</button>
+			<span><?php esc_html_e( 'Relations', 'wptravelengine-devzone' ); ?></span>
+		</div>
+		<div class="wte-dbg-relations-sidebar-body">
+			<div class="wte-dbg-relation-empty"><?php esc_html_e( 'Select a record to see relations.', 'wptravelengine-devzone' ); ?></div>
 		</div>
 	</div>
 </div>

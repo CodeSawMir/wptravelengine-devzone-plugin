@@ -24,12 +24,12 @@ const TAB_KEY = 'wte_dbg_tab';
 // -----------------------------------------------------------------------
 
 const TAB_REGISTRY = {
-	overview:  ( el ) => new OverviewTab( el ).init(),
-	trips:     ( el ) => new MasterDetailTab( 'trip', el ).init(),
-	bookings:  ( el ) => new MasterDetailTab( 'booking', el ).init(),
-	payments:  ( el ) => new MasterDetailTab( 'wte-payments', el ).init(),
-	customers: ( el ) => new MasterDetailTab( 'customer', el ).init(),
-	logs:      ( el ) => new LogsTab( el, ( slug, extra ) => DevZoneApp.instance.loadTab( slug, extra ) ).init(),
+	overview:  ( el )      => new OverviewTab( el ).init(),
+	trips:     ( el, id )  => new MasterDetailTab( 'trip',         el, id, ( s, pid ) => DevZoneApp.instance.navigateTo( s, pid ) ).init(),
+	bookings:  ( el, id )  => new MasterDetailTab( 'booking',      el, id, ( s, pid ) => DevZoneApp.instance.navigateTo( s, pid ) ).init(),
+	payments:  ( el, id )  => new MasterDetailTab( 'wte-payments', el, id, ( s, pid ) => DevZoneApp.instance.navigateTo( s, pid ) ).init(),
+	customers: ( el, id )  => new MasterDetailTab( 'customer',     el, id, ( s, pid ) => DevZoneApp.instance.navigateTo( s, pid ) ).init(),
+	logs:      ( el )      => new LogsTab( el, ( slug, extra ) => DevZoneApp.instance.loadTab( slug, extra ) ).init(),
 	// query: handled by window.wpteDbgInitSearch() in db-search.js
 };
 
@@ -39,13 +39,20 @@ const TAB_REGISTRY = {
 
 class DevZoneApp {
 	constructor() {
-		this.contentEl    = document.querySelector( '.wte-dbg-content' );
-		this._fetchController = null;
+		this.contentEl            = document.querySelector( '.wte-dbg-content' );
+		this._fetchController     = null;
+		this._navStack            = [];
+		this._pendingPostId       = null;
+		this._currentTabSlug      = null;
+		this._currentTabInstance  = null;
+		this._backBtn             = document.querySelector( '.wte-dbg-back-btn' );
 	}
 
 	boot() {
 		this._initTabSwitching();
 		this._initThemeToggle();
+
+		this._backBtn?.addEventListener( 'click', () => this.goBack() );
 
 		// Restore last active tab across reloads.
 		let savedTab = null;
@@ -53,18 +60,49 @@ class DevZoneApp {
 
 		const renderedTab = ( this.contentEl && this.contentEl.dataset.renderedTab ) || 'overview';
 
-		if ( savedTab && savedTab !== renderedTab ) {
+		let urlPostId = null;
+		try {
+			const urlParams = new URL( window.location.href ).searchParams;
+			const raw = urlParams.get( 'post_id' );
+			if ( raw ) urlPostId = parseInt( raw, 10 ) || null;
+		} catch ( e ) {}
+
+		if ( savedTab && savedTab !== renderedTab && ! urlPostId ) {
 			this.loadTab( savedTab );
 		} else {
 			// Init the tab that PHP already rendered
 			if ( this.contentEl ) {
-				TAB_REGISTRY[ renderedTab ]?.( this.contentEl );
+				this._currentTabSlug     = renderedTab;
+				this._currentTabInstance = TAB_REGISTRY[ renderedTab ]?.( this.contentEl, urlPostId );
 				if ( typeof window.wpteDbgInitSearch === 'function' ) {
 					window.wpteDbgInitSearch();
 				}
 			}
 			this._updateGroupState( renderedTab );
 		}
+	}
+
+	navigateTo( slug, postId ) {
+		const curPost = this._currentTabInstance?.currentPostId ?? null;
+		if ( this._currentTabSlug && curPost ) {
+			this._navStack.push( { slug: this._currentTabSlug, postId: curPost } );
+			this._updateBackBtn();
+		}
+		this._pendingPostId = postId;
+		this.loadTab( slug );
+	}
+
+	goBack() {
+		if ( ! this._navStack.length ) return;
+		const { slug, postId } = this._navStack.pop();
+		this._updateBackBtn();
+		this._pendingPostId = postId;
+		this.loadTab( slug );
+	}
+
+	_updateBackBtn() {
+		const visible = this._navStack.length > 0;
+		this._backBtn?.classList.toggle( 'is-visible', visible );
 	}
 
 	_updateGroupState( slug ) {
@@ -94,6 +132,7 @@ class DevZoneApp {
 			} else {
 				url.searchParams.set( 'tab', slug );
 			}
+			url.searchParams.delete( 'post_id' );
 			history.replaceState( null, '', url.toString() );
 		} catch ( e ) {}
 
@@ -154,7 +193,10 @@ class DevZoneApp {
 					return;
 				}
 				DomHelper.setServerHtml( content, res.data.html );
-				TAB_REGISTRY[ slug ]?.( content );
+				const pendingId = this._pendingPostId;
+				this._pendingPostId = null;
+				this._currentTabSlug     = slug;
+				this._currentTabInstance = TAB_REGISTRY[ slug ]?.( content, pendingId );
 				if ( typeof window.wpteDbgInitSearch === 'function' ) {
 					window.wpteDbgInitSearch();
 				}
@@ -174,27 +216,38 @@ class DevZoneApp {
 	}
 
 	_initTabSwitching() {
+		const clearStack = () => {
+			this._navStack = [];
+			this._updateBackBtn();
+		};
+
 		// Brand link → always go to devzone group, overview tab
 		document.querySelector( '.wte-dbg-header-brand-link' )
 			?.addEventListener( 'click', ( e ) => {
 				e.preventDefault();
+				clearStack();
 				this.loadTab( 'overview' );
 			} );
 
 		// Dev Zone button → always reload to overview tab
 		document.querySelector( '.wte-dbg-group-btn[data-group="devzone"]' )
 			?.addEventListener( 'click', () => {
+				clearStack();
 				this.loadTab( 'overview' );
 			} );
 
 		// Logs button → load logs tab
 		document.querySelector( '.wte-dbg-group-btn[data-group="logs"]' )
-			?.addEventListener( 'click', () => this.loadTab( 'logs' ) );
+			?.addEventListener( 'click', () => {
+				clearStack();
+				this.loadTab( 'logs' );
+			} );
 
 		document.querySelectorAll( '.wte-dbg-tab' ).forEach( ( tabLink ) => {
 			tabLink.addEventListener( 'click', ( e ) => {
 				if ( tabLink.dataset.pageNav ) return;
 				e.preventDefault();
+				clearStack();
 				const slug = new URL( tabLink.href ).searchParams.get( 'tab' ) || 'overview';
 				this.loadTab( slug );
 			} );

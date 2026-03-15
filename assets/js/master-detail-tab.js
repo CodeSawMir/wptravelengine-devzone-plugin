@@ -9,15 +9,61 @@ import { InlineEditor } from './inline-editor.js';
 
 const { ajaxurl, nonce } = wpteDbg;
 
+/**
+ * Build the pin/thumbtack SVG icon using safe DOM APIs (no innerHTML).
+ * @param {boolean} filled — true for the active/pinned state (filled body).
+ * @returns {SVGElement}
+ */
+function makePinIcon( filled ) {
+	const ns  = 'http://www.w3.org/2000/svg';
+	const svg = document.createElementNS( ns, 'svg' );
+	svg.setAttribute( 'width', '12' );
+	svg.setAttribute( 'height', '12' );
+	svg.setAttribute( 'viewBox', '0 0 24 24' );
+	svg.setAttribute( 'fill', filled ? 'currentColor' : 'none' );
+	svg.setAttribute( 'stroke', 'currentColor' );
+	svg.setAttribute( 'stroke-width', '2' );
+	svg.setAttribute( 'stroke-linecap', 'round' );
+	svg.setAttribute( 'stroke-linejoin', 'round' );
+	svg.setAttribute( 'aria-hidden', 'true' );
+	svg.style.pointerEvents = 'none';
+
+	const line = document.createElementNS( ns, 'line' );
+	line.setAttribute( 'x1', '12' );
+	line.setAttribute( 'y1', '17' );
+	line.setAttribute( 'x2', '12' );
+	line.setAttribute( 'y2', '22' );
+
+	const path = document.createElementNS( ns, 'path' );
+	path.setAttribute( 'd', 'M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z' );
+
+	svg.appendChild( line );
+	svg.appendChild( path );
+	return svg;
+}
+
+const POST_TYPE_TO_TAB = {
+	'trip':         'trips',
+	'booking':      'bookings',
+	'wte-payments': 'payments',
+	'customer':     'customers',
+};
+
 export class MasterDetailTab {
-	constructor( postType, contentEl ) {
-		this.postType             = postType;
-		this.contentEl            = contentEl;
-		this.currentPostId        = null;
-		this.searchTimeout        = null;
-		this._listController      = null;
-		this._inspectorController = null;
-		this.editor               = new InlineEditor(
+	constructor( postType, contentEl, initialPostId = null, onNavigate = null ) {
+		this.postType              = postType;
+		this.contentEl             = contentEl;
+		this.currentPostId         = null;
+		this.searchTimeout         = null;
+		this._listController       = null;
+		this._inspectorController  = null;
+		this._relationsController  = null;
+		this.initialPostId         = initialPostId ? parseInt( initialPostId, 10 ) : null;
+		this._onNavigate           = onNavigate;
+		this._currentSearch        = '';
+		this._currentPage          = 1;
+		this._reloadList           = null;
+		this.editor                = new InlineEditor(
 			() => this.currentPostId,
 			() => this.postType
 		);
@@ -50,6 +96,10 @@ export class MasterDetailTab {
 		const listEl    = panel.querySelector( '.wte-dbg-list-items' );
 		const paginEl   = panel.querySelector( '.wte-dbg-pagination' );
 		const inspector = panel.querySelector( '.wte-dbg-inspector-panel' );
+
+		this._reloadList = () => this._loadList(
+			this._currentSearch, this._currentPage, listEl, paginEl, panel, inspector
+		);
 
 		this._loadList( '', 1, listEl, paginEl, panel, inspector );
 
@@ -92,6 +142,71 @@ export class MasterDetailTab {
 				this.editor.savePostField( postId, 'post_status', sel.value, sel );
 			}
 		} );
+
+		// Relations sidebar — collapse toggle + drag-resize
+		const relSidebar = panel.querySelector( '.wte-dbg-relations-sidebar' );
+		const relBody    = panel.querySelector( '.wte-dbg-relations-sidebar-body' );
+		const relToggle  = panel.querySelector( '.wte-dbg-relations-toggle' );
+		const relHandle  = panel.querySelector( '.wte-dbg-relations-resize-handle' );
+
+		this._relSidebarBody = relBody || null;
+
+		const REL_KEY   = 'wte_dbg_relations_collapsed';
+		const REL_W_KEY = 'wte_dbg_relations_width_' + this.postType;
+
+		try {
+			if ( localStorage.getItem( REL_KEY ) === '1' ) {
+				panel.classList.add( 'relations-collapsed' );
+				if ( relToggle ) relToggle.textContent = '\u2039'; // ‹
+				// Do NOT restore inline width when collapsed — CSS width:32px must win.
+			} else {
+				const savedW = localStorage.getItem( REL_W_KEY );
+				if ( savedW && relSidebar ) relSidebar.style.width = savedW + 'px';
+			}
+		} catch ( e ) {}
+
+		if ( relToggle ) {
+			relToggle.addEventListener( 'click', () => {
+				const collapsed = panel.classList.toggle( 'relations-collapsed' );
+				relToggle.textContent = collapsed ? '\u2039' : '\u203a'; // ‹ / ›
+				if ( collapsed ) {
+					// Clear inline width so the CSS class rule (width: 32px) takes effect.
+					relSidebar.style.width = '';
+				} else {
+					// Restore the user-resized width on expand.
+					try {
+						const savedW = localStorage.getItem( REL_W_KEY );
+						if ( savedW ) relSidebar.style.width = savedW + 'px';
+					} catch ( e ) {}
+				}
+				try { localStorage.setItem( REL_KEY, collapsed ? '1' : '0' ); } catch ( e ) {}
+			} );
+		}
+
+		if ( relHandle && relSidebar ) {
+			relHandle.addEventListener( 'mousedown', ( e ) => {
+				e.preventDefault();
+				const startX     = e.clientX;
+				const startWidth = relSidebar.offsetWidth;
+				relSidebar.style.transition = 'none';
+
+				const onMove = ( ev ) => {
+					const delta    = startX - ev.clientX;
+					const newWidth = Math.min( 800, Math.max( 200, startWidth + delta ) );
+					relSidebar.style.width = newWidth + 'px';
+				};
+				const onUp = () => {
+					relSidebar.style.transition = '';
+					try { localStorage.setItem( REL_W_KEY, parseInt( relSidebar.style.width, 10 ) ); } catch ( e ) {}
+					document.removeEventListener( 'mousemove', onMove );
+					document.removeEventListener( 'mouseup', onUp );
+				};
+				document.addEventListener( 'mousemove', onMove );
+				document.addEventListener( 'mouseup', onUp );
+			} );
+		}
+
+		return this;
 	}
 
 	_loadList( search, page, listEl, paginEl, panel, inspector ) {
@@ -99,16 +214,30 @@ export class MasterDetailTab {
 		this._listController = new AbortController();
 		const { signal: listSignal } = this._listController;
 
+		this._currentSearch = search;
+		this._currentPage   = page;
+
 		DomHelper.setTextContent( listEl, '' );
 		DomHelper.appendShimmer( listEl, 6, 'Loading ' + this.postType + ' list\u2026' );
+
+		const pinnedIds = this._getPinnedIds();
 
 		const params = new URLSearchParams( {
 			action:      'wpte_devzone_list_posts',
 			post_type:   this.postType,
 			search:      search || '',
 			paged:       page,
+			pinned_ids:  pinnedIds.join( ',' ),
 			_ajax_nonce: nonce,
 		} );
+
+		const addItemListener = ( item ) => {
+			item.addEventListener( 'click', () => {
+				listEl.querySelectorAll( '.wte-dbg-list-item' ).forEach( ( i ) => i.classList.remove( 'is-active' ) );
+				item.classList.add( 'is-active' );
+				this._loadInspector( parseInt( item.dataset.postId, 10 ), inspector );
+			} );
+		};
 
 		fetch( ajaxurl + '?' + params, { signal: listSignal } )
 			.then( ( r ) => r.json() )
@@ -122,25 +251,45 @@ export class MasterDetailTab {
 				}
 
 				const posts      = res.data.posts;
+				const pinned     = res.data.pinned || [];
 				const total      = res.data.total;
 				const totalPages = res.data.total_pages;
 
 				const countEl = panel.querySelector( '.wte-dbg-list-count' );
-				if ( countEl ) countEl.textContent = '(' + total + ')';
+				if ( countEl ) countEl.textContent = '(' + ( total + pinned.length ) + ')';
 
-				if ( ! posts.length ) {
+				if ( ! posts.length && ! pinned.length ) {
 					listEl.appendChild( DomHelper.makePara( 'wte-dbg-empty', 'No records found.' ) );
 				} else {
-					posts.forEach( ( p ) => {
-						const item = this._buildListItem( p );
-						item.addEventListener( 'click', () => {
-							listEl.querySelectorAll( '.wte-dbg-list-item' ).forEach( ( i ) => i.classList.remove( 'is-active' ) );
-							item.classList.add( 'is-active' );
-							this._loadInspector( parseInt( item.dataset.postId, 10 ), inspector );
-						} );
+					pinned.forEach( ( p ) => {
+						const item = this._buildListItem( p, true );
+						addItemListener( item );
 						listEl.appendChild( item );
 					} );
-					listEl.querySelector( '.wte-dbg-list-item' )?.click();
+
+					if ( pinned.length && posts.length ) {
+						const sep = document.createElement( 'div' );
+						sep.className = 'wte-dbg-list-pin-separator';
+						listEl.appendChild( sep );
+					}
+
+					posts.forEach( ( p ) => {
+						const item = this._buildListItem( p, false );
+						addItemListener( item );
+						listEl.appendChild( item );
+					} );
+
+					if ( this.initialPostId ) {
+						const target = listEl.querySelector( `.wte-dbg-list-item[data-post-id="${this.initialPostId}"]` );
+						if ( target ) {
+							target.click();
+						} else {
+							this._loadInspector( this.initialPostId, inspector );
+						}
+						this.initialPostId = null;
+					} else {
+						listEl.querySelector( '.wte-dbg-list-item' )?.click();
+					}
 				}
 
 				DomHelper.buildPagination( paginEl, page, totalPages, ( newPage ) => {
@@ -158,10 +307,13 @@ export class MasterDetailTab {
 			} );
 	}
 
-	_buildListItem( post ) {
+	_buildListItem( post, isPinned = false ) {
 		const item = document.createElement( 'div' );
-		item.className = 'wte-dbg-list-item';
+		item.className = 'wte-dbg-list-item' + ( isPinned ? ' is-pinned' : '' );
 		item.dataset.postId = post.id;
+
+		const content = document.createElement( 'div' );
+		content.className = 'wte-dbg-list-item-content';
 
 		const title = document.createElement( 'span' );
 		title.className = 'wte-dbg-list-item-title';
@@ -179,10 +331,39 @@ export class MasterDetailTab {
 
 		meta.appendChild( badge );
 		meta.appendChild( idSpan );
-		item.appendChild( title );
-		item.appendChild( meta );
+		content.appendChild( title );
+		content.appendChild( meta );
+
+		const pinBtn = document.createElement( 'button' );
+		pinBtn.className = 'wte-dbg-pin-btn';
+		pinBtn.title = isPinned ? 'Unpin' : 'Pin to top';
+		pinBtn.setAttribute( 'aria-label', isPinned ? 'Unpin' : 'Pin to top' );
+		pinBtn.appendChild( makePinIcon( isPinned ) );
+		pinBtn.addEventListener( 'click', ( e ) => {
+			e.stopPropagation();
+			const ids = this._getPinnedIds();
+			if ( isPinned ) {
+				this._setPinnedIds( ids.filter( ( id ) => id !== post.id ) );
+			} else {
+				this._setPinnedIds( [ post.id, ...ids ] );
+			}
+			this._reloadList();
+		} );
+
+		item.appendChild( content );
+		item.appendChild( pinBtn );
 
 		return item;
+	}
+
+	_getPinnedIds() {
+		try { return JSON.parse( localStorage.getItem( 'wte_dbg_pins_' + this.postType ) || '[]' ); }
+		catch ( e ) { return []; }
+	}
+
+	_setPinnedIds( ids ) {
+		try { localStorage.setItem( 'wte_dbg_pins_' + this.postType, JSON.stringify( ids ) ); }
+		catch ( e ) {}
 	}
 
 	_loadInspector( postId, inspector ) {
@@ -194,6 +375,11 @@ export class MasterDetailTab {
 
 		DomHelper.setTextContent( inspector, '' );
 		DomHelper.appendShimmer( inspector, 4, 'Loading inspector\u2026' );
+
+		if ( this._relSidebarBody ) {
+			DomHelper.setTextContent( this._relSidebarBody, '' );
+			this._relSidebarBody.appendChild( DomHelper.buildRelationSkeleton() );
+		}
 
 		const params = new URLSearchParams( {
 			action:      'wpte_devzone_get_post',
@@ -260,6 +446,8 @@ export class MasterDetailTab {
 		body.appendChild( this._buildInspectorSection( 'Taxonomies', this._buildTaxonomiesDOM( taxonomies ) ) );
 
 		inspector.appendChild( body );
+
+		this._loadRelations( post.ID );
 	}
 
 	_buildInspectorSection( title, contentNode ) {
@@ -377,6 +565,257 @@ export class MasterDetailTab {
 
 		DomHelper.applyRowStripes( wrap );
 		return wrap;
+	}
+
+	_loadRelations( postId ) {
+		this._relationsController?.abort();
+		this._relationsController = new AbortController();
+		const { signal } = this._relationsController;
+
+		const sidebarBody = this._relSidebarBody;
+		if ( ! sidebarBody ) return;
+
+		DomHelper.setStatus( 'Loading relations\u2026', 'info' );
+
+		const params = new URLSearchParams( {
+			action:      'wpte_devzone_get_relations',
+			post_id:     postId,
+			post_type:   this.postType,
+			_ajax_nonce: nonce,
+		} );
+
+		fetch( ajaxurl + '?' + params, { signal } )
+			.then( ( r ) => r.json() )
+			.then( ( res ) => {
+				DomHelper.setTextContent( sidebarBody, '' );
+				DomHelper.clearStatus();
+				if ( ! res.success ) {
+					const errEl = document.createElement( 'div' );
+				errEl.className = 'wte-dbg-relation-empty';
+				errEl.textContent = 'Error: ' + ( res.data?.message || 'Unknown' );
+				sidebarBody.appendChild( errEl );
+					return;
+				}
+				sidebarBody.appendChild( this._buildRelationsDOM( res.data.relations, postId ) );
+			} )
+			.catch( ( e ) => {
+				if ( e.name === 'AbortError' ) {
+					DomHelper.setStatus( 'Cancelled \u2014 relations', 'cancelled' );
+					return;
+				}
+				DomHelper.setTextContent( sidebarBody, '' );
+				DomHelper.clearStatus();
+				const failEl = document.createElement( 'div' );
+				failEl.className = 'wte-dbg-relation-empty';
+				failEl.textContent = 'Request failed.';
+				sidebarBody.appendChild( failEl );
+			} );
+	}
+
+	_loadRelationPage( postId, group, page ) {
+		this._relationsController?.abort();
+		this._relationsController = new AbortController();
+		const { signal } = this._relationsController;
+
+		const sidebarBody = this._relSidebarBody;
+		if ( ! sidebarBody ) return;
+
+		const existingGroup = sidebarBody.querySelector( `.wte-dbg-relation-group[data-group="${ group }"]` );
+		if ( existingGroup ) {
+			const listEl = existingGroup.querySelector( '.wte-dbg-relation-list' );
+			if ( listEl ) {
+				DomHelper.setTextContent( listEl, '' );
+				DomHelper.appendShimmer( listEl, 3 );
+			}
+		}
+
+		DomHelper.setStatus( 'Loading page ' + page + '\u2026', 'info' );
+
+		const params = new URLSearchParams( {
+			action:      'wpte_devzone_get_relations',
+			post_id:     postId,
+			post_type:   this.postType,
+			group,
+			page,
+			_ajax_nonce: nonce,
+		} );
+
+		fetch( ajaxurl + '?' + params, { signal } )
+			.then( ( r ) => r.json() )
+			.then( ( res ) => {
+				DomHelper.clearStatus();
+				if ( ! res.success || ! res.data.relations[ group ] ) return;
+				const newGroupEl = this._buildRelationGroup( group, res.data.relations[ group ], postId );
+				existingGroup ? existingGroup.replaceWith( newGroupEl ) : sidebarBody.appendChild( newGroupEl );
+			} )
+			.catch( ( e ) => {
+				if ( e.name === 'AbortError' ) {
+					DomHelper.setStatus( 'Cancelled \u2014 relations', 'cancelled' );
+					return;
+				}
+				DomHelper.clearStatus();
+			} );
+	}
+
+	_buildRelationsDOM( relations, postId ) {
+		const wrap = document.createElement( 'div' );
+		let hasAny = false;
+
+		for ( const [ key, groupData ] of Object.entries( relations ) ) {
+			if ( ! groupData || ! Array.isArray( groupData.items ) ) continue;
+			hasAny = true;
+			wrap.appendChild( this._buildRelationGroup( key, groupData, postId ) );
+		}
+
+		if ( ! hasAny ) {
+			const empty = document.createElement( 'div' );
+			empty.className = 'wte-dbg-relation-empty';
+			empty.textContent = 'No related records found.';
+			wrap.appendChild( empty );
+		}
+
+		return wrap;
+	}
+
+	_buildRelationGroup( key, groupData, postId ) {
+		const { items, total, total_pages, page } = groupData;
+
+		const group = document.createElement( 'div' );
+		group.className = 'wte-dbg-relation-group';
+		group.dataset.group = key;
+
+		const header = document.createElement( 'div' );
+		header.className = 'wte-dbg-relation-header';
+
+		const label = document.createElement( 'span' );
+		label.className = 'wte-dbg-relation-label';
+		label.textContent = key;
+
+		const count = document.createElement( 'span' );
+		count.className = 'wte-dbg-relation-count';
+		count.textContent = total;
+
+		header.appendChild( label );
+		header.appendChild( count );
+
+		// Pagination controls — rendered inside the header as its last child
+		if ( total_pages > 1 ) {
+			const pagEl = document.createElement( 'div' );
+			pagEl.className = 'wte-dbg-relation-pagination';
+
+			const prevBtn = document.createElement( 'button' );
+			prevBtn.className = 'wte-dbg-rel-page-btn';
+			prevBtn.textContent = '\u2039'; // ‹
+			prevBtn.disabled = page <= 1;
+			prevBtn.addEventListener( 'click', () => this._loadRelationPage( postId, key, page - 1 ) );
+
+			const info = document.createElement( 'span' );
+			info.className = 'wte-dbg-rel-page-info';
+			info.textContent = page + '\u00a0/\u00a0' + total_pages;
+
+			const nextBtn = document.createElement( 'button' );
+			nextBtn.className = 'wte-dbg-rel-page-btn';
+			nextBtn.textContent = '\u203a'; // ›
+			nextBtn.disabled = page >= total_pages;
+			nextBtn.addEventListener( 'click', () => this._loadRelationPage( postId, key, page + 1 ) );
+
+			pagEl.appendChild( prevBtn );
+			pagEl.appendChild( info );
+			pagEl.appendChild( nextBtn );
+			header.appendChild( pagEl );
+		}
+
+		group.appendChild( header );
+
+		// Filter input for larger lists (filters within current page)
+		let filterInput = null;
+		if ( items.length > 4 ) {
+			filterInput = document.createElement( 'input' );
+			filterInput.type = 'text';
+			filterInput.className = 'wte-dbg-relation-filter';
+			filterInput.placeholder = 'Filter\u2026';
+			group.appendChild( filterInput );
+		}
+
+		const list = document.createElement( 'div' );
+		list.className = 'wte-dbg-relation-list';
+
+		if ( items.length === 0 ) {
+			const empty = document.createElement( 'div' );
+			empty.className = 'wte-dbg-relation-empty';
+			empty.textContent = 'None.';
+			list.appendChild( empty );
+		} else {
+			items.forEach( ( item ) => {
+				list.appendChild( this._buildRelationItem( item ) );
+			} );
+		}
+
+		group.appendChild( list );
+
+		// Wire up filter
+		if ( filterInput ) {
+			filterInput.addEventListener( 'input', () => {
+				const q = filterInput.value.toLowerCase();
+				list.querySelectorAll( '.wte-dbg-relation-item' ).forEach( ( el ) => {
+					const title = el.querySelector( '.wte-dbg-relation-item-title' )?.textContent.toLowerCase() || '';
+					el.style.display = title.includes( q ) ? '' : 'none';
+				} );
+			} );
+		}
+
+		return group;
+	}
+
+	_buildRelationItem( item ) {
+		const tab  = POST_TYPE_TO_TAB[ item.post_type ];
+		const href = tab
+			? ajaxurl.replace( /\/admin-ajax\.php(\?.*)?$/, '/tools.php' )
+				+ '?page=wptravelengine-devzone&tab=' + tab + '&post_id=' + item.id
+			: '#';
+
+		const el = document.createElement( 'a' );
+		el.className  = 'wte-dbg-relation-item';
+		el.href       = href;
+		el.target     = '_blank';
+		el.rel        = 'noopener';
+		el.tabIndex   = 0;
+
+		const titleSpan = document.createElement( 'span' );
+		titleSpan.className = 'wte-dbg-relation-item-title';
+		titleSpan.textContent = item.title;
+
+		const metaSpan = document.createElement( 'span' );
+		metaSpan.className = 'wte-dbg-relation-item-meta';
+
+		const badge = document.createElement( 'span' );
+		badge.className = 'wte-dbg-status wte-dbg-status-' + item.status;
+		badge.textContent = item.status;
+
+		const idText = document.createTextNode( '\u00a0#' + item.id );
+		metaSpan.appendChild( badge );
+		metaSpan.appendChild( idText );
+
+		el.appendChild( titleSpan );
+		el.appendChild( metaSpan );
+
+		// Regular click → SPA navigation (stay in current tab); middle/Ctrl/Meta → new tab via href.
+		el.addEventListener( 'click', ( e ) => {
+			if ( e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1 ) return;
+			e.preventDefault();
+			if ( tab && this._onNavigate ) {
+				this._onNavigate( tab, item.id );
+			}
+		} );
+
+		el.addEventListener( 'keydown', ( e ) => {
+			if ( e.key === 'Enter' ) {
+				e.preventDefault();
+				if ( tab && this._onNavigate ) this._onNavigate( tab, item.id );
+			}
+		} );
+
+		return el;
 	}
 
 	_buildMetaNodeDOM( key, value, parentPath ) {

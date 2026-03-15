@@ -91,7 +91,7 @@ export class DomHelper {
 
 		const prev = document.createElement( 'button' );
 		prev.className = 'wte-dbg-page-btn';
-		prev.textContent = '\u00ab Prev';
+		prev.textContent = '\u2039';
 		prev.dataset.page = page - 1;
 		if ( page <= 1 ) prev.disabled = true;
 
@@ -101,7 +101,7 @@ export class DomHelper {
 
 		const next = document.createElement( 'button' );
 		next.className = 'wte-dbg-page-btn';
-		next.textContent = 'Next \u00bb';
+		next.textContent = '\u203a';
 		next.dataset.page = page + 1;
 		if ( page >= totalPages ) next.disabled = true;
 
@@ -163,6 +163,64 @@ export class DomHelper {
 			note.textContent = msg;
 			note.classList.remove( 'is-changing' );
 		}, 150 );
+	}
+
+	/**
+	 * Build a skeleton placeholder that mimics the real relation groups layout.
+	 * @param {number} groups        Number of group blocks to render (default 2).
+	 * @param {number} itemsPerGroup Number of skeleton item cards per group (default 3).
+	 * @returns {HTMLElement}
+	 */
+	static buildRelationSkeleton( groups = 2, itemsPerGroup = 3 ) {
+		const TITLE_WIDTHS = [ '85%', '68%', '78%', '60%', '90%' ];
+		const wrap = document.createElement( 'div' );
+
+		for ( let g = 0; g < groups; g++ ) {
+			const group = document.createElement( 'div' );
+			group.className = 'wte-dbg-relation-group';
+
+			const header = document.createElement( 'div' );
+			header.className = 'wte-dbg-relation-header';
+
+			const label = document.createElement( 'div' );
+			label.className = 'wte-dbg-loader-block wte-dbg-skel-label';
+			label.setAttribute( 'aria-hidden', 'true' );
+
+			const badge = document.createElement( 'div' );
+			badge.className = 'wte-dbg-loader-block wte-dbg-skel-badge';
+			badge.setAttribute( 'aria-hidden', 'true' );
+
+			header.appendChild( label );
+			header.appendChild( badge );
+			group.appendChild( header );
+
+			const list = document.createElement( 'div' );
+			list.className = 'wte-dbg-relation-list';
+
+			for ( let i = 0; i < itemsPerGroup; i++ ) {
+				const delay = ( ( g * itemsPerGroup ) + i ) * 0.08;
+
+				const item = document.createElement( 'div' );
+				item.className = 'wte-dbg-relation-skeleton-item';
+
+				const title = document.createElement( 'div' );
+				title.className = 'wte-dbg-loader-block';
+				title.style.cssText = `width:${ TITLE_WIDTHS[ ( g * itemsPerGroup + i ) % TITLE_WIDTHS.length ] };height:11px;animation-delay:${ delay.toFixed( 2 ) }s`;
+
+				const meta = document.createElement( 'div' );
+				meta.className = 'wte-dbg-loader-block';
+				meta.style.cssText = `width:38px;height:11px;flex-shrink:0;animation-delay:${ ( delay + 0.04 ).toFixed( 2 ) }s`;
+
+				item.appendChild( title );
+				item.appendChild( meta );
+				list.appendChild( item );
+			}
+
+			group.appendChild( list );
+			wrap.appendChild( group );
+		}
+
+		return wrap;
 	}
 
 	/**
