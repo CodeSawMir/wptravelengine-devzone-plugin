@@ -2,21 +2,42 @@
 
 namespace WPTravelEngineDevZone;
 
+use WPTravelEngineDevZone\Tools\AbstractPostTool;
+
 defined( 'ABSPATH' ) || exit;
 
 class Admin {
 
 	public const PAGE_SLUG = 'wptravelengine-devzone';
-	public const NONCE       = 'wpte_devzone_nonce';
+	public const NONCE     = 'wpte_devzone_nonce';
 
-	public function __construct() {
+	/** @var Tools\AbstractTool[] */
+	private array $tools;
+
+	/** @param Tools\AbstractTool[] $tools */
+	public function __construct( array $tools ) {
+		$this->tools = $tools;
 		add_action( 'admin_menu', [ $this, 'register_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'maybe_show_activation_pointer' ] );
 		add_action( 'current_screen', [ $this, 'suppress_notices_on_our_page' ] );
 
-		$handler = new AjaxHandler();
-		$handler->register();
+		( new SharedAjax( $tools ) )->register();
+		( new Tools\ToolBeautifier() )->register();
+		foreach ( $tools as $tool ) {
+			$tool->register_ajax();
+		}
+	}
+
+	/**
+	 * Verify an incoming AJAX request: valid nonce + manage_options capability.
+	 * Call this at the top of every AJAX handler.
+	 */
+	public static function verify_request(): void {
+		check_ajax_referer( self::NONCE );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => 'Forbidden' ], 403 );
+		}
 	}
 
 	/**
@@ -45,7 +66,7 @@ class Admin {
 	}
 
 	public function maybe_show_activation_pointer(): void {
-		if ( ! get_transient( 'wpte_devzone_activation_pointer' ) ) {
+		if ( 'wptravelengine-devzone' === ( $_GET['page'] ?? '' ) ) {
 			return;
 		}
 
@@ -53,11 +74,8 @@ class Admin {
 		$dismissed  = explode( ',', (string) get_user_meta( get_current_user_id(), 'dismissed_wp_pointers', true ) );
 
 		if ( \in_array( $pointer_id, $dismissed, true ) ) {
-			delete_transient( 'wpte_devzone_activation_pointer' );
 			return;
 		}
-
-		delete_transient( 'wpte_devzone_activation_pointer' );
 
 		wp_add_inline_script(
 			'common',
@@ -126,7 +144,6 @@ class Admin {
 	}
 
 	public function enqueue_assets( string $hook ): void {
-		// Only load on our admin page
 		if ( strpos( $hook, self::PAGE_SLUG ) === false ) {
 			return;
 		}
@@ -146,33 +163,56 @@ class Admin {
 			true
 		);
 
-		wp_enqueue_style(
-			'wpte-devzone-search',
-			WPTE_DEVZONE_URL . 'assets/css/db-search.css',
-			[ 'wpte-devzone' ],
-			WPTE_DEVZONE_VERSION
+		// wp_script_add_data( 'type', 'module' ) requires WP 6.3+.
+		// Use script_loader_tag for broad compatibility.
+		add_filter(
+			'script_loader_tag',
+			static function ( $tag, $handle ) {
+				if ( 'wpte-devzone' === $handle || 'wpte-devzone-search' === $handle ) {
+					return str_replace( ' src=', ' type="module" src=', $tag );
+				}
+				return $tag;
+			},
+			10,
+			2
 		);
-		wp_enqueue_script(
-			'wpte-devzone-search',
-			WPTE_DEVZONE_URL . 'assets/js/db-search.js',
-			[ 'wpte-devzone' ],
-			WPTE_DEVZONE_VERSION,
-			true
-		);
+
+		// Build post_types map dynamically from registered PostTools.
+		$post_types = [];
+		foreach ( $this->tools as $tool ) {
+			if ( $tool instanceof AbstractPostTool ) {
+				$post_types[ $tool->get_post_type() ] = $tool->get_label();
+			}
+		}
 
 		wp_localize_script( 'wpte-devzone', 'wpteDbg', [
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 			'nonce'      => wp_create_nonce( self::NONCE ),
-			'post_types' => [
-				'trip'         => __( 'Trips', 'wptravelengine-devzone' ),
-				'booking'      => __( 'Bookings', 'wptravelengine-devzone' ),
-				'wte-payments' => __( 'Payments', 'wptravelengine-devzone' ),
-				'customer'     => __( 'Customers', 'wptravelengine-devzone' ),
-			],
+			'post_types' => $post_types,
 		] );
+
+		// Let each tool enqueue its own assets (e.g. ToolQuery loads db-search.js).
+		foreach ( $this->tools as $tool ) {
+			$tool->enqueue_assets();
+		}
 	}
 
 	public function render_page(): void {
+		$tools       = $this->tools;
+		$active_slug = sanitize_key( $_GET['tab'] ?? $tools[0]->get_slug() );
+		$active_tool = null;
+
+		foreach ( $tools as $tool ) {
+			if ( $tool->get_slug() === $active_slug ) {
+				$active_tool = $tool;
+				break;
+			}
+		}
+
+		if ( ! $active_tool ) {
+			$active_tool = $tools[0];
+		}
+
 		require WPTE_DEVZONE_DIR . 'templates/layout.php';
 	}
 }

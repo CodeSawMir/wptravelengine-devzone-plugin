@@ -232,11 +232,11 @@ body.wte-dbg-page-dark #wpbody-content {
    ------------------------------------------------------------------------- */
 .wte-dbg-header {
 	display: flex;
-	align-items: center;
+	align-items: stretch;
 	justify-content: space-between;
 	gap: 16px;
 	background: linear-gradient( 135deg, #163f78 0%, #0c2c55 100% );
-	padding: 14px 20px 0;
+	padding: 0 20px;
 	border-radius: 0;
 	margin-top: 0;
 }
@@ -244,13 +244,14 @@ body.wte-dbg-page-dark #wpbody-content {
 .wte-dbg-header-brand {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 0;
 }
 
 .wte-dbg-header-brand-link {
 	display: flex;
 	align-items: center;
 	gap: 10px;
+	padding: 14px 0;
 	text-decoration: none;
 	opacity: 1;
 	transition: opacity 0.15s;
@@ -260,12 +261,32 @@ body.wte-dbg-page-dark #wpbody-content {
 	opacity: 0.8;
 }
 
+@keyframes wte-dbg-icon-intro {
+	0%   { opacity: 0; transform: rotate(-20deg) scale(0.6); }
+	60%  { opacity: 1; transform: rotate(6deg) scale(1.1); }
+	80%  { transform: rotate(-3deg) scale(0.97); }
+	100% { opacity: 0.85; transform: rotate(0deg) scale(1); }
+}
+
+@keyframes wte-dbg-brand-intro {
+	0%   { opacity: 0; transform: translateX(-8px); }
+	100% { opacity: 1; transform: translateX(0); }
+}
+
 .wte-dbg-header-icon {
 	width: 22px;
 	height: 22px;
 	flex-shrink: 0;
 	opacity: 0.85;
 	vertical-align: middle;
+}
+
+.wte-dbg-header-brand-link.wte-dbg-brand-animate .wte-dbg-header-icon {
+	animation: wte-dbg-icon-intro 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.wte-dbg-header-brand-link.wte-dbg-brand-animate .wte-dbg-header-product {
+	animation: wte-dbg-brand-intro 0.4s ease both 0.15s;
 }
 
 .wte-dbg-header-product {
@@ -281,21 +302,40 @@ body.wte-dbg-page-dark #wpbody-content {
 	height: 15px;
 	background: rgba( 255, 255, 255, 0.25 );
 	flex-shrink: 0;
+	align-self: center;
+	margin: 0 10px;
 }
 
-.wte-dbg-header-zone {
+/* Group buttons — "Dev Zone" and "Logs" in the header */
+.wte-dbg-group-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0 4px;
+	height: 100%;
 	font-size: 10.5px;
 	font-weight: 700;
 	letter-spacing: 0.09em;
 	text-transform: uppercase;
 	color: rgba( 255, 255, 255, 0.55 );
+	transition: color 0.15s, box-shadow 0.15s;
+	white-space: nowrap;
+	box-shadow: none;
+}
+
+.wte-dbg-group-btn:hover {
+	color: rgba( 255, 255, 255, 0.85 );
+}
+
+.wte-dbg-group-btn.is-active {
+	color: #fff;
+	box-shadow: inset 0 -3px 0 #fff;
 }
 
 .wte-dbg-header-meta {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	padding-bottom: 14px;
 }
 
 .wte-dbg-meta-pill {
@@ -323,6 +363,10 @@ body.wte-dbg-page-dark #wpbody-content {
 	margin-top: 0;
 	border-top: 1px solid rgba( 255, 255, 255, 0.1 );
 	border-bottom: none;
+}
+
+.wte-dbg-tabs.is-hidden {
+	display: none;
 }
 
 .wte-dbg-tab {
@@ -362,6 +406,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	border: 1px solid var(--dbg-border);
 	border-top: 3px solid #0c2c55;
 	flex: 1;
+	position: relative; /* loader overlay anchor */
 }
 
 /* -------------------------------------------------------------------------
@@ -382,6 +427,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	flex-direction: column;
 	background: var(--dbg-surface);
 	overflow: hidden;
+	transition: width 0.2s ease, min-width 0.2s ease;
 }
 
 .wte-dbg-list-header {
@@ -395,6 +441,53 @@ body.wte-dbg-page-dark #wpbody-content {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+/* Sidebar collapse toggle */
+.wte-dbg-sidebar-toggle {
+	margin-left: auto;
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: 1px solid var(--dbg-border);
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+	color: var(--dbg-text-dim);
+	padding: 0;
+}
+
+.wte-dbg-sidebar-toggle:hover {
+	background: var(--dbg-hover-bg);
+	color: var(--dbg-text);
+}
+
+/* Collapsed sidebar */
+.wte-dbg-master-detail.sidebar-collapsed .wte-dbg-list-panel {
+	width: 32px;
+	min-width: 32px;
+}
+
+.wte-dbg-master-detail.sidebar-collapsed .wte-dbg-list-header {
+	padding: 8px 6px;
+	justify-content: center;
+}
+
+.wte-dbg-master-detail.sidebar-collapsed .wte-dbg-list-header > :not( .wte-dbg-sidebar-toggle ) {
+	display: none;
+}
+
+.wte-dbg-master-detail.sidebar-collapsed .wte-dbg-search-wrap,
+.wte-dbg-master-detail.sidebar-collapsed .wte-dbg-list-items,
+.wte-dbg-master-detail.sidebar-collapsed .wte-dbg-pagination {
+	display: none;
 }
 
 .wte-dbg-list-count {
@@ -430,6 +523,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	flex: 1;
 	overflow-y: auto;
 	padding: 4px 0;
+	position: relative;
 }
 
 
@@ -521,6 +615,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	overflow-y: auto;
 	background: var(--dbg-surface);
 	padding: 0;
+	position: relative;
 }
 
 .wte-dbg-inspector-placeholder {
@@ -736,6 +831,150 @@ details[open] > .wte-dbg-option-name {
 	animation: wte-dbg-shimmer 1.4s infinite linear;
 	border-radius: 3px;
 	margin: 8px 14px;
+}
+
+/* -------------------------------------------------------------------------
+   Tab loader overlay — spinner centered over .wte-dbg-content
+   ------------------------------------------------------------------------- */
+
+@keyframes wte-dbg-spin {
+	to { transform: rotate( 360deg ); }
+}
+
+.wte-dbg-loader {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--dbg-bg);
+	z-index: 10;
+}
+
+.wte-dbg-loader-spinner {
+	width: 34px;
+	height: 34px;
+	border: 3px solid var(--dbg-border);
+	border-top-color: var(--dbg-accent);
+	border-radius: 50%;
+	animation: wte-dbg-spin 1.1s linear infinite;
+}
+
+/* Shared shimmer block (used by inline shimmer only) */
+.wte-dbg-loader-block {
+	background: linear-gradient(
+		90deg,
+		var(--dbg-surface-alt) 25%,
+		#e2e3e5 50%,
+		var(--dbg-surface-alt) 75%
+	);
+	background-size: 800px 100%;
+	animation: wte-dbg-shimmer 1.5s infinite linear;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+/* ── Inline shimmer (list & inspector inner loads) ── */
+.wte-dbg-shimmer-lines {
+	padding: 10px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+/* ── Status note — dark floating badge, bottom-right ── */
+
+@keyframes wte-dbg-dot-ping {
+	0%, 100% { transform: scale(1);   opacity: 1; }
+	50%       { transform: scale(1.5); opacity: 0.5; }
+}
+
+@keyframes wte-dbg-note-in {
+	from { opacity: 0; transform: translateY(4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Global status note — lives inside .wte-dbg-tabs, floated to the right */
+.wte-dbg-status-note-wrap {
+	display: flex;
+	align-items: center;
+	margin-left: auto;
+	padding: 0 8px;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.wte-dbg-status-note-wrap.is-visible {
+	opacity: 1;
+}
+
+.wte-dbg-loader-note {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	background: rgba( 255, 255, 255, 0.08 );
+	border: 1px solid rgba( 255, 255, 255, 0.12 );
+	border-radius: 6px;
+	padding: 4px 10px 4px 8px;
+	font-size: 11px;
+	font-weight: 500;
+	color: rgba( 255, 255, 255, 0.75 );
+	letter-spacing: 0.03em;
+	white-space: nowrap;
+	transition: opacity 0.15s, transform 0.15s;
+}
+
+.wte-dbg-loader-note::before {
+	content: '';
+	display: block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #4ade80;
+	flex-shrink: 0;
+	animation: wte-dbg-dot-ping 1.2s ease-in-out infinite;
+}
+
+/* Info — blue, pulsing */
+.wte-dbg-status-note-wrap.is-status-info .wte-dbg-loader-note::before {
+	background: #60a5fa;
+}
+
+/* Success — solid green, no pulse */
+.wte-dbg-status-note-wrap.is-status-success .wte-dbg-loader-note::before {
+	background: #4ade80;
+	animation: none;
+}
+
+/* Error — red, no pulse */
+.wte-dbg-status-note-wrap.is-status-error .wte-dbg-loader-note::before {
+	background: #f87171;
+	animation: none;
+}
+
+/* Cancelled — amber, no pulse */
+.wte-dbg-status-note-wrap.is-status-cancelled .wte-dbg-loader-note::before {
+	background: #fb923c;
+	animation: none;
+}
+
+.wte-dbg-loader-note.is-changing {
+	opacity: 0;
+	transform: translateY(3px);
+}
+
+
+/* Dark mode shimmer tones */
+.wte-dbg-dark .wte-dbg-loader-block {
+	background: linear-gradient(
+		90deg,
+		var(--dbg-surface-alt) 25%,
+		#3d3d3d 50%,
+		var(--dbg-surface-alt) 75%
+	);
+	background-size: 800px 100%;
 }
 
 /* Recursive tree nodes */

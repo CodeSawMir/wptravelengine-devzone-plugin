@@ -15,11 +15,15 @@ class Plugin {
 				return;
 			}
 
-			// Convert namespace path to file path:
-			// WPTravelEngineDevZone\AjaxHandler => includes/class-ajax-handler.php
-			$relative = substr( $class, strlen( $prefix ) );
-			$filename  = 'class-' . strtolower( preg_replace( '/([A-Z])/', '-$1', lcfirst( $relative ) ) ) . '.php';
-			$file      = WPTE_DEVZONE_DIR . 'includes/' . $filename;
+			// Convert namespace path to file path, supporting subdirectories:
+			// WPTravelEngineDevZone\Admin            → includes/class-admin.php
+			// WPTravelEngineDevZone\Tools\ToolTrips  → includes/Tools/class-tool-trips.php
+			// WPTravelEngineDevZone\Traits\FooTrait  → includes/Traits/class-foo-trait.php
+			$parts     = explode( '\\', substr( $class, strlen( $prefix ) ) );
+			$classname = array_pop( $parts );
+			$kebab     = strtolower( preg_replace( '/([A-Z])/', '-$1', lcfirst( $classname ) ) );
+			$subdir    = $parts ? implode( DIRECTORY_SEPARATOR, $parts ) . DIRECTORY_SEPARATOR : '';
+			$file      = WPTE_DEVZONE_DIR . 'includes/' . $subdir . 'class-' . $kebab . '.php';
 
 			if ( file_exists( $file ) ) {
 				require_once $file;
@@ -36,6 +40,16 @@ class Plugin {
 	}
 
 	private function boot(): void {
-		new Admin();
+		$tools = apply_filters( 'wpte_devzone_tools', [
+			new Tools\ToolOverview(),
+			new Tools\ToolTrips(),
+			new Tools\ToolBookings(),
+			new Tools\ToolPayments(),
+			new Tools\ToolCustomers(),
+			new Tools\ToolQuery(),
+			new Tools\ToolLogs(),
+		] );
+
+		new Admin( $tools );
 	}
 }
