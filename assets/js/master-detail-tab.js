@@ -42,6 +42,17 @@ function makePinIcon( filled ) {
 	return svg;
 }
 
+const RELATION_LABELS = {
+	trip:      { singular: 'Trip',     plural: 'Trips' },
+	trips:     { singular: 'Trip',     plural: 'Trips' },
+	booking:   { singular: 'Booking',  plural: 'Bookings' },
+	bookings:  { singular: 'Booking',  plural: 'Bookings' },
+	payment:   { singular: 'Payment',  plural: 'Payments' },
+	payments:  { singular: 'Payment',  plural: 'Payments' },
+	customer:  { singular: 'Customer', plural: 'Customers' },
+	customers: { singular: 'Customer', plural: 'Customers' },
+};
+
 const POST_TYPE_TO_TAB = {
 	'trip':         'trips',
 	'booking':      'bookings',
@@ -689,7 +700,10 @@ export class MasterDetailTab {
 
 		const label = document.createElement( 'span' );
 		label.className = 'wte-dbg-relation-label';
-		label.textContent = key;
+		const defaults  = RELATION_LABELS[ key ] || {};
+		const singular  = groupData.label        || defaults.singular || key;
+		const plural    = groupData.label_plural  || defaults.plural   || singular;
+		label.textContent = total === 1 ? singular : plural;
 
 		const count = document.createElement( 'span' );
 		count.className = 'wte-dbg-relation-count';
