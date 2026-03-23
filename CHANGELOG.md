@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.2.0] - 2026-XX-XX
+
+- Improved UI consistency across tools
+- Added Relations sidebar with cross-tab navigation and pinning support
+- Added Cron Management tool for viewing, running, and managing WP-Cron events
+
 ## [v1.1.0] - 2026-03-15
 
 - Refactored tools into a class hierarchy with shared AJAX routing
