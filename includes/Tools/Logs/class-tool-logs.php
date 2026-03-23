@@ -1,6 +1,8 @@
 <?php
 
-namespace WPTravelEngineDevZone\Tools;
+namespace WPTravelEngineDevZone\Tools\Logs;
+
+use WPTravelEngineDevZone\Tools\AbstractTool;
 
 defined( 'ABSPATH' ) || exit;
 

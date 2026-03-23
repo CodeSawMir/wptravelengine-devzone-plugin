@@ -3,6 +3,8 @@
  * Static DOM utility methods shared across tab modules.
  */
 
+import { Icons } from './constants.js';
+
 export class DomHelper {
 	static buildRow() {
 		const row = document.createElement( 'div' );
@@ -25,12 +27,40 @@ export class DomHelper {
 		return span;
 	}
 
+	/**
+	 * Toggle a .wte-dbg-value span between truncated and full content.
+	 * @param {HTMLElement} el  The value span (must have data-raw).
+	 * @param {boolean}     [expand]  Force expand (true) or collapse (false). Omit to toggle.
+	 * @param {number}      [maxLen=80]  Truncation length.
+	 */
+	static toggleValueExpand( el, expand, maxLen = 80 ) {
+		const raw = el.dataset.raw ?? '';
+		if ( raw.length <= maxLen ) return;
+		const expanding = expand !== undefined ? expand : el.dataset.expanded !== '1';
+		el.dataset.expanded = expanding ? '1' : '0';
+		el.textContent      = expanding ? raw : raw.substring( 0, maxLen ) + Icons.ELLIPSIS;
+		el.title            = expanding ? 'Click to collapse' : 'Click to expand';
+	}
+
+	/**
+	 * Wire up delegated click handling on a container so that long .wte-dbg-value
+	 * spans expand/collapse on click.
+	 * @param {HTMLElement} container
+	 * @param {number}      [maxLen=80]
+	 */
+	static setupValueClicks( container, maxLen = 80 ) {
+		container.addEventListener( 'click', ( e ) => {
+			const val = e.target.closest( '.wte-dbg-value[data-raw]' );
+			if ( val ) DomHelper.toggleValueExpand( val, undefined, maxLen );
+		} );
+	}
+
 	static makeEditBtn() {
 		const btn = document.createElement( 'button' );
 		btn.type = 'button';
 		btn.className = 'wte-dbg-edit-btn';
 		btn.title = 'Edit';
-		btn.textContent = '\u270e';
+		btn.textContent = Icons.EDIT;
 		return btn;
 	}
 
@@ -91,7 +121,7 @@ export class DomHelper {
 
 		const prev = document.createElement( 'button' );
 		prev.className = 'wte-dbg-page-btn';
-		prev.textContent = '\u2039';
+		prev.textContent = Icons.PREV;
 		prev.dataset.page = page - 1;
 		if ( page <= 1 ) prev.disabled = true;
 
@@ -101,7 +131,7 @@ export class DomHelper {
 
 		const next = document.createElement( 'button' );
 		next.className = 'wte-dbg-page-btn';
-		next.textContent = '\u203a';
+		next.textContent = Icons.NEXT;
 		next.dataset.page = page + 1;
 		if ( page >= totalPages ) next.disabled = true;
 
@@ -121,7 +151,7 @@ export class DomHelper {
 	 * Covers .wte-dbg-content absolutely with a centred spinner + status note.
 	 */
 	static makeLoader( msg ) {
-		DomHelper.setStatus( msg || 'Loading\u2026' );
+		DomHelper.setStatus( msg || `Loading${ Icons.ELLIPSIS }` );
 
 		const wrap = document.createElement( 'div' );
 		wrap.className = 'wte-dbg-loader';
@@ -251,6 +281,66 @@ export class DomHelper {
 		}
 		if ( typeof value === 'boolean' ) return value ? 'true' : 'false';
 		const str = String( value );
-		return str.length > 120 ? str.substring( 0, 120 ) + '\u2026' : str;
+		return str.length > 120 ? str.substring( 0, 120 ) + Icons.ELLIPSIS : str;
+	}
+
+	/**
+	 * Attach a cursor-following "copy" label to an element.
+	 * The label appears on mouseenter and tracks the pointer via mousemove.
+	 * Call once per element (e.g. on creation).
+	 * @param {HTMLElement} el  The element to attach the tooltip to.
+	 */
+	static attachCopyLabel( el ) {
+		if ( ! DomHelper._copyLabelEl ) {
+			const tip = document.createElement( 'div' );
+			tip.className = 'wte-dbg-copy-label';
+			tip.textContent = 'copy';
+			document.body.appendChild( tip );
+			DomHelper._copyLabelEl = tip;
+		}
+
+		const tip = DomHelper._copyLabelEl;
+
+		el.addEventListener( 'mouseenter', () => tip.classList.add( 'is-visible' ) );
+		el.addEventListener( 'mouseleave', () => tip.classList.remove( 'is-visible' ) );
+		el.addEventListener( 'mousemove', ( e ) => {
+			tip.style.left = e.clientX + 'px';
+			tip.style.top  = e.clientY + 'px';
+		} );
+	}
+
+	/**
+	 * Copy a value to the clipboard and flash the element with "Copied!" feedback.
+	 * @param {HTMLElement} el   Element to flash (must have .is-copied CSS state).
+	 * @param {*}           val  Value to copy (null → empty string).
+	 */
+	static copyWithFeedback( el, val ) {
+		if ( el.classList.contains( 'is-copied' ) ) return;
+		const text = val === null ? '' : String( val );
+		const prev = el.textContent;
+
+		const showFeedback = () => {
+			el.classList.add( 'is-copied' );
+			el.textContent = 'Copied!';
+			setTimeout( () => {
+				el.classList.remove( 'is-copied' );
+				el.textContent = prev;
+			}, 1000 );
+		};
+
+		if ( navigator.clipboard && navigator.clipboard.writeText ) {
+			navigator.clipboard.writeText( text ).then( showFeedback );
+		} else {
+			// Fallback for HTTP / older browsers
+			const ta = document.createElement( 'textarea' );
+			ta.value = text;
+			ta.style.cssText = 'position:fixed;opacity:0;';
+			document.body.appendChild( ta );
+			ta.select();
+			// eslint-disable-next-line no-restricted-properties
+			document.execCommand( 'copy' );
+			document.body.removeChild( ta );
+			showFeedback();
+		}
 	}
 }

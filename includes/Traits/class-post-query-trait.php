@@ -39,16 +39,19 @@ trait PostQueryTrait {
 			$pinned_posts = array_map( $format, $pinned_q->posts );
 		}
 
-		$args = [
-			'post_type'        => $post_type,
-			'post_status'      => array_keys( get_post_stati() ),
-			'posts_per_page'   => 30,
-			'paged'            => $page,
-			's'                => $search,
-			'orderby'          => 'ID',
-			'order'            => 'DESC',
-			'suppress_filters' => true,
-		];
+		$args = array_merge(
+			[
+				'post_type'        => $post_type,
+				'post_status'      => array_keys( get_post_stati() ),
+				'posts_per_page'   => 30,
+				'paged'            => $page,
+				's'                => $search,
+				'orderby'          => 'ID',
+				'order'            => 'DESC',
+				'suppress_filters' => true,
+			],
+			$this->extra_query_args()
+		);
 		if ( ! empty( $pinned_ids ) ) {
 			$args['post__not_in'] = $pinned_ids;
 		}
@@ -72,6 +75,11 @@ trait PostQueryTrait {
 			'total_pages' => $query->max_num_pages,
 			'page'        => $page,
 		];
+	}
+
+	/** Extra args merged into the main list query. Override in concrete tools. */
+	protected function extra_query_args(): array {
+		return [];
 	}
 
 	/** Standard sidebar-list row. */

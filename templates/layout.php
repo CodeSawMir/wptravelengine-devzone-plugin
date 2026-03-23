@@ -24,8 +24,12 @@ $active_slug = $active_tool->get_slug();
 			<span class="wte-dbg-header-product"><?php esc_html_e( 'WP Travel Engine - Dev Zone', 'wptravelengine-devzone' ); ?></span>
 			</a>
 			<span class="wte-dbg-header-divider" aria-hidden="true"></span>
-			<button type="button" class="wte-dbg-group-btn <?php echo $active_slug !== 'logs' ? 'is-active' : ''; ?>" data-group="devzone">
+			<button type="button" class="wte-dbg-group-btn <?php echo ! in_array( $active_slug, [ 'logs', 'cron' ], true ) ? 'is-active' : ''; ?>" data-group="devzone">
 				<?php esc_html_e( 'Inspector', 'wptravelengine-devzone' ); ?>
+			</button>
+			<span class="wte-dbg-header-divider" aria-hidden="true"></span>
+			<button type="button" class="wte-dbg-group-btn <?php echo $active_slug === 'cron' ? 'is-active' : ''; ?>" data-group="cron">
+				<?php esc_html_e( 'Cron', 'wptravelengine-devzone' ); ?>
 			</button>
 			<span class="wte-dbg-header-divider" aria-hidden="true"></span>
 			<button type="button" class="wte-dbg-group-btn <?php echo $active_slug === 'logs' ? 'is-active' : ''; ?>" data-group="logs">
@@ -42,9 +46,9 @@ $active_slug = $active_tool->get_slug();
 		</div>
 	</div>
 
-	<nav class="wte-dbg-tabs <?php echo $active_slug === 'logs' ? 'is-hidden' : ''; ?>" role="tablist">
+	<nav class="wte-dbg-tabs wte-dbg-bar <?php echo in_array( $active_slug, [ 'logs', 'cron' ], true ) ? 'is-hidden' : ''; ?>" role="tablist">
 		<?php foreach ( $tools as $tool ) : ?>
-			<?php if ( 'logs' === $tool->get_slug() ) continue; ?>
+			<?php if ( in_array( $tool->get_slug(), [ 'logs', 'cron' ], true ) ) continue; ?>
 			<?php $tab_url = $tool->get_tab_url() ?? add_query_arg( [ 'page' => \WPTravelEngineDevZone\Admin::PAGE_SLUG, 'tab' => $tool->get_slug() ], admin_url( 'tools.php' ) ); ?>
 			<a href="<?php echo esc_url( $tab_url ); ?>"
 			   class="wte-dbg-tab <?php echo $active_slug === $tool->get_slug() ? 'is-active' : ''; ?>"

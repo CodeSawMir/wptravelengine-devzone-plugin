@@ -6,6 +6,7 @@
 
 import { DomHelper }    from './dom-helper.js';
 import { InlineEditor } from './inline-editor.js';
+import { Icons }        from './constants.js';
 
 const { ajaxurl, nonce } = wpteDbg;
 const OPTS_PER_PAGE = 20;
@@ -31,8 +32,8 @@ export class OverviewTab {
 		// Search input
 		const searchInput = document.createElement( 'input' );
 		searchInput.type        = 'text';
-		searchInput.className   = 'wte-dbg-option-search';
-		searchInput.placeholder = 'Search options\u2026';
+		searchInput.className   = 'wte-dbg-option-search wte-dbg-search-input';
+		searchInput.placeholder = `Search options${ Icons.ELLIPSIS }`;
 		tree.insertAdjacentElement( 'beforebegin', searchInput );
 
 		const paginEl = this.contentEl.querySelector( '.wte-dbg-options-pagination' );
@@ -59,6 +60,9 @@ export class OverviewTab {
 				if ( row ) this.editor.activateEdit( row );
 			}
 		} );
+
+		// Value truncation — click to expand/collapse (shared utility)
+		DomHelper.setupValueClicks( tree );
 
 		// Delete option button delegation
 		const settingsTab = tree.closest( '.wte-dbg-settings-tab' );
@@ -118,7 +122,7 @@ export class OverviewTab {
 			_ajax_nonce: nonce,
 		} );
 
-		DomHelper.setStatus( 'Loading\u2026', 'info' );
+		DomHelper.setStatus( `Loading${ Icons.ELLIPSIS }`, 'info' );
 
 		fetch( ajaxurl + '?' + params )
 			.then( ( r ) => r.json() )
@@ -128,7 +132,7 @@ export class OverviewTab {
 				if ( res.success ) {
 					DomHelper.setServerHtml( body, res.data.html );
 					DomHelper.applyRowStripes( body );
-					if ( res.data.count !== null && res.data.count !== undefined ) {
+					if ( res.data.count != null ) {
 						let badge = details.querySelector( 'summary .wte-dbg-count' );
 						if ( ! badge ) {
 							badge = document.createElement( 'span' );
@@ -136,6 +140,32 @@ export class OverviewTab {
 							details.querySelector( 'summary' ).appendChild( badge );
 						}
 						badge.textContent = '[' + res.data.count + ' item' + ( res.data.count !== 1 ? 's' : '' ) + ']';
+					}
+
+					// Add expand-all toggle if the body contains nested tree nodes
+					if ( body.querySelector( '.wte-dbg-node' ) ) {
+						const summary   = details.querySelector( 'summary' );
+						const expandBtn = document.createElement( 'span' );
+						expandBtn.className = 'wte-dbg-expand-all-inline';
+						expandBtn.textContent = Icons.EXPAND_ALL;
+						expandBtn.title       = 'Expand all';
+
+						// Prevent the summary toggle when clicking the expand button
+						summary.addEventListener( 'click', ( e ) => {
+							if ( expandBtn.contains( e.target ) ) e.preventDefault();
+						} );
+
+						expandBtn.addEventListener( 'click', () => {
+							const expanding         = expandBtn.dataset.state !== 'expanded';
+							expandBtn.dataset.state = expanding ? 'expanded' : '';
+							expandBtn.textContent   = expanding ? Icons.COLLAPSE_ALL : Icons.EXPAND_ALL;
+							expandBtn.title         = expanding ? 'Collapse all' : 'Expand all';
+							body.querySelectorAll( '.wte-dbg-node' ).forEach( ( el ) => {
+								el.open = expanding;
+							} );
+						} );
+
+						summary.appendChild( expandBtn );
 					}
 				} else {
 					body.textContent = 'Error loading option.';

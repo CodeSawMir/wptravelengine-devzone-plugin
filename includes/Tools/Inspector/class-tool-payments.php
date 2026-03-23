@@ -1,6 +1,8 @@
 <?php
 
-namespace WPTravelEngineDevZone\Tools;
+namespace WPTravelEngineDevZone\Tools\Inspector;
+
+use WPTravelEngineDevZone\Tools\AbstractPostTool;
 
 defined( 'ABSPATH' ) || exit;
 

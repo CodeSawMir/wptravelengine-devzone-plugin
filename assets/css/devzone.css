@@ -25,6 +25,7 @@ body.tools_page_wptravelengine-devzone #wpbody-content {
 	--dbg-accent-dark: #135e96;
 	--dbg-active-bg:   #f0f6fc;
 	--dbg-hover-bg:    #f6f7f7;
+	--dbg-bar-height:  44px;
 	max-width: 100%;
 	margin: 0 !important; /* override WordPress .wrap { margin: 10px 20px 0 2px } */
 	min-height: calc( 100vh - 32px ); /* 32px = WP admin bar height */
@@ -105,13 +106,22 @@ body.wte-dbg-page-dark #wpbody-content {
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table tbody tr:nth-child(even) td,
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-tax-terms-table tbody tr:nth-child(even) td,
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-result-table tbody tr:nth-child(even) td {
-	background-color: var(--dbg-surface-alt);
+	background-color: rgba( 255, 255, 255, 0.03 );
 }
 
 /* Row hover */
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-result-table tr:hover td,
-.wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table tr:hover td {
-	background-color: var(--dbg-hover-bg);
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table tr:hover td,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-tax-terms-table tr:hover td {
+	background-color: var(--dbg-active-bg);
+}
+
+/* Cell borders — border-faint is invisible in dark */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table th,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-price-cat-table td,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-tax-terms-table th,
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-tax-terms-table td {
+	border-bottom-color: var( --dbg-border );
 }
 
 /* Badges with hardcoded light backgrounds */
@@ -193,7 +203,7 @@ body.wte-dbg-page-dark #wpbody-content {
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-run-btn,
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-unser-btn {
 	background: #1e3a5f;
-	color: #a0ccf8;
+	/* color: #a0ccf8; */
 	border: 1px solid #2d5a8e;
 }
 
@@ -239,6 +249,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	padding: 0 20px;
 	border-radius: 0;
 	margin-top: 0;
+	border-bottom: 1px solid rgba( 0, 0, 0, 0.25 );
 }
 
 .wte-dbg-header-brand {
@@ -353,6 +364,12 @@ body.wte-dbg-page-dark #wpbody-content {
 /* -------------------------------------------------------------------------
    Tab Navigation
    ------------------------------------------------------------------------- */
+/* ── Shared bar height — apply .wte-dbg-bar to any toolbar/tab-strip that should match ── */
+.wte-dbg-bar {
+	min-height: var( --dbg-bar-height );
+	box-sizing: border-box;
+}
+
 .wte-dbg-tabs {
 	display: flex;
 	align-items: stretch;
@@ -501,23 +518,61 @@ body.wte-dbg-page-dark #wpbody-content {
 	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
+/* Context-specific width — shared pill styling comes from .wte-dbg-search-input */
 .wte-dbg-search {
 	width: 100%;
-	padding: 6px 10px;
-	border: 1px solid var(--dbg-border);
-	border-radius: 3px;
-	font-size: 12px;
 	box-sizing: border-box;
-	background: var(--dbg-surface-alt);
-	color: var(--dbg-text);
 }
 
-.wte-dbg-search:focus {
+/* =========================================================================
+   Shared search-input — pill shape, magnifier icon, focus ring.
+   Add class  wte-dbg-search-input  to any search / filter input to opt in.
+   ========================================================================= */
+.wte-devzone-wrap .wte-dbg-search-input {
+	height: 34px;
+	padding: 0 12px 0 34px;
+	font-size: 12.5px;
+	font-family: inherit;
+	border: 1.5px solid var(--dbg-border);
+	border-radius: 20px;
+	background-color: var(--dbg-surface);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232271b1' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: 11px center;
+	color: var(--dbg-text);
 	outline: none;
-	border-color: var(--dbg-accent);
-	background: var(--dbg-surface);
-	box-shadow: 0 0 0 1px var(--dbg-accent);
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+	transition: border-color 0.18s, box-shadow 0.18s;
+	box-sizing: border-box;
 }
+
+.wte-devzone-wrap .wte-dbg-search-input::placeholder {
+	color: var(--dbg-text-dim);
+	font-style: italic;
+}
+
+.wte-devzone-wrap .wte-dbg-search-input:hover {
+	border-color: var(--dbg-text-muted);
+}
+
+.wte-devzone-wrap .wte-dbg-search-input:focus {
+	border-color: var(--dbg-accent);
+	background-color: var(--dbg-surface);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232271b1' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: 11px center;
+	box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.1), inset 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-search-input {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237eb8f7' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+	box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-search-input:focus {
+	box-shadow: 0 0 0 3px rgba(126, 184, 247, 0.12), inset 0 1px 3px rgba(0,0,0,0.2);
+}
+/* ========================================================================= */
 
 .wte-dbg-list-items {
 	flex: 1;
@@ -639,12 +694,12 @@ body.wte-dbg-page-dark #wpbody-content {
 	letter-spacing: 0.04em;
 }
 
-.wte-dbg-status-publish   { background: #d7f1e2; color: #1a7a40; }
+.wte-dbg-status-publish,
+.wte-dbg-status-completed,
+.wte-dbg-status-booked     { background: #d7f1e2; color: #1a7a40; }
 .wte-dbg-status-pending    { background: #fef8e1; color: #a67c00; }
 .wte-dbg-status-draft      { background: var(--dbg-bg); color: var(--dbg-text-muted); }
-.wte-dbg-status-trash      { background: #fce8e8; color: #8a1f1f; }
-.wte-dbg-status-completed  { background: #d7f1e2; color: #1a7a40; }
-.wte-dbg-status-booked     { background: #d7f1e2; color: #1a7a40; }
+.wte-dbg-status-trash,
 .wte-dbg-status-cancelled  { background: #fce8e8; color: #8a1f1f; }
 
 .wte-dbg-pagination {
@@ -746,8 +801,12 @@ body.wte-dbg-page-dark #wpbody-content {
 }
 
 .wte-dbg-section-body {
-	padding: 4px 0;
-	margin: 12px;
+	padding: 0;
+	margin: 8px 12px 12px;
+	border: 1px solid var(--dbg-border-faint);
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--dbg-surface);
 }
 
 .wte-dbg-section.is-collapsed .wte-dbg-section-body {
@@ -801,6 +860,27 @@ body.wte-dbg-page-dark #wpbody-content {
 	min-width: 0;
 }
 
+/* Expand-all button inline inside .wte-dbg-option-name summary */
+details:not([open]) .wte-dbg-expand-all-inline {
+	display: none;
+}
+
+.wte-dbg-expand-all-inline {
+	margin-left: auto;
+	cursor: pointer;
+	font-size: 18px;
+	line-height: 1;
+	color: var( --dbg-text-muted );
+	padding: 2px 4px;
+	border-radius: 3px;
+	transition: color 0.1s, background 0.1s;
+}
+
+.wte-dbg-expand-all-inline:hover {
+	color: var( --dbg-accent );
+	background: var( --dbg-active-bg );
+}
+
 .wte-dbg-delete-option-btn {
 	background: none;
 	border: none;
@@ -827,11 +907,12 @@ body.wte-dbg-page-dark #wpbody-content {
 
 
 .wte-dbg-option-name {
-	padding: 7px 14px;
-	font-size: 12px;
+	padding: 8px 14px;
+	font-size: 11px;
 	font-weight: 700;
 	font-family: "SFMono-Regular", Consolas, monospace;
-	color: var(--dbg-accent-dark);
+	letter-spacing: 0.04em;
+	color: var(--dbg-text-muted);
 	cursor: pointer;
 	user-select: none;
 	background: var(--dbg-surface-alt);
@@ -852,32 +933,29 @@ details[open] > .wte-dbg-option-name::before { content: '▼'; font-size: 9px; c
 details:not([open]) > .wte-dbg-option-name::before { content: '▶'; font-size: 9px; color: var(--dbg-text-muted); }
 
 .wte-dbg-option-body {
-	padding: 4px 0;
+	margin: 8px 12px;
+	border: 1px solid var( --dbg-border-faint );
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-option-body {
+	border-color: var( --dbg-border );
 }
 
 details[open] > .wte-dbg-option-name {
 	border-left: 3px solid var(--dbg-accent);
+	border-bottom: 1px solid var(--dbg-border);
 	padding-left: 11px;
 }
 
 /* Settings search */
+/* Context-specific layout — shared pill styling comes from .wte-dbg-search-input */
 .wte-dbg-option-search {
 	display: block;
 	width: 100%;
-	padding: 7px 12px;
 	margin-bottom: 12px;
-	font-size: 13px;
-	border: 1px solid var(--dbg-border);
-	border-radius: 3px;
-	background: var(--dbg-surface);
-	color: var(--dbg-text);
 	box-sizing: border-box;
-}
-
-.wte-dbg-option-search:focus {
-	outline: none;
-	border-color: var(--dbg-accent);
-	box-shadow: 0 0 0 1px var(--dbg-accent);
 }
 
 /* Skeleton loader */
@@ -1073,6 +1151,11 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children                                 { border-left-color: #e07b39; } /* orange */
 .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children               { border-left-color: #d63638; } /* red    */
 
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-children .wte-dbg-children                                                                     { border-left-color: #26a69a; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-children .wte-dbg-children .wte-dbg-children                                                   { border-left-color: #9c7bc4; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children                                 { border-left-color: #f5a060; }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children .wte-dbg-children               { border-left-color: #e57373; }
+
 .wte-dbg-children .wte-dbg-node > summary {
 	background: var(--dbg-active-bg);
 	border-radius: 2px;
@@ -1117,6 +1200,129 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 	background: var(--dbg-active-bg);
 }
 
+/* ── Section-body / option-body rows — table-style layout ── */
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-row {
+	padding: 5px 14px;
+	min-height: 30px;
+	gap: 0;
+	border-bottom: 1px solid var(--dbg-border-faint);
+	transition: background 0.1s;
+}
+
+/* Inspector section-body needs more breathing room for editable fields */
+.wte-dbg-section-body .wte-dbg-row {
+	padding: 7px 16px;
+	min-height: 34px;
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-row:last-child {
+	border-bottom: none;
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-row.is-stripe {
+	background: rgba( 0, 0, 0, 0.018 );
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-row:hover {
+	background: var(--dbg-active-bg);
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-key {
+	min-width: 140px;
+	width: auto;
+	padding-right: 14px;
+	margin-right: 14px;
+	border-right: 1px solid var(--dbg-border-faint);
+	color: var(--dbg-text-muted);
+	font-weight: 500;
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-value {
+	border-color: var(--dbg-border-faint);
+	background: transparent;
+	padding: 2px 8px;
+	max-width: 340px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-value[data-expanded="1"] {
+	white-space: normal;
+	overflow: visible;
+	text-overflow: unset;
+	word-break: break-all;
+	max-width: none;
+	cursor: text;
+	user-select: text;
+}
+
+/* Reset key-column overrides inside tree nodes — details/summary layout is different */
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-children .wte-dbg-key,
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) summary.wte-dbg-key {
+	min-width: unset;
+	width: unset;
+	padding-right: unset;
+	margin-right: unset;
+	border-right: none;
+	font-weight: unset;
+	color: var( --dbg-accent-dark );
+}
+
+/* Give details summary rows the same row-style treatment as .wte-dbg-row */
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-node > summary.wte-dbg-key {
+	padding: 5px 14px;
+	min-height: 30px;
+	border-bottom: 1px solid var( --dbg-border-faint );
+	display: flex;
+	align-items: center;
+	transition: background 0.1s;
+}
+
+/* Inspector section-body summaries keep the larger size */
+.wte-dbg-section-body .wte-dbg-node > summary.wte-dbg-key {
+	padding: 7px 16px;
+	min-height: 34px;
+}
+
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-node > summary.wte-dbg-key:hover {
+	background: var( --dbg-active-bg );
+}
+
+/* No bottom border when the node is the last item in the card */
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) > .wte-dbg-node:last-child:not([open]) > summary.wte-dbg-key,
+:is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-children > *:last-child > summary.wte-dbg-key {
+	border-bottom: none;
+}
+
+/* Dark mode: --dbg-border-faint == --dbg-surface in dark, so borders vanish — use --dbg-border instead */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-section-body {
+	border-color: var( --dbg-border );
+	background: var( --dbg-surface-alt );
+}
+
+.wte-devzone-wrap.wte-dbg-dark :is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-row.is-stripe {
+	background: rgba( 255, 255, 255, 0.03 );
+}
+
+.wte-devzone-wrap.wte-dbg-dark :is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-row {
+	border-bottom-color: var( --dbg-border );
+}
+
+.wte-devzone-wrap.wte-dbg-dark :is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-key {
+	border-right-color: var( --dbg-border );
+	color: var( --dbg-text-muted );
+}
+
+.wte-devzone-wrap.wte-dbg-dark :is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-value {
+	border-color: var( --dbg-border );
+}
+
+.wte-devzone-wrap.wte-dbg-dark :is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-node > summary.wte-dbg-key {
+	border-bottom-color: var( --dbg-border );
+}
+
 .wte-dbg-key {
 	font-family: "SFMono-Regular", Consolas, monospace;
 	font-size: 11px;
@@ -1154,9 +1360,9 @@ summary.wte-dbg-key::after {
 	padding: 1px 7px;
 }
 
-.wte-dbg-value[data-raw="true"]  { color: #1a7a40; background: #d7f1e2; border-color: #b2dfca; }
-.wte-dbg-value[data-raw="false"] { color: #8a1f1f; background: #fce8e8; border-color: #f5c0c0; }
+.wte-dbg-value[data-raw="true"],
 .wte-dbg-value[data-raw="1"]     { color: #1a7a40; background: #d7f1e2; border-color: #b2dfca; }
+.wte-dbg-value[data-raw="false"] { color: #8a1f1f; background: #fce8e8; border-color: #f5c0c0; }
 .wte-dbg-value[data-raw=""]      { color: var(--dbg-text-dim); font-style: italic; background: transparent; border-color: transparent; }
 
 .wte-dbg-count {
@@ -1217,6 +1423,7 @@ textarea.wte-dbg-input {
 	padding: 2px 6px;
 	font-weight: 600;
 	flex-shrink: 0;
+	margin-left: 6px;
 }
 
 .wte-dbg-save {
@@ -1284,6 +1491,106 @@ textarea.wte-dbg-input {
 .wte-dbg-post-field select.wte-dbg-input {
 	font-family: -apple-system, sans-serif;
 	font-size: 13px;
+}
+
+/* ── Status select — custom wrapper overlay approach ──────────────────────
+   The native <select> is invisible (opacity:0, absolute) so the browser
+   never renders its native picker button. The wrapper provides all visuals.
+   ──────────────────────────────────────────────────────────────────────── */
+.wte-dbg-status-select-wrap {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	height: 30px;
+	padding: 0 28px 0 12px;
+	border-radius: 20px;
+	border: 1.5px solid var(--dbg-border);
+	background-color: var(--dbg-surface);
+	box-shadow: inset 0 1px 2px rgba( 0, 0, 0, 0.04 );
+	cursor: pointer;
+	transition: border-color 0.18s, box-shadow 0.18s;
+	flex: none;
+	width: auto;
+	box-sizing: border-box;
+	min-width: 110px;
+}
+
+.wte-dbg-status-select-wrap::after {
+	content: '';
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY( -50% );
+	width: 10px;
+	height: 6px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: contain;
+	pointer-events: none;
+}
+
+.wte-dbg-status-select-wrap:hover {
+	border-color: var(--dbg-text-muted);
+}
+
+.wte-dbg-status-select-wrap:focus-within {
+	border-color: var(--dbg-accent);
+	box-shadow: 0 0 0 2.5px rgba( 37, 99, 235, 0.18 );
+}
+
+.wte-dbg-status-select-wrap:focus-within::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%232563eb'/%3E%3C/svg%3E");
+}
+
+/* Status-specific tinting on display span */
+.wte-dbg-status-select-wrap[data-status="publish"] .wte-dbg-status-display { color: #16a34a; }
+.wte-dbg-status-select-wrap[data-status="draft"]   .wte-dbg-status-display { color: #d97706; }
+.wte-dbg-status-select-wrap[data-status="trash"]      .wte-dbg-status-display,
+.wte-dbg-status-select-wrap[data-status="cancelled"]  .wte-dbg-status-display { color: #dc2626; }
+
+/* Display span — the visible text label */
+.wte-dbg-status-display {
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--dbg-text);
+	white-space: nowrap;
+	pointer-events: none;
+	user-select: none;
+}
+
+/* Native select — invisible but fully functional (captures all click/keyboard events) */
+.wte-dbg-status-select {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	cursor: pointer;
+	z-index: 1;
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+}
+
+/* Dark mode */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-select-wrap {
+	border-color: var(--dbg-border);
+	background-color: var(--dbg-surface);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-select-wrap::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-select-wrap:focus-within {
+	border-color: #60a5fa;
+	box-shadow: 0 0 0 2.5px rgba( 96, 165, 250, 0.2 );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-status-select-wrap:focus-within::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2360a5fa'/%3E%3C/svg%3E");
 }
 
 /* Loading / empty states */
@@ -1382,28 +1689,10 @@ textarea.wte-dbg-input {
 	margin: 0;
 }
 
+/* Context-specific layout only — shared pill styling comes from .wte-dbg-search-input */
 .wte-dbg-settings-tab .wte-dbg-option-search {
-	display: block;
 	width: calc( 100% - 32px );
 	margin: 12px 16px 10px;
-	padding: 8px 12px 8px 34px;
-	font-size: 13px;
-	border: 1px solid var(--dbg-border);
-	border-radius: 6px;
-	background: var(--dbg-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238c8f94' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") no-repeat 11px center;
-	color: var(--dbg-text);
-	box-sizing: border-box;
-	transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.wte-dbg-settings-tab .wte-dbg-option-search:focus {
-	outline: none;
-	border-color: var(--dbg-accent);
-	box-shadow: 0 0 0 2px color-mix( in srgb, var(--dbg-accent) 20%, transparent );
-}
-
-.wte-dbg-settings-tab .wte-dbg-option-search::placeholder {
-	color: var(--dbg-text-dim);
 }
 
 /* Options tree — same indentation treatment as taxonomy tree */
@@ -1471,12 +1760,12 @@ textarea.wte-dbg-input {
 .wte-dbg-price-cat-table {
 	width: 100%;
 	border-collapse: collapse;
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .wte-dbg-price-cat-table th,
 .wte-dbg-price-cat-table td {
-	padding: 5px 14px;
+	padding: 7px 16px;
 	text-align: left;
 	border-bottom: 1px solid var(--dbg-border-faint);
 }
@@ -1486,14 +1775,14 @@ textarea.wte-dbg-input {
 	font-size: 10px;
 	text-transform: uppercase;
 	letter-spacing: 0.07em;
-	color: var(--dbg-accent-dark);
+	color: var(--dbg-text-muted);
 	background: var(--dbg-surface-alt);
 	border-bottom: 2px solid var(--dbg-border);
 }
 
 .wte-dbg-price-cat-table tr:last-child td { border-bottom: none; }
-.wte-dbg-price-cat-table tbody tr:nth-child(even) td { background: var(--dbg-surface-alt); }
-.wte-dbg-price-cat-table tr:hover td { background: var(--dbg-hover-bg); }
+.wte-dbg-price-cat-table tbody tr:nth-child(even) td { background: rgba( 0, 0, 0, 0.018 ); }
+.wte-dbg-price-cat-table tr:hover td { background: var(--dbg-active-bg); }
 
 .wte-dbg-price-cat-primary {
 	color: #d63638;
@@ -1509,12 +1798,12 @@ textarea.wte-dbg-input {
 	width: 100%;
 	border-collapse: collapse;
 	font-size: 12px;
-	margin-top: 4px;
+	margin-top: 0;
 }
 
 .wte-dbg-tax-terms-table th,
 .wte-dbg-tax-terms-table td {
-	padding: 4px 14px;
+	padding: 7px 16px;
 	text-align: left;
 	border-bottom: 1px solid var(--dbg-border-faint);
 }
@@ -1524,13 +1813,14 @@ textarea.wte-dbg-input {
 	font-size: 10px;
 	text-transform: uppercase;
 	letter-spacing: 0.07em;
-	color: var(--dbg-accent-dark);
+	color: var(--dbg-text-muted);
 	background: var(--dbg-surface-alt);
 	border-bottom: 2px solid var(--dbg-border);
 }
 
-.wte-dbg-tax-terms-table tbody tr:nth-child(even) td { background: var(--dbg-surface-alt); }
+.wte-dbg-tax-terms-table tbody tr:nth-child(even) td { background: rgba( 0, 0, 0, 0.018 ); }
 .wte-dbg-tax-terms-table tr:last-child td { border-bottom: none; }
+.wte-dbg-tax-terms-table tr:hover td { background: var(--dbg-active-bg); }
 
 /* -------------------------------------------------------------------------
    Theme toggle button (in header)
@@ -1614,22 +1904,14 @@ textarea.wte-dbg-input {
 	padding: 2px 7px;
 }
 
+/* Context-specific layout — shared pill styling from .wte-dbg-search-input */
 .wte-dbg-relation-filter {
 	display: block;
 	width: 100%;
-	font-size: 11px;
-	padding: 3px 7px;
-	border: 1px solid var(--dbg-border);
-	border-radius: 3px;
-	background: var(--dbg-surface);
-	color: var(--dbg-text);
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 	box-sizing: border-box;
-}
-.wte-dbg-relation-filter:focus {
-	border-color: var(--dbg-accent);
-	outline: none;
-	box-shadow: 0 0 0 1px var(--dbg-accent);
+	height: 28px;
+	font-size: 11px;
 }
 
 .wte-dbg-relation-list {
@@ -1797,10 +2079,6 @@ textarea.wte-dbg-input {
 }
 
 /* Expand: content slides in from the right after sidebar opens */
-.wte-dbg-relations-sidebar-body {
-	transform: translateX( 0 );
-	transition: opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s;
-}
 
 .wte-dbg-relations-sidebar-header > span {
 	transform: translateX( 0 );
@@ -1869,9 +2147,958 @@ textarea.wte-dbg-input {
 	display: flex;
 	flex-direction: column;
 	overflow-y: auto;
+	transform: translateX( 0 );
+	transition: opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s;
 }
 
 /* Relation groups inside the sidebar body — remove bottom border on last group */
 .wte-dbg-relations-sidebar-body .wte-dbg-relation-group:last-child {
 	border-bottom: none;
+}
+
+/* ==========================================================================
+   Cron Tab
+   ========================================================================== */
+
+/* ── Outer wrapper ── */
+.wte-dbg-cron-tab {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+/* ── Toolbar — same dark gradient as .wte-dbg-tabs, bleeds to content border edges ── */
+.wte-dbg-cron-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0 20px;
+	background: linear-gradient( 135deg, #163f78 0%, #0c2c55 100% );
+	border-bottom: 1px solid rgba( 255, 255, 255, 0.08 );
+	flex-shrink: 0;
+	/* bleed over .wte-dbg-content's 1px side borders and 3px top border */
+	margin: -3px -1px 0;
+}
+
+/* Icon-only refresh button */
+.wte-dbg-cron-refresh {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	background: rgba( 255, 255, 255, 0.08 );
+	color: rgba( 255, 255, 255, 0.75 );
+	border: 1px solid rgba( 255, 255, 255, 0.18 );
+	border-radius: 50%;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.3s;
+	flex-shrink: 0;
+}
+
+.wte-dbg-cron-refresh::before {
+	content: '\21BB';
+	font-size: 15px;
+	line-height: 1;
+}
+
+.wte-dbg-cron-refresh:hover {
+	background: rgba( 255, 255, 255, 0.15 );
+	border-color: rgba( 255, 255, 255, 0.38 );
+	color: #fff;
+	transform: rotate( 45deg );
+}
+
+.wte-dbg-cron-refresh:disabled {
+	opacity: 0.35;
+	cursor: default;
+	transform: none;
+}
+
+/* ── Search wrap fills all available toolbar space ── */
+.wte-dbg-cron-toolbar .wte-dbg-cron-search-wrap {
+	flex: 1;
+	margin: 8px 0;
+}
+
+/* ── Toolbar status notice (right-most, reuses .wte-dbg-loader-note pill) ── */
+.wte-dbg-cron-toolbar-status {
+	display: flex;
+	align-items: center;
+	margin-left: auto;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+	flex-shrink: 0;
+}
+
+.wte-dbg-cron-toolbar-status.is-visible {
+	opacity: 1;
+}
+
+/* ── Search count pill: always visible (overrides the default hide-when-empty) ── */
+.wte-dbg-cron-toolbar .wte-dbg-cron-search-count {
+	opacity: 1;
+	transform: scale( 1 );
+}
+
+/* ── Search input adapted for dark toolbar bg ── */
+.wte-dbg-cron-toolbar .wte-dbg-search-input {
+	background-color: rgba( 255, 255, 255, 0.08 );
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+	border-color: rgba( 255, 255, 255, 0.15 );
+	color: rgba( 255, 255, 255, 0.9 );
+	box-shadow: none;
+	height: 32px;
+}
+
+.wte-dbg-cron-toolbar .wte-dbg-search-input::placeholder {
+	color: rgba( 255, 255, 255, 0.3 );
+	font-style: normal;
+}
+
+.wte-dbg-cron-toolbar .wte-dbg-search-input:hover {
+	border-color: rgba( 255, 255, 255, 0.3 );
+	background-color: rgba( 255, 255, 255, 0.11 );
+}
+
+.wte-dbg-cron-toolbar .wte-dbg-search-input:focus {
+	background-color: rgba( 255, 255, 255, 0.14 );
+	border-color: rgba( 255, 255, 255, 0.5 );
+	box-shadow: 0 0 0 3px rgba( 255, 255, 255, 0.08 );
+}
+
+/* Search result count pill adapted for dark bg */
+.wte-dbg-cron-toolbar .wte-dbg-cron-search-count {
+	background: rgba( 255, 255, 255, 0.12 );
+	color: rgba( 255, 255, 255, 0.85 );
+}
+
+.wte-dbg-cron-toolbar .wte-dbg-cron-search-count.is-empty {
+	background: rgba( 248, 113, 113, 0.3 );
+	color: #fca5a5;
+}
+
+/* ── Scrollable list container ── */
+.wte-dbg-cron-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+/* ── Section card ── */
+.wte-dbg-cron-section {
+	border: 1px solid var(--dbg-border);
+	border-radius: 6px;
+	overflow: hidden;
+	background: var(--dbg-surface);
+	box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* ── WPTE section accent ── */
+.wte-dbg-cron-section.is-wpte {
+	border-color: rgba(255, 140, 0, 0.35);
+	box-shadow: 0 0 0 1px rgba(255, 140, 0, 0.12), 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ── Section header ── */
+.wte-dbg-cron-section-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	background: var(--dbg-surface-alt);
+	border-bottom: 1px solid var(--dbg-border);
+}
+
+.wte-dbg-cron-section.is-wpte .wte-dbg-cron-section-header {
+	background: rgba(255, 140, 0, 0.06);
+	border-bottom-color: rgba(255, 140, 0, 0.2);
+}
+
+.wte-dbg-cron-section-title {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--dbg-text-muted);
+}
+
+.wte-dbg-cron-section.is-wpte .wte-dbg-cron-section-title {
+	color: #c96800;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-section.is-wpte .wte-dbg-cron-section-title {
+	color: #ffa040;
+}
+
+.wte-dbg-cron-section-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 22px;
+	height: 18px;
+	padding: 0 6px;
+	border-radius: 9px;
+	font-size: 11px;
+	font-weight: 700;
+	background: var(--dbg-border);
+	color: var(--dbg-text-muted);
+	line-height: 1;
+}
+
+.wte-dbg-cron-section.is-wpte .wte-dbg-cron-section-count {
+	background: rgba(255, 140, 0, 0.15);
+	color: #c96800;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-section.is-wpte .wte-dbg-cron-section-count {
+	background: rgba(255, 140, 0, 0.2);
+	color: #ffa040;
+}
+
+/* ── Table ── */
+.wte-dbg-cron-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	table-layout: fixed;
+}
+
+/* Fixed column widths — identical for every section so columns align across groups */
+.wte-dbg-cron-table th:nth-child(1),
+.wte-dbg-cron-table td:nth-child(1) { width: auto; }       /* Hook — takes remaining space */
+.wte-dbg-cron-table th:nth-child(2),
+.wte-dbg-cron-table td:nth-child(2) { width: 160px; }      /* Schedule */
+.wte-dbg-cron-table th:nth-child(3),
+.wte-dbg-cron-table td:nth-child(3) { width: 130px; }      /* Next Run */
+.wte-dbg-cron-table th:nth-child(4),
+.wte-dbg-cron-table td:nth-child(4) { width: 100px; }      /* Args */
+.wte-dbg-cron-table th:nth-child(5),
+.wte-dbg-cron-table td:nth-child(5) { width: 150px; }      /* Actions */
+
+.wte-dbg-cron-table th {
+	text-align: left;
+	padding: 9px 14px;
+	background: var(--dbg-surface-alt);
+	border-bottom: 1px solid var(--dbg-border);
+	color: var(--dbg-text-dim);
+	font-weight: 600;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	white-space: nowrap;
+}
+
+.wte-dbg-cron-table td {
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--dbg-border-faint);
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+/* Hook column may wrap its overdue badge but the code itself stays on one line */
+.wte-dbg-cron-table td.wte-dbg-cron-hook {
+	white-space: normal;
+}
+
+/* Center-align schedule, next run, args and actions — both header and cells */
+.wte-dbg-cron-table th:nth-child(n+2),
+.wte-dbg-cron-table td.wte-dbg-cron-schedule,
+.wte-dbg-cron-table td.wte-dbg-cron-next,
+.wte-dbg-cron-table td.wte-dbg-cron-args,
+.wte-dbg-cron-table td.wte-dbg-cron-actions {
+	text-align: center;
+}
+
+.wte-dbg-cron-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.wte-dbg-cron-table tbody tr:hover td {
+	background: var(--dbg-hover-bg);
+}
+
+/* Overdue row */
+.wte-dbg-cron-table tbody tr.is-overdue td {
+	background: rgba(220, 38, 38, 0.03);
+}
+
+.wte-dbg-cron-table tbody tr.is-overdue:hover td {
+	background: rgba(220, 38, 38, 0.06);
+}
+
+/* ── Hook cell inner wrapper (td keeps display:table-cell for correct row height) ── */
+.wte-dbg-cron-hook-inner {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	min-width: 0; /* allow flex children to shrink / truncate */
+	cursor: pointer;
+	position: relative;
+	padding: 2px 6px;
+	margin: -2px -6px;
+	border-radius: 4px;
+	transition: background 0.15s;
+}
+
+.wte-dbg-cron-hook-inner:hover {
+	background: rgba(37, 99, 235, 0.08);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-hook-inner:hover {
+	background: rgba(96, 165, 250, 0.12);
+}
+
+.wte-dbg-cron-hook-inner:hover .wte-dbg-cron-hook-code {
+	color: var(--dbg-accent);
+}
+
+.wte-dbg-cron-hook-code {
+	/* Reset browser <code> defaults that inflate cell height */
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	box-shadow: none;
+	font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+	font-size: 12px;
+	color: var(--dbg-text);
+	transition: color 0.15s;
+}
+
+.wte-dbg-cron-hook-code.is-copied {
+	color: #16a34a;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: clip;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-hook-code.is-copied {
+	color: #6ee7b7;
+}
+
+/* ── Overdue badge ── */
+.wte-dbg-cron-overdue-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 1px 6px;
+	border-radius: 3px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	background: rgba(220, 38, 38, 0.1);
+	color: #dc2626;
+	white-space: nowrap;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-overdue-badge {
+	background: rgba(248, 113, 113, 0.15);
+	color: #f87171;
+}
+
+/* ── Schedule badge ── */
+/* Base badge — layout only; color comes from tier modifier */
+.wte-dbg-cron-sched-badge {
+	display: inline-block;
+	padding: 3px 9px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 500;
+	white-space: nowrap;
+	border: 1px solid transparent;
+}
+
+/* ── Tier: realtime  (< 5 min)  — rose/red ── */
+.wte-dbg-cron-sched-badge.tier-realtime {
+	background: rgba(220, 38, 38, 0.1);
+	color: #b91c1c;
+	border-color: rgba(220, 38, 38, 0.2);
+}
+
+/* ── Tier: frequent  (5–60 min) — amber ── */
+.wte-dbg-cron-sched-badge.tier-frequent {
+	background: rgba(217, 119, 6, 0.1);
+	color: #b45309;
+	border-color: rgba(217, 119, 6, 0.2);
+}
+
+/* ── Tier: hourly    (~1 h)     — blue ── */
+.wte-dbg-cron-sched-badge.tier-hourly {
+	background: rgba(34, 113, 177, 0.1);
+	color: #1d6fa4;
+	border-color: rgba(34, 113, 177, 0.2);
+}
+
+/* ── Tier: subday    (1–12 h)   — teal ── */
+.wte-dbg-cron-sched-badge.tier-subday {
+	background: rgba(13, 148, 136, 0.1);
+	color: #0f766e;
+	border-color: rgba(13, 148, 136, 0.2);
+}
+
+/* ── Tier: daily     (~12–24 h) — green ── */
+.wte-dbg-cron-sched-badge.tier-daily {
+	background: rgba(22, 163, 74, 0.1);
+	color: #15803d;
+	border-color: rgba(22, 163, 74, 0.2);
+}
+
+/* ── Tier: weekly    (1–7 days) — violet ── */
+.wte-dbg-cron-sched-badge.tier-weekly {
+	background: rgba(124, 58, 237, 0.1);
+	color: #6d28d9;
+	border-color: rgba(124, 58, 237, 0.2);
+}
+
+/* ── Tier: rare      (> 7 days) — slate ── */
+.wte-dbg-cron-sched-badge.tier-rare {
+	background: rgba(100, 116, 139, 0.1);
+	color: #475569;
+	border-color: rgba(100, 116, 139, 0.2);
+}
+
+/* ── Tier: one-time             — neutral grey ── */
+.wte-dbg-cron-sched-badge.tier-onetime {
+	background: var(--dbg-surface-alt);
+	color: var(--dbg-text-muted);
+	border-color: var(--dbg-border);
+}
+
+/* ── Next Run cell ── */
+.wte-dbg-cron-next {
+	white-space: nowrap;
+	vertical-align: middle;
+	text-align: center;
+	position: relative;
+}
+
+/* Tooltip — hidden by default, shown on cell hover (appears ABOVE the cell) */
+.wte-dbg-cron-next-abs {
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 6px;
+	font-family: "SFMono-Regular", Consolas, monospace;
+	white-space: nowrap;
+	position: absolute;
+	bottom: calc( 100% + 6px );
+	top: auto;
+	left: 50%;
+	transform: translateX( -50% ) translateY( 4px );
+	background: var(--dbg-surface);
+	border: 1px solid var(--dbg-border);
+	border-radius: 7px;
+	padding: 6px 12px;
+	box-shadow: 0 4px 12px rgba( 0, 0, 0, 0.12 );
+	z-index: 20;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s, transform 0.15s;
+}
+
+.wte-dbg-cron-next:hover .wte-dbg-cron-next-abs {
+	opacity: 1;
+	transform: translateX( -50% ) translateY( 0 );
+	pointer-events: auto;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-next-abs {
+	box-shadow: 0 4px 12px rgba( 0, 0, 0, 0.4 );
+}
+
+/* Time + UTC badge inline */
+.wte-dbg-cron-next-time-row {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.wte-dbg-cron-next-time {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--dbg-text);
+	letter-spacing: 0.03em;
+}
+
+.wte-dbg-cron-next-tz {
+	font-size: 9px;
+	font-weight: 600;
+	color: #64748b;
+	background: rgba( 100, 116, 139, 0.1 );
+	border: 1px solid rgba( 100, 116, 139, 0.2 );
+	border-radius: 3px;
+	padding: 1px 4px;
+	letter-spacing: 0.05em;
+}
+
+/* Date above, smaller and dimmer */
+.wte-dbg-cron-next-date {
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--dbg-text-muted);
+	letter-spacing: 0.02em;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-next-tz {
+	color: #94a3b8;
+	background: rgba( 148, 163, 184, 0.1 );
+	border-color: rgba( 148, 163, 184, 0.2 );
+}
+
+.wte-dbg-cron-next-rel {
+	display: inline-block;
+	padding: 2px 9px;
+	font-size: 10.5px;
+	font-weight: 600;
+	color: #2563eb;
+	background: rgba( 37, 99, 235, 0.08 );
+	border: 1px solid rgba( 37, 99, 235, 0.18 );
+	border-radius: 20px;
+	letter-spacing: 0.01em;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+
+.wte-dbg-cron-next-rel:hover {
+	background: rgba( 37, 99, 235, 0.14 );
+	border-color: rgba( 37, 99, 235, 0.3 );
+}
+
+.wte-dbg-cron-next-abs {
+	margin: 0;
+}
+
+.wte-dbg-cron-next-abs.is-hidden {
+	display: none;
+}
+
+.wte-dbg-cron-next-rel.is-overdue {
+	color: #dc2626;
+	background: rgba( 220, 38, 38, 0.08 );
+	border-color: rgba( 220, 38, 38, 0.2 );
+}
+
+.wte-dbg-cron-next-rel.is-overdue:hover {
+	background: rgba( 220, 38, 38, 0.14 );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-next-rel {
+	color: #93c5fd;
+	background: rgba( 147, 197, 253, 0.1 );
+	border-color: rgba( 147, 197, 253, 0.2 );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-next-rel:hover {
+	background: rgba( 147, 197, 253, 0.18 );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-next-rel.is-overdue {
+	color: #f87171;
+	background: rgba( 248, 113, 113, 0.1 );
+	border-color: rgba( 248, 113, 113, 0.2 );
+}
+
+/* ── Dash placeholder ── */
+.wte-dbg-cron-dash {
+	color: var(--dbg-text-dim);
+}
+
+/* ── Args toggle + pre ── */
+.wte-dbg-cron-args-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 8px;
+	font-size: 11px;
+	font-weight: 500;
+	background: var(--dbg-surface-alt);
+	color: var(--dbg-text-muted);
+	border: 1px solid var(--dbg-border);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: background 0.12s, color 0.12s;
+}
+
+.wte-dbg-cron-args-toggle::before {
+	content: '\7B\7D';
+	font-family: monospace;
+	font-size: 10px;
+	opacity: 0.6;
+}
+
+.wte-dbg-cron-args-toggle:hover {
+	background: var(--dbg-hover-bg);
+	color: var(--dbg-accent);
+	border-color: var(--dbg-accent);
+}
+
+.wte-dbg-cron-args-pre {
+	margin: 6px 0 0;
+	font-family: "SFMono-Regular", Consolas, monospace;
+	font-size: 11px;
+	line-height: 1.5;
+	background: var(--dbg-surface-alt);
+	border: 1px solid var(--dbg-border);
+	border-radius: 4px;
+	padding: 8px 10px;
+	max-width: 280px;
+	overflow-x: auto;
+	white-space: pre;
+	color: var(--dbg-text);
+}
+
+.wte-dbg-cron-args-pre.is-hidden {
+	display: none;
+}
+
+/* ── Run Now / Schedule buttons ── */
+.wte-dbg-cron-run-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 14px 5px 11px;
+	font-size: 11.5px;
+	font-weight: 600;
+	background: linear-gradient( 160deg, #2c7be5 0%, #1a5bbf 100% );
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	white-space: nowrap;
+	letter-spacing: 0.02em;
+	box-shadow: 0 1px 3px rgba( 34, 113, 177, 0.35 ), inset 0 1px 0 rgba( 255, 255, 255, 0.12 );
+	transition: background 0.15s, box-shadow 0.15s, opacity 0.15s, transform 0.1s;
+}
+
+.wte-dbg-cron-run-btn::before {
+	content: '\25B6';
+	font-size: 8px;
+	opacity: 0.85;
+}
+
+.wte-dbg-cron-run-btn:hover {
+	background: linear-gradient( 160deg, #1a6ed8 0%, #1251a8 100% );
+	box-shadow: 0 2px 6px rgba( 34, 113, 177, 0.45 ), inset 0 1px 0 rgba( 255, 255, 255, 0.12 );
+	transform: translateY( -1px );
+}
+
+.wte-dbg-cron-run-btn:active {
+	transform: translateY( 0 );
+	box-shadow: 0 1px 2px rgba( 34, 113, 177, 0.3 );
+}
+
+.wte-dbg-cron-run-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+	transform: none;
+	box-shadow: none;
+}
+
+/* Schedule variant — amber/orange to signal a setup action, not an execution */
+.wte-dbg-cron-run-btn.is-schedule {
+	background: linear-gradient( 160deg, #f59e0b 0%, #d97706 100% );
+	box-shadow: 0 1px 3px rgba( 217, 119, 6, 0.4 ), inset 0 1px 0 rgba( 255, 255, 255, 0.15 );
+}
+
+.wte-dbg-cron-run-btn.is-schedule::before {
+	content: '\29BF';
+}
+
+.wte-dbg-cron-run-btn.is-schedule:hover {
+	background: linear-gradient( 160deg, #e08e00 0%, #b45309 100% );
+	box-shadow: 0 2px 6px rgba( 217, 119, 6, 0.5 ), inset 0 1px 0 rgba( 255, 255, 255, 0.15 );
+	transform: translateY( -1px );
+}
+
+.wte-dbg-cron-run-btn.is-schedule:active {
+	transform: translateY( 0 );
+}
+
+/* ── Row states: running / success / error ── */
+.wte-dbg-cron-table tbody tr.is-running td {
+	background: rgba( 99, 179, 237, 0.08 );
+	transition: background 0.2s;
+}
+
+.wte-dbg-cron-table tbody tr.is-running .wte-dbg-cron-run-btn {
+	opacity: 0.5;
+	cursor: default;
+	animation: wte-dbg-cron-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes wte-dbg-cron-pulse {
+	from { opacity: 0.5; }
+	to   { opacity: 0.9; }
+}
+
+.wte-dbg-cron-table tbody tr.is-success td {
+	background: rgba( 74, 222, 128, 0.1 );
+	transition: background 0.2s;
+}
+
+.wte-dbg-cron-table tbody tr.is-error td {
+	background: rgba( 248, 113, 113, 0.1 );
+	transition: background 0.2s;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-table tbody tr.is-running td  { background: rgba( 99, 179, 237, 0.07 ); }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-table tbody tr.is-success td  { background: rgba( 74, 222, 128, 0.08 ); }
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-table tbody tr.is-error td    { background: rgba( 248, 113, 113, 0.08 ); }
+
+/* ── Skeleton loader ── */
+.wte-dbg-cron-skeleton .wte-dbg-cron-section-header {
+	display: flex;
+	align-items: center;
+}
+
+.wte-dbg-cron-skel-rows {
+	padding: 0;
+}
+
+.wte-dbg-cron-skel-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 11px 16px;
+	border-bottom: 1px solid var(--dbg-border-faint);
+}
+
+.wte-dbg-cron-skel-row:last-child {
+	border-bottom: none;
+}
+
+.wte-dbg-cron-skel-hook {
+	flex: 1;
+	min-width: 0;
+}
+
+/* ── Pagination ── */
+.wte-dbg-cron-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 16px;
+	border-top: 1px solid var(--dbg-border);
+	background: var(--dbg-surface-alt);
+}
+
+.wte-dbg-cron-page-info {
+	font-size: 12px;
+	color: var(--dbg-text-muted);
+}
+
+.wte-dbg-cron-page-nav {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wte-dbg-cron-page-btn {
+	padding: 4px 11px;
+	font-size: 12px;
+	font-weight: 500;
+	background: var(--dbg-surface);
+	color: var(--dbg-accent);
+	border: 1px solid var(--dbg-border);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: background 0.12s, border-color 0.12s;
+}
+
+.wte-dbg-cron-page-btn:hover:not(:disabled) {
+	background: var(--dbg-active-bg);
+	border-color: var(--dbg-accent);
+}
+
+.wte-dbg-cron-page-btn:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+.wte-dbg-cron-page-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--dbg-text-muted);
+	min-width: 48px;
+	text-align: center;
+}
+
+/* ── Dark mode adjustments ── */
+/* Dark mode — lighten tier colours so they read against dark surfaces */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-realtime {
+	background: rgba(248, 113, 113, 0.15); color: #fca5a5; border-color: rgba(248, 113, 113, 0.25);
+}
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-frequent {
+	background: rgba(251, 191, 36, 0.12);  color: #fcd34d; border-color: rgba(251, 191, 36, 0.25);
+}
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-hourly {
+	background: rgba(126, 184, 247, 0.12); color: #93c5fd; border-color: rgba(126, 184, 247, 0.25);
+}
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-subday {
+	background: rgba(45, 212, 191, 0.12);  color: #5eead4; border-color: rgba(45, 212, 191, 0.25);
+}
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-daily {
+	background: rgba(74, 222, 128, 0.12);  color: #86efac; border-color: rgba(74, 222, 128, 0.25);
+}
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-weekly {
+	background: rgba(196, 181, 253, 0.12); color: #c4b5fd; border-color: rgba(196, 181, 253, 0.25);
+}
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-sched-badge.tier-rare {
+	background: rgba(148, 163, 184, 0.1);  color: #94a3b8; border-color: rgba(148, 163, 184, 0.2);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-run-btn {
+	background: linear-gradient( 160deg, #3b8df0 0%, #2271b1 100% );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-run-btn:hover {
+	background: linear-gradient( 160deg, #2c7be5 0%, #1a5bbf 100% );
+}
+
+/* ── Section header layout with inline pager ── */
+.wte-dbg-cron-section-header {
+	justify-content: space-between;
+}
+
+.wte-dbg-cron-header-left {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wte-dbg-cron-header-pager {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.wte-dbg-cron-page-btn.is-compact {
+	padding: 2px 8px;
+	font-size: 14px;
+	line-height: 1;
+	border-radius: 3px;
+}
+
+/* ── Search field wrapper ── */
+.wte-devzone-wrap .wte-dbg-cron-search-wrap {
+	flex: 1;
+	max-width: 340px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+/* ── Search input — shared pill styling from .wte-dbg-search-input; override right-padding for count pill ── */
+.wte-devzone-wrap .wte-dbg-cron-search {
+	width: 100%;
+	padding-right: 60px;
+}
+
+.wte-devzone-wrap .wte-dbg-cron-search::-webkit-search-cancel-button {
+	cursor: pointer;
+	margin-right: 6px;
+	opacity: 0.5;
+}
+
+.wte-devzone-wrap .wte-dbg-cron-search::-webkit-search-cancel-button:hover {
+	opacity: 1;
+}
+
+/* ── Match count pill (right edge) ── */
+.wte-devzone-wrap .wte-dbg-cron-search-count {
+	position: absolute;
+	right: 12px;
+	display: inline-flex;
+	align-items: center;
+	height: 20px;
+	padding: 0 7px;
+	border-radius: 10px;
+	font-size: 10.5px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	background: var(--dbg-active-bg);
+	color: var(--dbg-accent);
+	pointer-events: none;
+	white-space: nowrap;
+	opacity: 0;
+	transform: scale(0.85);
+	transition: opacity 0.15s, transform 0.15s;
+}
+
+.wte-devzone-wrap .wte-dbg-cron-search-count:not(:empty) {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.wte-devzone-wrap .wte-dbg-cron-search-count.is-empty {
+	background: rgba(220, 38, 38, 0.1);
+	color: #dc2626;
+}
+
+/* ── Dark mode toolbar (darker gradient, matching header) ── */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-toolbar {
+	background: linear-gradient( 135deg, #0d2240 0%, #060f1a 100% );
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-search-count.is-empty {
+	background: rgba(248, 113, 113, 0.12);
+	color: #f87171;
+}
+
+/* ── Dark mode — overdue row (higher opacity needed on dark bg) ── */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-table tbody tr.is-overdue td {
+	background: rgba(248, 113, 113, 0.06);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-table tbody tr.is-overdue:hover td {
+	background: rgba(248, 113, 113, 0.1);
+}
+
+/* ── Dark mode — WPTE section card border & shadow ── */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-section.is-wpte {
+	border-color: rgba(255, 160, 64, 0.3);
+	box-shadow: 0 0 0 1px rgba(255, 160, 64, 0.1), 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-section.is-wpte .wte-dbg-cron-section-header {
+	background: rgba(255, 140, 0, 0.08);
+	border-bottom-color: rgba(255, 140, 0, 0.18);
+}
+
+/* ── Dark mode — generic section card shadow ── */
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-cron-section {
+	box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ── Cursor-following copy tooltip (shared, used by cron hook) ── */
+.wte-dbg-copy-label {
+	position: fixed;
+	z-index: 99999;
+	font-size: 10px;
+	font-weight: 700;
+	color: #fff;
+	background: #2271b1;
+	border-radius: 3px;
+	padding: 2px 6px;
+	pointer-events: none;
+	white-space: nowrap;
+	transform: translate(0, 20px);
+	opacity: 0;
+	transition: opacity 0.1s;
+}
+
+.wte-dbg-copy-label.is-visible {
+	opacity: 1;
 }

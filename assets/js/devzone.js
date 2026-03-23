@@ -13,6 +13,7 @@ import { DomHelper }       from './dom-helper.js';
 import { OverviewTab }     from './overview-tab.js';
 import { MasterDetailTab } from './master-detail-tab.js';
 import { LogsTab }         from './logs-tab.js';
+import { CronTab }         from './cron-tab.js';
 
 // Injected via wp_localize_script
 const { ajaxurl, nonce } = wpteDbg;
@@ -30,6 +31,7 @@ const TAB_REGISTRY = {
 	payments:  ( el, id )  => new MasterDetailTab( 'wte-payments', el, id, ( s, pid ) => DevZoneApp.instance.navigateTo( s, pid ) ).init(),
 	customers: ( el, id )  => new MasterDetailTab( 'customer',     el, id, ( s, pid ) => DevZoneApp.instance.navigateTo( s, pid ) ).init(),
 	logs:      ( el )      => new LogsTab( el, ( slug, extra ) => DevZoneApp.instance.loadTab( slug, extra ) ).init(),
+	cron:      ( el )      => new CronTab( el ).init(),
 	// query: handled by window.wpteDbgInitSearch() in db-search.js
 };
 
@@ -107,9 +109,11 @@ class DevZoneApp {
 
 	_updateGroupState( slug ) {
 		const isLogs = slug === 'logs';
-		document.querySelector( '.wte-dbg-group-btn[data-group="devzone"]' )?.classList.toggle( 'is-active', ! isLogs );
+		const isCron = slug === 'cron';
+		document.querySelector( '.wte-dbg-group-btn[data-group="devzone"]' )?.classList.toggle( 'is-active', ! isLogs && ! isCron );
 		document.querySelector( '.wte-dbg-group-btn[data-group="logs"]' )?.classList.toggle( 'is-active', isLogs );
-		document.querySelector( '.wte-dbg-tabs' )?.classList.toggle( 'is-hidden', isLogs );
+		document.querySelector( '.wte-dbg-group-btn[data-group="cron"]' )?.classList.toggle( 'is-active', isCron );
+		document.querySelector( '.wte-dbg-tabs' )?.classList.toggle( 'is-hidden', isLogs || isCron );
 	}
 
 	loadTab( slug, extra ) {
@@ -156,7 +160,7 @@ class DevZoneApp {
 		// Build skeleton overlay with a status note that cycles through load stages.
 		const tabLabels = {
 			overview: 'settings', trips: 'trips', bookings: 'bookings',
-			payments: 'payments', customers: 'customers', logs: 'logs', query: 'query',
+			payments: 'payments', customers: 'customers', logs: 'logs', query: 'query', cron: 'cron',
 		};
 		const label = tabLabels[ slug ] || slug;
 		const noteMessages = [
@@ -241,6 +245,13 @@ class DevZoneApp {
 			?.addEventListener( 'click', () => {
 				clearStack();
 				this.loadTab( 'logs' );
+			} );
+
+		// Cron button → load cron tab
+		document.querySelector( '.wte-dbg-group-btn[data-group="cron"]' )
+			?.addEventListener( 'click', () => {
+				clearStack();
+				this.loadTab( 'cron' );
 			} );
 
 		document.querySelectorAll( '.wte-dbg-tab' ).forEach( ( tabLink ) => {

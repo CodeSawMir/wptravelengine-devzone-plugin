@@ -41,13 +41,14 @@ class Plugin {
 
 	private function boot(): void {
 		$tools = apply_filters( 'wpte_devzone_tools', [
-			new Tools\ToolOverview(),
-			new Tools\ToolTrips(),
-			new Tools\ToolBookings(),
-			new Tools\ToolPayments(),
-			new Tools\ToolCustomers(),
-			new Tools\ToolQuery(),
-			new Tools\ToolLogs(),
+			new Tools\Inspector\ToolOverview(),
+			new Tools\Inspector\ToolTrips(),
+			new Tools\Inspector\ToolBookings(),
+			new Tools\Inspector\ToolPayments(),
+			new Tools\Inspector\ToolCustomers(),
+			new Tools\Inspector\ToolQuery(),
+			new Tools\Logs\ToolLogs(),
+			new Tools\Cron\ToolCron(),
 		] );
 
 		new Admin( $tools );

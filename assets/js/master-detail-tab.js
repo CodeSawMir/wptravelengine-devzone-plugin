@@ -488,9 +488,17 @@ export class MasterDetailTab {
 		statusRow.dataset.postId = post.ID;
 		statusRow.dataset.field  = 'post_status';
 
+		// Wrapper provides the visual pill; the invisible select sits on top for native events
+		const selWrap = document.createElement( 'div' );
+		selWrap.className    = 'wte-dbg-status-select-wrap';
+		selWrap.dataset.status = post.post_status;
+
+		const display = document.createElement( 'span' );
+		display.className   = 'wte-dbg-status-display';
+		display.textContent = post.post_status;
+
 		const sel = document.createElement( 'select' );
-		sel.className = 'wte-dbg-status-select wte-dbg-input';
-		sel.style.cssText = 'font-size:12px;padding:2px 4px;';
+		sel.className = 'wte-dbg-status-select';
 		statuses.forEach( ( s ) => {
 			const opt = document.createElement( 'option' );
 			opt.value = s;
@@ -498,8 +506,15 @@ export class MasterDetailTab {
 			if ( post.post_status === s ) opt.selected = true;
 			sel.appendChild( opt );
 		} );
+		sel.addEventListener( 'change', () => {
+			selWrap.dataset.status  = sel.value;
+			display.textContent     = sel.value;
+		} );
+
+		selWrap.appendChild( display );
+		selWrap.appendChild( sel );
 		statusRow.appendChild( DomHelper.makeKeySpan( 'post_status' ) );
-		statusRow.appendChild( sel );
+		statusRow.appendChild( selWrap );
 		wrap.appendChild( statusRow );
 
 		// Title (editable)
@@ -746,7 +761,7 @@ export class MasterDetailTab {
 		if ( items.length > 4 ) {
 			filterInput = document.createElement( 'input' );
 			filterInput.type = 'text';
-			filterInput.className = 'wte-dbg-relation-filter';
+			filterInput.className = 'wte-dbg-relation-filter wte-dbg-search-input';
 			filterInput.placeholder = 'Filter\u2026';
 			group.appendChild( filterInput );
 		}

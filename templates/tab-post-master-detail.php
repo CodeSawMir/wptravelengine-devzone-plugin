@@ -21,7 +21,7 @@ $label     = strtoupper( $tool->get_label() );
 		</div>
 		<div class="wte-dbg-search-wrap">
 			<input type="search"
-				class="wte-dbg-search"
+				class="wte-dbg-search wte-dbg-search-input"
 				placeholder="<?php
 					/* translators: %s: singular noun for the post type, e.g. "trip" */
 					echo esc_attr( sprintf( __( 'Search %s…', 'wptravelengine-devzone' ), $noun ) );
