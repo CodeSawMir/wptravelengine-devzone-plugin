@@ -33,7 +33,7 @@ export class DomHelper {
 	 * @param {boolean}     [expand]  Force expand (true) or collapse (false). Omit to toggle.
 	 * @param {number}      [maxLen=80]  Truncation length.
 	 */
-	static toggleValueExpand( el, expand, maxLen = 80 ) {
+	static toggleValueExpand( el, expand, maxLen = 200 ) {
 		const raw = el.dataset.raw ?? '';
 		if ( raw.length <= maxLen ) return;
 		const expanding = expand !== undefined ? expand : el.dataset.expanded !== '1';
@@ -46,10 +46,15 @@ export class DomHelper {
 	 * Wire up delegated click handling on a container so that long .wte-dbg-value
 	 * spans expand/collapse on click.
 	 * @param {HTMLElement} container
-	 * @param {number}      [maxLen=80]
+	 * @param {number}      [maxLen=200]
 	 */
-	static setupValueClicks( container, maxLen = 80 ) {
+	static setupValueClicks( container, maxLen = 200 ) {
+		let downX = 0, downY = 0;
+		container.addEventListener( 'mousedown', ( e ) => { downX = e.clientX; downY = e.clientY; } );
 		container.addEventListener( 'click', ( e ) => {
+			// If the mouse moved more than 4px between mousedown and click the
+			// user is dragging to select text — don't toggle.
+			if ( Math.abs( e.clientX - downX ) > 4 || Math.abs( e.clientY - downY ) > 4 ) return;
 			const val = e.target.closest( '.wte-dbg-value[data-raw]' );
 			if ( val ) DomHelper.toggleValueExpand( val, undefined, maxLen );
 		} );
@@ -281,7 +286,7 @@ export class DomHelper {
 		}
 		if ( typeof value === 'boolean' ) return value ? 'true' : 'false';
 		const str = String( value );
-		return str.length > 120 ? str.substring( 0, 120 ) + Icons.ELLIPSIS : str;
+		return str.length > 200 ? str.substring( 0, 200 ) + Icons.ELLIPSIS : str;
 	}
 
 	/**

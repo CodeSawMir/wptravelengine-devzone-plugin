@@ -1241,7 +1241,7 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 	border-color: var(--dbg-border-faint);
 	background: transparent;
 	padding: 2px 8px;
-	max-width: 340px;
+	max-width: 800px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

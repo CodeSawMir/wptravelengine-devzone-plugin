@@ -30,6 +30,12 @@ export class LogsTab {
 			const link = e.target.closest( 'a[href]' );
 			if ( ! link ) return;
 
+			// Skip anchor-only links (e.g. href="#") — they are in-page toggles,
+			// not navigation; resolving them against the current URL would
+			// incorrectly inherit tab=logs and trigger an unwanted tab reload.
+			const rawHref = link.getAttribute( 'href' ) || '';
+			if ( ! rawHref || rawHref.startsWith( '#' ) ) return;
+
 			let url;
 			try { url = new URL( link.href ); } catch ( _ ) { return; }
 
@@ -88,5 +94,7 @@ export class LogsTab {
 				postFields
 			) );
 		} );
+
+		return this;
 	}
 }
