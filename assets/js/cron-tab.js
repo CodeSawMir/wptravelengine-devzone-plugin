@@ -57,6 +57,7 @@ export class CronTab {
 			this._refreshBtn.disabled = true;
 			this._refreshBtn.style.transform = 'rotate(360deg)';
 		}
+		this._setToolbarStatus( 'Refreshing\u2026', 'info' );
 		this._clear( this._listEl );
 		this._listEl.appendChild( this._makeSkeleton() );
 
@@ -73,8 +74,13 @@ export class CronTab {
 					this._refreshBtn.disabled = false;
 					this._refreshBtn.style.transform = '';
 				}
-				if ( ! res.success ) { this._renderError( 'Failed to load cron events.' ); return; }
+				if ( ! res.success ) {
+					this._setToolbarStatus( 'Failed to load cron events.', 'error' );
+					this._renderError( 'Failed to load cron events.' );
+					return;
+				}
 				this._allCrons = res.data.crons || [];
+				this._setToolbarStatus( 'Cron list refreshed.', 'success' );
 				this._renderAll();
 			} )
 			.catch( () => {
@@ -82,6 +88,7 @@ export class CronTab {
 					this._refreshBtn.disabled = false;
 					this._refreshBtn.style.transform = '';
 				}
+				this._setToolbarStatus( 'Refresh failed.', 'error' );
 				this._renderError( 'Request failed.' );
 			} );
 	}
