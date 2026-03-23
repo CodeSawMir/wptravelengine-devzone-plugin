@@ -371,10 +371,22 @@ export class DbSearchTab {
 		andCol.className    = 'wte-dbg-filter-column wte-dbg-filter-column-and';
 		andCol.style.display = 'none';
 
+		const andHdrWrap = document.createElement( 'div' );
+		andHdrWrap.className = 'wte-dbg-filter-col-header-wrap';
+
 		const andHdr = document.createElement( 'div' );
 		andHdr.className   = 'wte-dbg-filter-col-header';
 		andHdr.textContent = 'AND';
-		andCol.appendChild( andHdr );
+
+		const andClearBtn = document.createElement( 'button' );
+		andClearBtn.type      = 'button';
+		andClearBtn.className = 'wte-dbg-filter-col-clear';
+		andClearBtn.title     = 'Remove all AND filters';
+		andClearBtn.textContent = '\u00d7';
+
+		andHdrWrap.appendChild( andHdr );
+		andHdrWrap.appendChild( andClearBtn );
+		andCol.appendChild( andHdrWrap );
 
 		andFilterRows = document.createElement( 'div' );
 		andFilterRows.className = 'wte-dbg-filter-rows';
@@ -392,10 +404,22 @@ export class DbSearchTab {
 		orCol.className    = 'wte-dbg-filter-column wte-dbg-filter-column-or';
 		orCol.style.display = 'none';
 
+		const orHdrWrap = document.createElement( 'div' );
+		orHdrWrap.className = 'wte-dbg-filter-col-header-wrap';
+
 		const orHdr = document.createElement( 'div' );
 		orHdr.className   = 'wte-dbg-filter-col-header';
 		orHdr.textContent = 'OR';
-		orCol.appendChild( orHdr );
+
+		const orClearBtn = document.createElement( 'button' );
+		orClearBtn.type      = 'button';
+		orClearBtn.className = 'wte-dbg-filter-col-clear';
+		orClearBtn.title     = 'Remove all OR filters';
+		orClearBtn.textContent = '\u00d7';
+
+		orHdrWrap.appendChild( orHdr );
+		orHdrWrap.appendChild( orClearBtn );
+		orCol.appendChild( orHdrWrap );
 
 		orFilterRows = document.createElement( 'div' );
 		orFilterRows.className = 'wte-dbg-filter-rows';
@@ -408,6 +432,8 @@ export class DbSearchTab {
 
 		// Enable/disable toggle icon and show/hide Run Query based on whether filter rows exist
 		const updateFiltersToggle = () => {
+			andClearBtn.style.display = andFilterRows.children.length > 0 ? 'inline-flex' : 'none';
+			orClearBtn.style.display  = orFilterRows.children.length  > 0 ? 'inline-flex' : 'none';
 			const hasAndRows = andFilterRows.children.length > 0;
 			const hasOrRows  = orFilterRows.children.length > 0;
 			const hasRows    = hasAndRows || hasOrRows;
@@ -443,6 +469,15 @@ export class DbSearchTab {
 
 		const onEnterAnd = () => this.runQuery( tableName, this.collectFilters( andFilterRows ), [], 50, 0, resultsWrap );
 		const onEnterOr  = () => this.runQuery( tableName, [], this.collectFilters( orFilterRows ), 50, 0, resultsWrap );
+
+		andClearBtn.addEventListener( 'click', () => {
+			Dom.setTextContent( andFilterRows, '' );
+			updateFiltersToggle();
+		} );
+		orClearBtn.addEventListener( 'click', () => {
+			Dom.setTextContent( orFilterRows, '' );
+			updateFiltersToggle();
+		} );
 
 		if ( restore?.andFilters?.length || restore?.orFilters?.length ) {
 			( restore.andFilters || [] ).forEach( ( f ) => this.addFilterRow( andFilterRows, columns, updateFiltersToggle, onEnterAnd, f ) );
@@ -544,6 +579,9 @@ export class DbSearchTab {
 			this.wrap.querySelectorAll( 'tr.is-row-selected' ).forEach( ( r ) => r.classList.remove( 'is-row-selected' ) );
 			this._clearRowIndicator();
 			this._expandLeftSidebar();
+			section.closest( '.wte-dbg-query-builder' )
+				?.querySelector( '.wte-dbg-filters-section' )
+				?.classList.add( 'is-open' );
 		} );
 		label.appendChild( dismissBtn );
 
@@ -816,10 +854,14 @@ export class DbSearchTab {
 			onCountChange?.();
 		} );
 
+		const fieldsGroup = document.createElement( 'div' );
+		fieldsGroup.className = 'wte-dbg-filter-fields';
+		fieldsGroup.appendChild( this._wrapSelect( colSel, 'wte-dbg-filter-col-wrap' ) );
+		fieldsGroup.appendChild( this._wrapSelect( opSel,  'wte-dbg-filter-op-wrap' ) );
+		fieldsGroup.appendChild( valInput );
+
 		row.appendChild( removeBtn );
-		row.appendChild( this._wrapSelect( colSel, 'wte-dbg-filter-col-wrap' ) );
-		row.appendChild( this._wrapSelect( opSel,  'wte-dbg-filter-op-wrap' ) );
-		row.appendChild( valInput );
+		row.appendChild( fieldsGroup );
 		container.appendChild( row );
 
 		// Restore saved values — dispatch change so display spans and visibility sync.
@@ -976,6 +1018,9 @@ export class DbSearchTab {
 				tbody.querySelectorAll( 'tr.is-row-selected' ).forEach( ( r ) => r.classList.remove( 'is-row-selected' ) );
 				tr.classList.add( 'is-row-selected' );
 				this._selectRow( cols[ 0 ], row[ cols[ 0 ] ], row );
+				resultsWrap.closest( '.wte-dbg-query-builder' )
+					?.querySelector( '.wte-dbg-filters-section' )
+					?.classList.remove( 'is-open' );
 			} );
 			radioTd.appendChild( radio );
 			tr.appendChild( radioTd );
