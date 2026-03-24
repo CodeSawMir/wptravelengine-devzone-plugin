@@ -29,7 +29,7 @@ $active_slug = $active_tool->get_slug();
 			</button>
 			<span class="wte-dbg-header-divider" aria-hidden="true"></span>
 			<button type="button" class="wte-dbg-group-btn <?php echo $active_slug === 'cron' ? 'is-active' : ''; ?>" data-group="cron">
-				<?php esc_html_e( 'Cron', 'wptravelengine-devzone' ); ?>
+				<?php esc_html_e( 'Crontrol', 'wptravelengine-devzone' ); ?>
 			</button>
 			<span class="wte-dbg-header-divider" aria-hidden="true"></span>
 			<button type="button" class="wte-dbg-group-btn <?php echo $active_slug === 'logs' ? 'is-active' : ''; ?>" data-group="logs">

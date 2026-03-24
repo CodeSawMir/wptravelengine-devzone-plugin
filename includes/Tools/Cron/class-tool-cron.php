@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 class ToolCron extends AbstractTool {
 
 	public function get_slug(): string     { return 'cron'; }
-	public function get_label(): string    { return __( 'Cron', 'wptravelengine-devzone' ); }
+	public function get_label(): string    { return __( 'Crontrol', 'wptravelengine-devzone' ); }
 	public function get_template(): string { return WPTE_DEVZONE_DIR . 'templates/tab-cron.php'; }
 
 	public function register_ajax(): void {
