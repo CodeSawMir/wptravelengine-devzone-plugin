@@ -83,7 +83,7 @@ export function initDevModeToggle( onLoadTab, getCurrentSlug ) {
 
 	const syncBtn = ( on ) => {
 		btn.setAttribute( 'aria-checked', on ? 'true' : 'false' );
-		btn.dataset.tooltip = on ? 'Disable developing features' : 'Enable developing features';
+		btn.dataset.tooltip = on ? 'Hide hot features' : 'Show hot features';
 	};
 
 	syncBtn( wrap.classList.contains( 'wte-dbg-dev-mode' ) );
