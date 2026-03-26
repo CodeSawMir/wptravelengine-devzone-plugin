@@ -29,13 +29,13 @@ class ToolQuery extends AbstractTool {
 	public function enqueue_assets(): void {
 		wp_enqueue_style(
 			'wpte-devzone-search',
-			WPTE_DEVZONE_URL . 'assets/css/db-search.css',
+			WPTE_DEVZONE_URL . 'assets/css/query.css',
 			[ 'wpte-devzone' ],
 			WPTE_DEVZONE_VERSION
 		);
 		wp_enqueue_script(
 			'wpte-devzone-search',
-			WPTE_DEVZONE_URL . 'assets/js/db-search.js',
+			WPTE_DEVZONE_URL . 'assets/js/tabs/query.js',
 			[ 'wpte-devzone' ],
 			WPTE_DEVZONE_VERSION,
 			true

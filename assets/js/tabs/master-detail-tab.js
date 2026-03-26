@@ -4,8 +4,8 @@
  */
 /* global wpteDbg */
 
-import { DomHelper }    from './dom-helper.js';
-import { InlineEditor } from './inline-editor.js';
+import { DomHelper }    from '../dom-helper.js';
+import { InlineEditor } from '../inline-editor.js';
 
 const { ajaxurl, nonce } = wpteDbg;
 

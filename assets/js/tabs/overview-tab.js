@@ -4,9 +4,9 @@
  */
 /* global wpteDbg */
 
-import { DomHelper }    from './dom-helper.js';
-import { InlineEditor } from './inline-editor.js';
-import { Icons }        from './constants.js';
+import { DomHelper }    from '../dom-helper.js';
+import { InlineEditor } from '../inline-editor.js';
+import { Icons }        from '../constants.js';
 
 const { ajaxurl, nonce } = wpteDbg;
 const OPTS_PER_PAGE = 20;

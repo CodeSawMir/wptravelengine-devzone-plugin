@@ -8,7 +8,7 @@
    ------------------------------------------------------------------------- */
 .wte-dbg-db-search {
 	display: flex;
-	height: calc(100vh - 190px);
+	height: calc(100vh - 90px);
 	min-height: 500px;
 	position: relative;
 	overflow: hidden;

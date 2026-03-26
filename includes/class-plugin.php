@@ -49,6 +49,7 @@ class Plugin {
 			new Tools\Inspector\ToolQuery(),
 			new Tools\Logs\ToolLogs(),
 			new Tools\Cron\ToolCron(),
+			new Tools\Perf\ToolPerf(),
 		] );
 
 		new Admin( $tools );

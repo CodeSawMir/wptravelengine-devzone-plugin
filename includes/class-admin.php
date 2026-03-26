@@ -11,10 +11,23 @@ class Admin {
 	public const PAGE_SLUG = 'wptravelengine-devzone';
 	public const NONCE     = 'wpte_devzone_nonce';
 
-	/** @var Tools\AbstractTool[] */
+	/**
+	 * Cached result of get_dev_features().
+	 *
+	 * @var array<string,string>
+	 */
+	public static array $dev_features = [];
+
+	/**
+	 * Registered tools.
+	 *
+	 * @var Tools\AbstractTool[]
+	 */
 	private array $tools;
 
-	/** @param Tools\AbstractTool[] $tools */
+	/**
+	 * @param Tools\AbstractTool[] $tools
+	 */
 	public function __construct( array $tools ) {
 		$this->tools = $tools;
 		add_action( 'admin_menu', [ $this, 'register_menu' ] );
@@ -30,8 +43,78 @@ class Admin {
 	}
 
 	/**
-	 * Verify an incoming AJAX request: valid nonce + manage_options capability.
-	 * Call this at the top of every AJAX handler.
+	 * Returns the full navigation structure.
+	 *
+	 * Filterable via 'wpte_devzone_tabs'.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function get_tabs(): array {
+		$tabs = apply_filters( 'wpte_devzone_tabs', [
+			'devzone' => [
+				'title'   => __( 'Inspect', 'wptravelengine-devzone' ),
+				'subtabs' => [
+					'overview'  => __( 'Overview',   'wptravelengine-devzone' ),
+					'trips'     => __( 'Trips',       'wptravelengine-devzone' ),
+					'bookings'  => __( 'Bookings',    'wptravelengine-devzone' ),
+					'payments'  => __( 'Payments',    'wptravelengine-devzone' ),
+					'customers' => __( 'Customers',   'wptravelengine-devzone' ),
+				],
+			],
+			'query'   => __( 'Query', 'wptravelengine-devzone' ),
+			'cron'    => __( 'Crontrol',     'wptravelengine-devzone' ),
+			'perf'    => [
+				'title'  => __( 'Perf', 'wptravelengine-devzone' ),
+				'on_dev' => true,
+			],
+		] );
+
+		$tabs['logs'] = __( 'Logs', 'wptravelengine-devzone' );
+		return $tabs;		
+	}
+
+	/**
+	 * Returns dev-only tab slugs derived from get_tabs().
+	 *
+	 * Filterable via 'wpte_devzone_dev_features'.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_dev_features(): array {
+		if ( self::$dev_features ) {
+			return self::$dev_features;
+		}
+		$derived = [];
+		foreach ( self::get_tabs() as $group_slug => $group ) {
+			if ( is_string( $group ) ) {
+				continue;
+			}
+			if ( ! empty( $group['on_dev'] ) ) {
+				$derived[ $group_slug ] = '__all';
+				continue;
+			}
+			if ( ! empty( $group['subtabs'] ) ) {
+				$dev_slugs = [];
+				foreach ( $group['subtabs'] as $tab_slug => $tab_def ) {
+					if ( is_array( $tab_def ) && ! empty( $tab_def['on_dev'] ) ) {
+						$dev_slugs[] = $tab_slug;
+					}
+				}
+				if ( $dev_slugs ) {
+					$derived[ $group_slug ] = count( $dev_slugs ) === count( $group['subtabs'] )
+						? '__all'
+						: implode( ',', $dev_slugs );
+				}
+			}
+		}
+		self::$dev_features = apply_filters( 'wpte_devzone_dev_features', $derived );
+		return self::$dev_features;
+	}
+
+	/**
+	 * Verifies nonce and manage_options capability.
+	 *
+	 * Call at the top of every AJAX handler.
 	 */
 	public static function verify_request(): void {
 		check_ajax_referer( self::NONCE );
@@ -41,8 +124,9 @@ class Admin {
 	}
 
 	/**
-	 * Remove all admin notice hooks when viewing the Dev Zone page so the UI
-	 * stays clean and uncluttered by unrelated plugin/theme notices.
+	 * Suppresses all admin notices on the Dev Zone page.
+	 *
+	 * @param \WP_Screen $screen Current screen.
 	 */
 	public function suppress_notices_on_our_page( \WP_Screen $screen ): void {
 		if ( strpos( $screen->id, self::PAGE_SLUG ) === false ) {
@@ -185,13 +269,26 @@ class Admin {
 			}
 		}
 
+		$group_subtabs = [];
+		foreach ( self::get_tabs() as $group_slug => $tab ) {
+			if ( $group_slug === 'devzone' || is_string( $tab ) || empty( $tab['subtabs'] ) ) {
+				continue;
+			}
+			foreach ( $tab['subtabs'] as $sub_slug => $sub_def ) {
+				$label                                   = is_array( $sub_def ) ? ( $sub_def['title'] ?? $sub_slug ) : (string) $sub_def;
+				$group_subtabs[ $group_slug ][ $sub_slug ] = $label;
+			}
+		}
+
 		wp_localize_script( 'wpte-devzone', 'wpteDbg', [
-			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'nonce'      => wp_create_nonce( self::NONCE ),
-			'post_types' => $post_types,
+			'ajaxurl'      => admin_url( 'admin-ajax.php' ),
+			'nonce'        => wp_create_nonce( self::NONCE ),
+			'post_types'   => $post_types,
+			'devFeatures'  => self::get_dev_features(),
+			'groupSubtabs' => $group_subtabs,
 		] );
 
-		// Let each tool enqueue its own assets (e.g. ToolQuery loads db-search.js).
+		// Let each tool enqueue its own assets (e.g. ToolQuery loads tabs/query.js).
 		foreach ( $this->tools as $tool ) {
 			$tool->enqueue_assets();
 		}

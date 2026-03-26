@@ -5,7 +5,7 @@
  */
 /* global wpteDbg */
 
-import { DomHelper } from './dom-helper.js';
+import { DomHelper } from '../dom-helper.js';
 
 const { ajaxurl, nonce } = wpteDbg;
 
