@@ -14,10 +14,7 @@ defined( 'ABSPATH' ) || exit;
 				aria-label="<?php esc_attr_e( 'Search cron hooks', 'wptravelengine-devzone' ); ?>">
 			<span class="wte-dbg-cron-search-count"></span>
 		</div>
-		<button type="button" class="wte-dbg-cron-refresh" title="<?php esc_attr_e( 'Refresh', 'wptravelengine-devzone' ); ?>"></button>
-		<div class="wte-dbg-cron-toolbar-status">
-			<span class="wte-dbg-loader-note"></span>
-		</div>
+		<button type="button" class="wte-dbg-refresh-btn" title="<?php esc_attr_e( 'Refresh', 'wptravelengine-devzone' ); ?>"></button>
 	</div>
 	<div class="wte-dbg-cron-list"></div>
 </div>

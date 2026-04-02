@@ -15,11 +15,12 @@ let loader;
 
 const TAB_REGISTRY = {
 	overview:  ( el )      => new OverviewTab( el ).init(),
-	trips:     ( el, id )  => new MasterDetailTab( 'trip',         el, id, ( s, pid ) => loader.navigateTo( s, pid ) ).init(),
-	bookings:  ( el, id )  => new MasterDetailTab( 'booking',      el, id, ( s, pid ) => loader.navigateTo( s, pid ) ).init(),
-	payments:  ( el, id )  => new MasterDetailTab( 'wte-payments', el, id, ( s, pid ) => loader.navigateTo( s, pid ) ).init(),
-	customers: ( el, id )  => new MasterDetailTab( 'customer',     el, id, ( s, pid ) => loader.navigateTo( s, pid ) ).init(),
-	logs:      ( el )      => new LogsTab( el, ( slug, extra ) => loader.loadTab( slug, extra ) ).init(),
+	trips:     ( el, id, restored ) => new MasterDetailTab( 'trip',         el, restored ? null : id, ( s, pid ) => loader.navigateTo( s, pid ) ).init( restored ),
+	bookings:  ( el, id, restored ) => new MasterDetailTab( 'booking',      el, restored ? null : id, ( s, pid ) => loader.navigateTo( s, pid ) ).init( restored ),
+	payments:  ( el, id, restored ) => new MasterDetailTab( 'wte-payments', el, restored ? null : id, ( s, pid ) => loader.navigateTo( s, pid ) ).init( restored ),
+	customers: ( el, id, restored ) => new MasterDetailTab( 'customer',     el, restored ? null : id, ( s, pid ) => loader.navigateTo( s, pid ) ).init( restored ),
+	wptravelengine: ( el ) => new LogsTab( el, ( slug, extra ) => loader.loadTab( slug, extra ) ).init(),
+	wordpress:      ( el ) => LogsTab.initWordpress( el ),
 	cron:      ( el )      => new CronTab( el ).init(),
 	perf:      ( el )      => new PerfTab( el ).init(),
 	// query: handled by window.wpteDbgInitSearch() in tabs/query.js
@@ -54,6 +55,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	}
 
 	// Expose status helpers for non-module scripts (e.g. db-search.js).
-	window.wteDbgSetStatus   = ( msg, type ) => DomHelper.setStatus( msg, type );
-	window.wteDbgClearStatus = ()            => DomHelper.clearStatus();
+	window.wteDbgSetStatus   = ( msg, type, secs ) => DomHelper.setStatus( msg, type, secs );
+	window.wteDbgClearStatus = ()                  => DomHelper.clearStatus();
 } );

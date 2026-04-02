@@ -24,14 +24,22 @@ export class CronTab {
 		this._allCrons  = [];
 		this._pages     = { wpte: 1, other: 1 };
 		this._search    = '';
+		this._fetchCtrl = null;
+	}
+
+	destroy() {
+		if ( this._fetchCtrl ) {
+			DomHelper.setStatus( 'Cancelled \u2014 cron list', 'cancelled' );
+			this._fetchCtrl.abort();
+			this._fetchCtrl = null;
+		}
 	}
 
 	init() {
 		this._listEl          = this.contentEl.querySelector( '.wte-dbg-cron-list' );
-		this._refreshBtn      = this.contentEl.querySelector( '.wte-dbg-cron-refresh' );
+		this._refreshBtn      = this.contentEl.querySelector( '.wte-dbg-refresh-btn' );
 		this._searchInput     = this.contentEl.querySelector( '.wte-dbg-cron-search-wrap .wte-dbg-cron-search' );
 		this._searchCount     = this.contentEl.querySelector( '.wte-dbg-cron-search-wrap .wte-dbg-cron-search-count' );
-		this._toolbarStatusEl = this.contentEl.querySelector( '.wte-dbg-cron-toolbar-status' );
 
 		this._refreshBtn?.addEventListener( 'click', () => {
 			this._pages = { wpte: 1, other: 1 };
@@ -53,16 +61,21 @@ export class CronTab {
 	// -----------------------------------------------------------------------
 
 	_load() {
+		this._fetchCtrl?.abort();
+		this._fetchCtrl = new AbortController();
+		const { signal } = this._fetchCtrl;
+
 		if ( this._refreshBtn ) {
 			this._refreshBtn.disabled = true;
-			this._refreshBtn.style.transform = 'rotate(360deg)';
+			this._refreshBtn.classList.add( 'is-spinning' );
 		}
-		this._setToolbarStatus( 'Refreshing\u2026', 'info' );
+		DomHelper.setStatus( 'Refreshing\u2026', 'info' );
 		this._clear( this._listEl );
 		this._listEl.appendChild( this._makeSkeleton() );
 
 		fetch( ajaxurl, {
 			method: 'POST',
+			signal,
 			body: new URLSearchParams( {
 				action:      'wpte_devzone_cron_list',
 				_ajax_nonce: nonce,
@@ -70,25 +83,28 @@ export class CronTab {
 		} )
 			.then( ( r ) => r.json() )
 			.then( ( res ) => {
+				this._fetchCtrl = null;
 				if ( this._refreshBtn ) {
 					this._refreshBtn.disabled = false;
-					this._refreshBtn.style.transform = '';
+					this._refreshBtn.classList.remove( 'is-spinning' );
 				}
 				if ( ! res.success ) {
-					this._setToolbarStatus( 'Failed to load cron events.', 'error' );
+					DomHelper.setStatus( 'Failed to load cron events.', 'error', 4 );
 					this._renderError( 'Failed to load cron events.' );
 					return;
 				}
 				this._allCrons = res.data.crons || [];
-				this._setToolbarStatus( 'Cron list refreshed.', 'success' );
+				DomHelper.setStatus( 'Cron list refreshed.', 'success', 4 );
 				this._renderAll();
 			} )
-			.catch( () => {
+			.catch( ( err ) => {
+				if ( err.name === 'AbortError' ) return;
+				this._fetchCtrl = null;
 				if ( this._refreshBtn ) {
 					this._refreshBtn.disabled = false;
-					this._refreshBtn.style.transform = '';
+					this._refreshBtn.classList.remove( 'is-spinning' );
 				}
-				this._setToolbarStatus( 'Refresh failed.', 'error' );
+				DomHelper.setStatus( 'Refresh failed.', 'error', 4 );
 				this._renderError( 'Request failed.' );
 			} );
 	}
@@ -450,10 +466,10 @@ export class CronTab {
 				row?.classList.remove( 'is-running' );
 				if ( res.success ) {
 					row?.classList.add( 'is-success' );
-					this._setToolbarStatus( res.data.message, 'success' );
+					DomHelper.setStatus( res.data.message, 'success', 4 );
 				} else {
 					row?.classList.add( 'is-error' );
-					this._setToolbarStatus( res.data?.message || 'Failed to run cron.', 'error' );
+					DomHelper.setStatus( res.data?.message || 'Failed to run cron.', 'error', 4 );
 				}
 				setTimeout( () => this._load(), 800 );
 			} )
@@ -461,7 +477,7 @@ export class CronTab {
 				btn.disabled = false;
 				row?.classList.remove( 'is-running' );
 				row?.classList.add( 'is-error' );
-				this._setToolbarStatus( 'Request failed.', 'error' );
+				DomHelper.setStatus( 'Request failed.', 'error', 4 );
 				setTimeout( () => row?.classList.remove( 'is-error' ), 2000 );
 			} );
 	}
@@ -485,10 +501,10 @@ export class CronTab {
 				row?.classList.remove( 'is-running' );
 				if ( res.success ) {
 					row?.classList.add( 'is-success' );
-					this._setToolbarStatus( res.data.message, 'success' );
+					DomHelper.setStatus( res.data.message, 'success', 4 );
 				} else {
 					row?.classList.add( 'is-error' );
-					this._setToolbarStatus( res.data?.message || 'Failed.', 'error' );
+					DomHelper.setStatus( res.data?.message || 'Failed.', 'error', 4 );
 				}
 				setTimeout( () => this._load(), 800 );
 			} )
@@ -496,29 +512,9 @@ export class CronTab {
 				btn.disabled = false;
 				row?.classList.remove( 'is-running' );
 				row?.classList.add( 'is-error' );
-				this._setToolbarStatus( 'Request failed.', 'error' );
+				DomHelper.setStatus( 'Request failed.', 'error', 4 );
 				setTimeout( () => row?.classList.remove( 'is-error' ), 2000 );
 			} );
-	}
-
-	// -----------------------------------------------------------------------
-	// Toolbar status
-	// -----------------------------------------------------------------------
-
-	_setToolbarStatus( msg, type = null ) {
-		if ( ! this._toolbarStatusEl ) return;
-		const note = this._toolbarStatusEl.querySelector( '.wte-dbg-loader-note' );
-		if ( note ) note.textContent = msg;
-		this._toolbarStatusEl.classList.remove( 'is-status-info', 'is-status-success', 'is-status-error', 'is-status-cancelled' );
-		if ( type ) this._toolbarStatusEl.classList.add( 'is-status-' + type );
-		this._toolbarStatusEl.classList.add( 'is-visible' );
-		clearTimeout( this._statusTimer );
-		this._statusTimer = setTimeout( () => this._clearToolbarStatus(), 4000 );
-	}
-
-	_clearToolbarStatus() {
-		if ( ! this._toolbarStatusEl ) return;
-		this._toolbarStatusEl.classList.remove( 'is-visible', 'is-status-info', 'is-status-success', 'is-status-error', 'is-status-cancelled' );
 	}
 
 	// -----------------------------------------------------------------------

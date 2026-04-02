@@ -170,12 +170,13 @@ export class DomHelper {
 
 	/** Show the global status note with a message. type: 'info' | 'success' | 'error' | 'cancelled' */
 	static setStatus( msg, type = null, secs = null ) {
-		const wrap = document.getElementById( 'wte-dbg-status-note' );
+		const wrap = document.getElementById( 'wte-dbg-wp-debug-notice' );
 		if ( ! wrap ) return;
-		wrap.querySelector( '.wte-dbg-loader-note' ).textContent = msg;
+		const note = wrap.querySelector( '.wte-dbg-loader-note' );
+		if ( note ) note.textContent = msg;
 		wrap.classList.remove( 'is-status-info', 'is-status-success', 'is-status-error', 'is-status-cancelled' );
 		if ( type ) wrap.classList.add( 'is-status-' + type );
-		wrap.classList.add( 'is-visible' );
+		wrap.style.display = 'flex';
 		clearTimeout( DomHelper._statusTimer );
 		if ( secs ) DomHelper._statusTimer = setTimeout( () => DomHelper.clearStatus(), secs * 1000 );
 	}
@@ -183,16 +184,18 @@ export class DomHelper {
 	/** Hide the global status note and reset its type. */
 	static clearStatus() {
 		clearTimeout( DomHelper._statusTimer );
-		const wrap = document.getElementById( 'wte-dbg-status-note' );
+		const wrap = document.getElementById( 'wte-dbg-wp-debug-notice' );
 		if ( ! wrap ) return;
-		wrap.classList.remove( 'is-visible', 'is-status-info', 'is-status-success', 'is-status-error', 'is-status-cancelled' );
+		wrap.style.display = 'none';
+		wrap.classList.remove( 'is-status-info', 'is-status-success', 'is-status-error', 'is-status-cancelled' );
 	}
 
 	/** Update cycling note text with fade transition (used by outer loader timer). */
 	static updateLoaderNote( msg ) {
-		const wrap = document.getElementById( 'wte-dbg-status-note' );
+		const wrap = document.getElementById( 'wte-dbg-wp-debug-notice' );
 		if ( ! wrap ) return;
 		const note = wrap.querySelector( '.wte-dbg-loader-note' );
+		if ( ! note ) return;
 		note.classList.add( 'is-changing' );
 		setTimeout( () => {
 			note.textContent = msg;

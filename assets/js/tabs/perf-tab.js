@@ -4,11 +4,22 @@
  */
 /* global wpteDbg */
 
+import { DomHelper } from '../dom-helper.js';
+
 const { ajaxurl, nonce } = wpteDbg;
 
 export class PerfTab {
 	constructor( contentEl ) {
-		this.contentEl = contentEl;
+		this.contentEl  = contentEl;
+		this._fetchCtrl = null;
+	}
+
+	destroy() {
+		if ( this._fetchCtrl ) {
+			DomHelper.setStatus( 'Cancelled \u2014 performance data', 'cancelled' );
+			this._fetchCtrl.abort();
+			this._fetchCtrl = null;
+		}
 	}
 
 	init() {
@@ -17,8 +28,7 @@ export class PerfTab {
 		this._wteList       = this.contentEl.querySelector( '.wte-dbg-perf-wte-list' );
 		this._autoloadWrap  = this.contentEl.querySelector( '.wte-dbg-perf-autoload-wrap' );
 		this._pluginsWrap   = this.contentEl.querySelector( '.wte-dbg-perf-plugins-wrap' );
-		this._toolbarStatus = this.contentEl.querySelector( '.wte-dbg-perf-toolbar-status' );
-		this._refreshBtn    = this.contentEl.querySelector( '.wte-dbg-perf-refresh' );
+		this._refreshBtn    = this.contentEl.querySelector( '.wte-dbg-refresh-btn' );
 
 		this._refreshBtn?.addEventListener( 'click', () => this._loadAll() );
 
@@ -27,22 +37,30 @@ export class PerfTab {
 	}
 
 	_loadAll() {
+		this._fetchCtrl?.abort();
+		this._fetchCtrl = new AbortController();
+		const { signal } = this._fetchCtrl;
+
 		if ( this._refreshBtn ) {
 			this._refreshBtn.disabled = true;
-			this._refreshBtn.style.transform = 'rotate(360deg)';
+			this._refreshBtn.classList.add( 'is-spinning' );
 		}
+		DomHelper.setStatus( 'Refreshing\u2026', 'info' );
+
 		// All sections load in parallel.
 		Promise.all( [
-			this._loadStats(),
-			this._loadCleanupCounts(),
-			this._loadWteCounts(),
-			this._loadAutoloadedOptions(),
-			this._loadPluginHealth(),
+			this._loadStats( signal ),
+			this._loadCleanupCounts( signal ),
+			this._loadWteCounts( undefined, signal ),
+			this._loadAutoloadedOptions( signal ),
+			this._loadPluginHealth( signal ),
 		] ).then( () => {
+			this._fetchCtrl = null;
 			if ( this._refreshBtn ) {
 				this._refreshBtn.disabled = false;
-				this._refreshBtn.style.transform = '';
+				this._refreshBtn.classList.remove( 'is-spinning' );
 			}
+			DomHelper.setStatus( 'Performance data refreshed.', 'success', 4 );
 		} );
 	}
 
@@ -50,11 +68,11 @@ export class PerfTab {
 	// Section 1 — Quick Stats
 	// -----------------------------------------------------------------------
 
-	_loadStats() {
+	_loadStats( signal ) {
 		this._clear( this._statsBar );
 		this._statsBar.appendChild( this._makeStatsSkeleton() );
 
-		return this._post( 'wpte_devzone_perf_stats' )
+		return this._post( 'wpte_devzone_perf_stats', null, signal )
 			.then( ( res ) => {
 				this._clear( this._statsBar );
 				if ( ! res.success ) {
@@ -63,7 +81,8 @@ export class PerfTab {
 				}
 				this._renderStats( res.data.stats );
 			} )
-			.catch( () => {
+			.catch( ( err ) => {
+				if ( err.name === 'AbortError' ) return;
 				this._clear( this._statsBar );
 				this._statsBar.appendChild( this._makeError( 'Request failed.' ) );
 			} );
@@ -136,12 +155,12 @@ export class PerfTab {
 	// Section 2 — DB Cleanup
 	// -----------------------------------------------------------------------
 
-	_loadCleanupCounts() {
+	_loadCleanupCounts( signal ) {
 		if ( ! this._cleanupList.hasChildNodes() ) {
 			this._renderCleanupRows();
 		}
 
-		return this._post( 'wpte_devzone_perf_cleanup_counts' )
+		return this._post( 'wpte_devzone_perf_cleanup_counts', null, signal )
 			.then( ( res ) => {
 				if ( ! res.success ) return;
 				const counts = res.data.counts;
@@ -190,11 +209,11 @@ export class PerfTab {
 				btn.textContent = 'Clean';
 				if ( res.success ) {
 					row?.classList.add( 'is-success' );
-					this._setToolbarStatus( res.data.message, 'success' );
+					DomHelper.setStatus( res.data.message, 'success', 4 );
 					setTimeout( () => row?.classList.remove( 'is-success' ), 2000 );
 				} else {
 					row?.classList.add( 'is-error' );
-					this._setToolbarStatus( res.data?.message || 'Failed.', 'error' );
+					DomHelper.setStatus( res.data?.message || 'Failed.', 'error', 4 );
 					setTimeout( () => row?.classList.remove( 'is-error' ), 2000 );
 				}
 				btn.disabled = false;
@@ -205,7 +224,7 @@ export class PerfTab {
 				row?.classList.add( 'is-error' );
 				btn.textContent = 'Clean';
 				btn.disabled    = false;
-				this._setToolbarStatus( 'Request failed.', 'error' );
+				DomHelper.setStatus( 'Request failed.', 'error', 4 );
 				setTimeout( () => row?.classList.remove( 'is-error' ), 2000 );
 			} );
 	}
@@ -214,14 +233,14 @@ export class PerfTab {
 	// Section 3 — WTE Cleanup
 	// -----------------------------------------------------------------------
 
-	_loadWteCounts( days ) {
+	_loadWteCounts( days, signal ) {
 		const d = days || this._getStaledays();
 
 		if ( ! this._wteList.hasChildNodes() ) {
 			this._renderWteRows();
 		}
 
-		return this._post( 'wpte_devzone_perf_wte_counts', { days: d } )
+		return this._post( 'wpte_devzone_perf_wte_counts', { days: d }, signal )
 			.then( ( res ) => {
 				if ( ! res.success ) return;
 				const counts = res.data.counts;
@@ -301,11 +320,11 @@ export class PerfTab {
 				btn.textContent = 'Clean';
 				if ( res.success ) {
 					row?.classList.add( 'is-success' );
-					this._setToolbarStatus( res.data.message, 'success' );
+					DomHelper.setStatus( res.data.message, 'success', 4 );
 					setTimeout( () => row?.classList.remove( 'is-success' ), 2000 );
 				} else {
 					row?.classList.add( 'is-error' );
-					this._setToolbarStatus( res.data?.message || 'Failed.', 'error' );
+					DomHelper.setStatus( res.data?.message || 'Failed.', 'error', 4 );
 					setTimeout( () => row?.classList.remove( 'is-error' ), 2000 );
 				}
 				btn.disabled = false;
@@ -316,7 +335,7 @@ export class PerfTab {
 				row?.classList.add( 'is-error' );
 				btn.textContent = 'Clean';
 				btn.disabled    = false;
-				this._setToolbarStatus( 'Request failed.', 'error' );
+				DomHelper.setStatus( 'Request failed.', 'error', 4 );
 				setTimeout( () => row?.classList.remove( 'is-error' ), 2000 );
 			} );
 	}
@@ -325,11 +344,11 @@ export class PerfTab {
 	// Section 4 — Autoloaded Options
 	// -----------------------------------------------------------------------
 
-	_loadAutoloadedOptions() {
+	_loadAutoloadedOptions( signal ) {
 		this._clear( this._autoloadWrap );
 		this._autoloadWrap.appendChild( this._makeBlockSkeleton( 8 ) );
 
-		return this._post( 'wpte_devzone_perf_autoload' )
+		return this._post( 'wpte_devzone_perf_autoload', null, signal )
 			.then( ( res ) => {
 				this._clear( this._autoloadWrap );
 				if ( ! res.success ) {
@@ -338,7 +357,8 @@ export class PerfTab {
 				}
 				this._renderAutoloadTable( res.data.options );
 			} )
-			.catch( () => {
+			.catch( ( err ) => {
+				if ( err.name === 'AbortError' ) return;
 				this._clear( this._autoloadWrap );
 				this._autoloadWrap.appendChild( this._makeError( 'Request failed.' ) );
 			} );
@@ -382,11 +402,11 @@ export class PerfTab {
 	// Section 5 — Plugin Health
 	// -----------------------------------------------------------------------
 
-	_loadPluginHealth() {
+	_loadPluginHealth( signal ) {
 		this._clear( this._pluginsWrap );
 		this._pluginsWrap.appendChild( this._makeBlockSkeleton( 6 ) );
 
-		return this._post( 'wpte_devzone_perf_plugins' )
+		return this._post( 'wpte_devzone_perf_plugins', null, signal )
 			.then( ( res ) => {
 				this._clear( this._pluginsWrap );
 				if ( ! res.success ) {
@@ -395,7 +415,8 @@ export class PerfTab {
 				}
 				this._renderPlugins( res.data.plugins );
 			} )
-			.catch( () => {
+			.catch( ( err ) => {
+				if ( err.name === 'AbortError' ) return;
 				this._clear( this._pluginsWrap );
 				this._pluginsWrap.appendChild( this._makeError( 'Request failed.' ) );
 			} );
@@ -503,23 +524,11 @@ export class PerfTab {
 		badge.classList.toggle( 'is-zero', count === 0 );
 	}
 
-	_setToolbarStatus( msg, type ) {
-		if ( ! this._toolbarStatus ) return;
-		const note = this._toolbarStatus.querySelector( '.wte-dbg-loader-note' );
-		if ( note ) note.textContent = msg;
-		this._toolbarStatus.classList.remove( 'is-status-info', 'is-status-success', 'is-status-error' );
-		if ( type ) this._toolbarStatus.classList.add( 'is-status-' + type );
-		this._toolbarStatus.classList.add( 'is-visible' );
-		clearTimeout( this._statusTimer );
-		this._statusTimer = setTimeout( () => {
-			this._toolbarStatus.classList.remove( 'is-visible', 'is-status-info', 'is-status-success', 'is-status-error' );
-		}, 4000 );
-	}
-
-	_post( action, extra ) {
+	_post( action, extra, signal ) {
 		const body = Object.assign( { action, _ajax_nonce: nonce }, extra || {} );
 		return fetch( ajaxurl, {
 			method: 'POST',
+			signal,
 			body:   new URLSearchParams( body ),
 		} ).then( ( r ) => r.json() );
 	}

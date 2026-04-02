@@ -48,9 +48,46 @@ export function initThemeToggle() {
 	} );
 }
 
+function makeToggleIcon( pathData, color ) {
+	const ns   = 'http://www.w3.org/2000/svg';
+	const svg  = document.createElementNS( ns, 'svg' );
+	svg.setAttribute( 'width', '22' );
+	svg.setAttribute( 'height', '22' );
+	svg.setAttribute( 'viewBox', '0 0 24 24' );
+	svg.setAttribute( 'fill', color || 'currentColor' );
+	svg.setAttribute( 'aria-hidden', 'true' );
+	const path = document.createElementNS( ns, 'path' );
+	path.setAttribute( 'd', pathData );
+	svg.appendChild( path );
+	return svg;
+}
+
+const PATH_FIRE = 'M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-5.39-2.59-10.2-6.5-13.33zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z';
+
+function makeLogoSvg() {
+	const ns  = 'http://www.w3.org/2000/svg';
+	const svg = document.createElementNS( ns, 'svg' );
+	svg.setAttribute( 'width', '22' );
+	svg.setAttribute( 'height', '22' );
+	svg.setAttribute( 'viewBox', '0 0 24 24' );
+	svg.setAttribute( 'fill', 'orange' );
+	svg.setAttribute( 'aria-hidden', 'true' );
+	const path = document.createElementNS( ns, 'path' );
+	path.setAttribute( 'd', 'M20 8h-2.81A6 6 0 0 0 6.81 8H4a1 1 0 0 0 0 2h2v1a8 8 0 0 0 .07 1H4a1 1 0 0 0 0 2h2.64A6 6 0 0 0 18 14v-1h2a1 1 0 0 0 0-2h-2.07A8 8 0 0 0 18 11v-1h2a1 1 0 0 0 0-2zM9 7.5a3 3 0 0 1 6 0H9zm3 10.5a4 4 0 0 1-4-4v-3h8v3a4 4 0 0 1-4 4zm-1-6v2h2v-2h-2z' );
+	svg.appendChild( path );
+	const c1 = document.createElementNS( ns, 'circle' );
+	c1.setAttribute( 'cx', '9' ); c1.setAttribute( 'cy', '3' ); c1.setAttribute( 'r', '1.5' );
+	svg.appendChild( c1 );
+	const c2 = document.createElementNS( ns, 'circle' );
+	c2.setAttribute( 'cx', '15' ); c2.setAttribute( 'cy', '3' ); c2.setAttribute( 'r', '1.5' );
+	svg.appendChild( c2 );
+	return svg;
+}
+
 export function initDevModeToggle( onLoadTab, getCurrentSlug ) {
 	const wrap = document.querySelector( '.wte-devzone-wrap' );
 	const btn  = document.querySelector( '.wte-dbg-dev-toggle' );
+	const icon = btn && btn.querySelector( '.wte-dbg-dev-icon' );
 	const KEY  = 'wte_dbg_dev_mode';
 
 	if ( ! wrap || ! btn ) return;
@@ -82,7 +119,7 @@ export function initDevModeToggle( onLoadTab, getCurrentSlug ) {
 	btn.addEventListener( 'click',      () => tip.classList.remove( 'is-visible' ) );
 
 	const syncBtn = ( on ) => {
-		btn.setAttribute( 'aria-checked', on ? 'true' : 'false' );
+		if ( icon ) icon.replaceChildren( on ? makeToggleIcon( PATH_FIRE, '#ff4500' ) : makeLogoSvg() );
 		btn.dataset.tooltip = on ? 'Hide hot features' : 'Show hot features';
 	};
 

@@ -61,14 +61,23 @@ $active_parent = $subtab_parent[ $active_slug ] ?? null;
 <script>(function(){try{var k='wte_dbg_brand_animated';if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');document.addEventListener('DOMContentLoaded',function(){var el=document.querySelector('.wte-dbg-header-brand-link');if(el){el.classList.add('wte-dbg-brand-animate');}});}}catch(e){}}());</script>
 	<div class="wte-dbg-header">
 		<div class="wte-dbg-header-brand">
+			<?php if ( \WPTravelEngineDevZone\Admin::get_dev_features() ) : ?>
+			<button type="button" class="wte-dbg-dev-toggle" title="<?php esc_attr_e( 'Show hot features', 'wptravelengine-devzone' ); ?>">
+				<span class="wte-dbg-dev-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="orange" aria-hidden="true"><path d="M20 8h-2.81A6 6 0 0 0 6.81 8H4a1 1 0 0 0 0 2h2v1a8 8 0 0 0 .07 1H4a1 1 0 0 0 0 2h2.64A6 6 0 0 0 18 14v-1h2a1 1 0 0 0 0-2h-2.07A8 8 0 0 0 18 11v-1h2a1 1 0 0 0 0-2zM9 7.5a3 3 0 0 1 6 0H9zm3 10.5a4 4 0 0 1-4-4v-3h8v3a4 4 0 0 1-4 4zm-1-6v2h2v-2h-2z"/><circle cx="9" cy="3" r="1.5"/><circle cx="15" cy="3" r="1.5"/></svg></span>
+			</button>
 			<a class="wte-dbg-header-brand-link" href="<?php echo esc_url( add_query_arg( [ 'page' => \WPTravelEngineDevZone\Admin::PAGE_SLUG ], admin_url( 'tools.php' ) ) ); ?>">
-				<svg class="wte-dbg-header-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="orange">
-					<path d="M20 8h-2.81A6 6 0 0 0 6.81 8H4a1 1 0 0 0 0 2h2v1a8 8 0 0 0 .07 1H4a1 1 0 0 0 0 2h2.64A6 6 0 0 0 18 14v-1h2a1 1 0 0 0 0-2h-2.07A8 8 0 0 0 18 11v-1h2a1 1 0 0 0 0-2zM9 7.5a3 3 0 0 1 6 0H9zm3 10.5a4 4 0 0 1-4-4v-3h8v3a4 4 0 0 1-4 4zm-1-6v2h2v-2h-2z"/>
-					<circle cx="9" cy="3" r="1.5"/>
-					<circle cx="15" cy="3" r="1.5"/>
-				</svg>
-			<span class="wte-dbg-header-product"><?php esc_html_e( 'WP Travel Engine - Dev Zone', 'wptravelengine-devzone' ); ?></span>
+				<span class="wte-dbg-header-product"><?php esc_html_e( 'WP Travel Engine - Dev Zone', 'wptravelengine-devzone' ); ?></span>
 			</a>
+			<?php else : ?>
+			<svg class="wte-dbg-header-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="orange">
+				<path d="M20 8h-2.81A6 6 0 0 0 6.81 8H4a1 1 0 0 0 0 2h2v1a8 8 0 0 0 .07 1H4a1 1 0 0 0 0 2h2.64A6 6 0 0 0 18 14v-1h2a1 1 0 0 0 0-2h-2.07A8 8 0 0 0 18 11v-1h2a1 1 0 0 0 0-2zM9 7.5a3 3 0 0 1 6 0H9zm3 10.5a4 4 0 0 1-4-4v-3h8v3a4 4 0 0 1-4 4zm-1-6v2h2v-2h-2z"/>
+				<circle cx="9" cy="3" r="1.5"/>
+				<circle cx="15" cy="3" r="1.5"/>
+			</svg>
+			<a class="wte-dbg-header-brand-link" href="<?php echo esc_url( add_query_arg( [ 'page' => \WPTravelEngineDevZone\Admin::PAGE_SLUG ], admin_url( 'tools.php' ) ) ); ?>">
+				<span class="wte-dbg-header-product"><?php esc_html_e( 'WP Travel Engine - Dev Zone', 'wptravelengine-devzone' ); ?></span>
+			</a>
+			<?php endif; ?>
 			<?php foreach ( $group_buttons as $slug => $label ) :
 				$is_dev    = $is_dev_group( $slug );
 				$is_active = $slug === 'devzone'
@@ -85,6 +94,7 @@ $active_parent = $subtab_parent[ $active_slug ] ?? null;
 			<?php endforeach; ?>
 			<?php do_action( 'wpte_devzone_header_buttons', $active_slug ); ?>
 		</div>
+		<div id="wte-dbg-wp-debug-notice" class="wte-dbg-wp-notice" style="display:none;" aria-live="polite" aria-atomic="true"><span class="wte-dbg-loader-note"><?php esc_html_e( 'Reload the page for changes to take effect.', 'wptravelengine-devzone' ); ?></span></div>
 		<div class="wte-dbg-header-meta">
 			<button type="button" class="wte-dbg-meta-collapse-btn" aria-expanded="false" title="<?php esc_attr_e( 'Show info', 'wptravelengine-devzone' ); ?>">
 				<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -96,19 +106,21 @@ $active_parent = $subtab_parent[ $active_slug ] ?? null;
 				<button type="button" class="wte-dbg-theme-toggle" title="<?php esc_attr_e( 'Toggle dark mode', 'wptravelengine-devzone' ); ?>">
 					<span class="wte-dbg-theme-icon">&#9728;</span>
 				</button>
-				<?php if ( \WPTravelEngineDevZone\Admin::get_dev_features() ) : ?>
-				<button type="button" class="wte-dbg-dev-toggle" role="switch" aria-checked="false"></button>
-				<script>(function(){try{if(localStorage.getItem('wte_dbg_dev_mode')==='1'){document.currentScript.previousElementSibling.setAttribute('aria-checked','true');}}catch(e){}}());</script>
-				<?php endif; ?>
 			</div>
 		</div>
 	</div>
 
 	<?php
 	// Named-group subtabs to show in the nav (empty = show inspector tools).
-	$nav_group   = $active_parent ?? ( in_array( $active_slug, $group_slugs, true ) ? $active_slug : null );
-	$nav_subtabs = $nav_group ? ( $tabs[ $nav_group ]['subtabs'] ?? [] ) : [];
-	$nav_hidden  = ! empty( $nav_group ) && empty( $nav_subtabs );
+	$nav_group    = $active_parent ?? ( in_array( $active_slug, $group_slugs, true ) ? $active_slug : null );
+	$nav_subtabs  = $nav_group ? ( $tabs[ $nav_group ]['subtabs'] ?? [] ) : [];
+	$real_subtabs = array_filter(
+		$nav_subtabs,
+		static fn( string $k ): bool => $k !== '__inject_markup',
+		ARRAY_FILTER_USE_KEY
+	);
+	$has_inject = isset( $nav_subtabs['__inject_markup'] ) && is_callable( $nav_subtabs['__inject_markup'] );
+	$nav_hidden = ! empty( $nav_group ) && empty( $real_subtabs ) && ! $has_inject;
 	?>
 	<nav class="wte-dbg-tabs wte-dbg-bar <?php echo $nav_hidden ? 'is-hidden' : ''; ?>" role="tablist">
 		<?php foreach ( $tools as $tool ) : ?>
@@ -134,6 +146,7 @@ $active_parent = $subtab_parent[ $active_slug ] ?? null;
 			</a>
 		<?php endforeach; ?>
 		<?php foreach ( $nav_subtabs as $sub_slug => $sub_def ) : ?>
+			<?php if ( '__inject_markup' === $sub_slug ) continue; ?>
 			<?php
 			$sub_label  = is_array( $sub_def ) ? ( $sub_def['title'] ?? $sub_slug ) : (string) $sub_def;
 			$sub_url    = add_query_arg( [ 'page' => \WPTravelEngineDevZone\Admin::PAGE_SLUG, 'tab' => $sub_slug ], admin_url( 'tools.php' ) );
@@ -148,10 +161,16 @@ $active_parent = $subtab_parent[ $active_slug ] ?? null;
 				<?php echo esc_html( $sub_label ); ?>
 			</a>
 		<?php endforeach; ?>
-		<div class="wte-dbg-status-note-wrap" id="wte-dbg-status-note" aria-live="polite" aria-atomic="true">
-			<span class="wte-dbg-loader-note"></span>
-		</div>
+		<?php foreach ( $tabs as $group_slug => $group_def ) : ?>
+			<?php
+			$inject = is_array( $group_def ) ? ( $group_def['subtabs']['__inject_markup'] ?? null ) : null;
+			if ( ! is_callable( $inject ) ) continue;
+			?>
+			<div class="wte-dbg-nav-inject" data-group="<?php echo esc_attr( $group_slug ); ?>"<?php echo $nav_group !== $group_slug ? ' style="display:none;"' : ''; ?>><?php call_user_func( $inject, $group_slug ); ?></div>
+		<?php endforeach; ?>
+		<?php if ( ! $nav_hidden ) : ?>
 		<button type="button" class="wte-dbg-back-btn" title="<?php esc_attr_e( 'Go back', 'wptravelengine-devzone' ); ?>">&#8592; <?php esc_html_e( 'Back', 'wptravelengine-devzone' ); ?></button>
+		<?php endif; ?>
 	</nav>
 
 	<div class="wte-dbg-content" data-rendered-tab="<?php echo esc_attr( $active_slug ); ?>">

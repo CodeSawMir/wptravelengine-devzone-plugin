@@ -243,7 +243,6 @@ body.wte-dbg-page-dark #wpbody-content {
 .wte-dbg-header {
 	display: flex;
 	align-items: stretch;
-	justify-content: space-between;
 	gap: 16px;
 	background: linear-gradient( 135deg, #163f78 0%, #0c2c55 100% );
 	padding: 0 20px;
@@ -256,6 +255,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	display: flex;
 	align-items: center;
 	gap: 0;
+	flex: 1;
 }
 
 .wte-dbg-header-brand-link {
@@ -290,6 +290,7 @@ body.wte-dbg-page-dark #wpbody-content {
 	flex-shrink: 0;
 	opacity: 0.85;
 	vertical-align: middle;
+	margin-right: 8px;
 }
 
 .wte-dbg-header-brand-link.wte-dbg-brand-animate .wte-dbg-header-icon {
@@ -567,7 +568,6 @@ body.wte-dbg-page-dark #wpbody-content {
 
 .wte-dbg-search-wrap {
 	padding: 8px 12px;
-	border-bottom: 1px solid var(--dbg-border-faint);
 }
 
 /* Context-specific width — shared pill styling comes from .wte-dbg-search-input */
@@ -623,6 +623,106 @@ body.wte-dbg-page-dark #wpbody-content {
 
 .wte-devzone-wrap.wte-dbg-dark .wte-dbg-search-input:focus {
 	box-shadow: 0 0 0 3px rgba(126, 184, 247, 0.12), inset 0 1px 3px rgba(0,0,0,0.2);
+}
+/* ========================================================================= */
+
+/* =========================================================================
+   General search wrap — input + inline count pill.
+   Use .wte-dbg-search-wrap as the container, .wte-dbg-search-input on the
+   <input>, and .wte-dbg-search-count for the result count span.
+   ========================================================================= */
+.wte-dbg-search-wrap {
+	/* flex: 0 1 340px; */
+	max-width: 340px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.wte-dbg-search-wrap .wte-dbg-search-input {
+	width: 100%;
+	/* padding-right: 60px; */
+}
+
+.wte-dbg-search-count {
+	position: absolute;
+	right: 12px;
+	display: inline-flex;
+	align-items: center;
+	height: 20px;
+	padding: 0 7px;
+	border-radius: 10px;
+	font-size: 10.5px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	background: var(--dbg-active-bg);
+	color: var(--dbg-accent);
+	pointer-events: none;
+	white-space: nowrap;
+	opacity: 0;
+	transform: scale(0.85);
+	transition: opacity 0.15s, transform 0.15s;
+}
+
+.wte-dbg-search-count:not(:empty) {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.wte-dbg-search-count.is-empty {
+	background: rgba(220, 38, 38, 0.1);
+	color: #dc2626;
+}
+
+.wte-devzone-wrap.wte-dbg-dark .wte-dbg-search-count.is-empty {
+	background: rgba(248, 113, 113, 0.12);
+	color: #f87171;
+}
+
+/* Dark bar variant — adapts input + count for dark gradient backgrounds
+   (.wte-dbg-tabs = nav bar, .wte-dbg-cron-toolbar = content toolbar)      */
+.wte-dbg-tabs .wte-dbg-search-wrap,
+.wte-dbg-cron-toolbar .wte-dbg-search-wrap {
+	flex: 0 1 260px;
+	margin: 7px 4px;
+}
+
+.wte-dbg-tabs .wte-dbg-search-wrap .wte-dbg-search-input,
+.wte-dbg-cron-toolbar .wte-dbg-search-wrap .wte-dbg-search-input {
+	background-color: rgba(255, 255, 255, 0.08);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+	border-color: rgba(255, 255, 255, 0.15);
+	color: rgba(255, 255, 255, 0.9);
+	box-shadow: none;
+	height: 32px;
+}
+
+.wte-dbg-tabs .wte-dbg-search-wrap .wte-dbg-search-input::placeholder,
+.wte-dbg-cron-toolbar .wte-dbg-search-wrap .wte-dbg-search-input::placeholder {
+	color: rgba(255, 255, 255, 0.3);
+	font-style: normal;
+}
+
+.wte-dbg-tabs .wte-dbg-search-wrap .wte-dbg-search-input:hover,
+.wte-dbg-cron-toolbar .wte-dbg-search-wrap .wte-dbg-search-input:hover {
+	border-color: rgba(255, 255, 255, 0.3);
+	background-color: rgba(255, 255, 255, 0.11);
+}
+
+.wte-dbg-tabs .wte-dbg-search-wrap .wte-dbg-search-input:focus,
+.wte-dbg-cron-toolbar .wte-dbg-search-wrap .wte-dbg-search-input:focus {
+	background-color: rgba(255, 255, 255, 0.14);
+	border-color: rgba(255, 255, 255, 0.5);
+	box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+.wte-dbg-tabs .wte-dbg-search-count,
+.wte-dbg-cron-toolbar .wte-dbg-search-count {
+	background: rgba(255, 255, 255, 0.12);
+	color: rgba(255, 255, 255, 0.85);
+	opacity: 1;
+	transform: scale(1);
 }
 /* ========================================================================= */
 
@@ -1162,6 +1262,16 @@ details[open] > .wte-dbg-option-name {
 	transform: translateY(3px);
 }
 
+/* Shared top-level notice — used by all tabs for transient status messages and the WP debug reload prompt */
+.wte-dbg-wp-notice {
+	align-items: center;
+	padding: 0 8px;
+}
+.wte-dbg-wp-notice.is-status-info .wte-dbg-loader-note::before       { background: #60a5fa; }
+.wte-dbg-wp-notice.is-status-success .wte-dbg-loader-note::before    { background: #4ade80; animation: none; }
+.wte-dbg-wp-notice.is-status-error .wte-dbg-loader-note::before      { background: #f87171; animation: none; }
+.wte-dbg-wp-notice.is-status-cancelled .wte-dbg-loader-note::before  { background: #fb923c; animation: none; }
+
 
 /* Dark mode shimmer tones */
 .wte-dbg-dark .wte-dbg-loader-block {
@@ -1298,6 +1408,7 @@ details:not([open]) > .wte-dbg-key::before { content: '▶'; font-size: 8px; col
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	cursor: pointer;
+	user-select: text;
 }
 
 :is( .wte-dbg-section-body, .wte-dbg-option-body ) .wte-dbg-value[data-expanded="1"] {
@@ -1898,6 +2009,7 @@ textarea.wte-dbg-input {
 	align-items: center;
 	gap: 4px;
 	align-self: center;
+	margin-left: auto;
 	background: rgba(255,255,255,.12);
 	border: 1px solid rgba(255,255,255,.25);
 	border-radius: 4px;
@@ -2232,8 +2344,8 @@ textarea.wte-dbg-input {
 	margin: -3px -1px 0;
 }
 
-/* Icon-only refresh button */
-.wte-dbg-cron-refresh {
+/* Icon-only circular refresh button for dark bar contexts. */
+.wte-dbg-refresh-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -2249,23 +2361,27 @@ textarea.wte-dbg-input {
 	flex-shrink: 0;
 }
 
-.wte-dbg-cron-refresh::before {
+.wte-dbg-refresh-btn::before {
 	content: '\21BB';
 	font-size: 15px;
 	line-height: 1;
 }
 
-.wte-dbg-cron-refresh:hover {
+.wte-dbg-refresh-btn:hover {
 	background: rgba( 255, 255, 255, 0.15 );
 	border-color: rgba( 255, 255, 255, 0.38 );
 	color: #fff;
 	transform: rotate( 45deg );
 }
 
-.wte-dbg-cron-refresh:disabled {
+.wte-dbg-refresh-btn:disabled {
 	opacity: 0.35;
 	cursor: default;
-	transform: none;
+}
+
+.wte-dbg-refresh-btn.is-spinning {
+	animation: wte-dbg-spin 0.7s linear infinite;
+	pointer-events: none;
 }
 
 /* ── Search wrap fills all available toolbar space ── */
@@ -3163,50 +3279,19 @@ textarea.wte-dbg-input {
 [data-dev] { display: none !important; }
 .wte-dbg-dev-mode [data-dev] { display: revert !important; }
 
-/* Toggle switch — pill shape, no label */
 .wte-dbg-dev-toggle {
-	position: relative;
-	width: 32px;
-	height: 18px;
-	padding: 0;
-	background: rgba( 255, 255, 255, 0.15 );
-	border: 1px solid rgba( 255, 255, 255, 0.25 );
-	border-radius: 9px;
+	background: none;
+	border: none;
+	padding: 14px 0;
+	margin-right: 8px;
 	cursor: pointer;
-	transition: background 0.2s, border-color 0.2s;
-	flex-shrink: 0;
+	line-height: 1;
+	color: rgba(255,255,255,.85);
+	display: flex;
+	align-items: center;
+	transition: opacity 0.15s;
 }
-
-.wte-dbg-dev-toggle::after {
-	content: '';
-	position: absolute;
-	top: 2px;
-	left: 2px;
-	width: 12px;
-	height: 12px;
-	background: rgba( 255, 255, 255, 0.55 );
-	border-radius: 50%;
-	transition: transform 0.2s, background 0.2s;
-}
-
-.wte-dbg-dev-toggle[aria-checked="true"] {
-	background: #f59e0b;
-	border-color: #d97706;
-}
-
-.wte-dbg-dev-toggle[aria-checked="true"]::after {
-	transform: translateX( 14px );
-	background: #fff;
-}
-
-.wte-dbg-dev-toggle:hover {
-	border-color: rgba( 255, 255, 255, 0.5 );
-}
-
-.wte-dbg-dev-toggle[aria-checked="true"]:hover {
-	background: #fbbf24;
-	border-color: #f59e0b;
-}
+.wte-dbg-dev-toggle:hover { opacity: 0.8; }
 
 /* Shared JS-managed tooltip (appended to body, escapes any overflow container) */
 .wte-dbg-float-tooltip {
@@ -3259,36 +3344,6 @@ textarea.wte-dbg-input {
 	letter-spacing: 0.06em;
 }
 
-.wte-dbg-perf-refresh {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	height: 28px;
-	padding: 0;
-	background: rgba( 255, 255, 255, 0.08 );
-	color: rgba( 255, 255, 255, 0.75 );
-	border: 1px solid rgba( 255, 255, 255, 0.18 );
-	border-radius: 50%;
-	cursor: pointer;
-	font-size: 16px;
-	line-height: 1;
-	transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.3s;
-	flex-shrink: 0;
-}
-
-.wte-dbg-perf-refresh:hover {
-	background: rgba( 255, 255, 255, 0.15 );
-	border-color: rgba( 255, 255, 255, 0.38 );
-	color: #fff;
-	transform: rotate( 45deg );
-}
-
-.wte-dbg-perf-refresh:disabled {
-	opacity: 0.35;
-	cursor: default;
-	transform: none;
-}
 
 .wte-dbg-perf-toolbar-status {
 	display: flex;
@@ -3560,3 +3615,123 @@ textarea.wte-dbg-input {
 	background: rgba( 34, 113, 177, 0.25 );
 	color: #93c5fd;
 }
+
+
+/* ── WordPress debug subtab ── */
+.wte-dbg-wp-wrap { padding: 16px 20px; }
+
+.wte-dbg-wp-debug-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 16px;
+	border-bottom: 1px solid var( --dbg-border );
+	color: var( --dbg-text );
+	gap: 12px;
+}
+.wte-dbg-wp-debug-row:last-of-type { border-bottom: none; }
+.wte-dbg-wp-code {
+	font-size: 12px;
+	color: var( --dbg-text );
+	background: transparent;
+	padding: 0;
+}
+.wte-dbg-wp-desc {
+	color: var( --dbg-text-dim );
+	font-size: 11px;
+	margin-left: 8px;
+}
+
+.wte-dbg-wp-debug-toggle {
+	position: relative;
+	display: inline-block;
+	width: 36px;
+	height: 20px;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+.wte-dbg-wp-debug-toggle input { opacity: 0; width: 0; height: 0; }
+.wte-dbg-wp-debug-slider {
+	position: absolute;
+	inset: 0;
+	background: var( --dbg-border );
+	border-radius: 10px;
+	transition: background .2s;
+}
+.wte-dbg-wp-debug-slider::before {
+	content: '';
+	position: absolute;
+	width: 14px;
+	height: 14px;
+	left: 3px;
+	top: 3px;
+	background: var( --dbg-surface );
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba( 0,0,0,.25 );
+	transition: transform .2s;
+}
+.wte-dbg-wp-debug-toggle input:checked + .wte-dbg-wp-debug-slider { background: #f59e0b; }
+.wte-dbg-wp-debug-toggle input:checked + .wte-dbg-wp-debug-slider::before { transform: translateX( 16px ); }
+.wte-dbg-wp-debug-row.is-loading { opacity: .5; pointer-events: none; }
+
+#wte-dbg-log-body { padding: 0; }
+.wte-dbg-wp-empty {
+	padding: 16px;
+	margin: 0;
+	opacity: .6;
+	font-size: 12px;
+}
+.wte-dbg-wp-log-legend {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 16px;
+	border-bottom: 1px solid var( --dbg-border );
+}
+.wte-dbg-wp-log-badge {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 7px;
+	border-radius: 3px;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+}
+.wte-dbg-wp-log-badge.is-fatal      { background: rgba( 239,68,68,.15 );  color: #ef4444; }
+.wte-dbg-wp-log-badge.is-warning    { background: rgba( 245,158,11,.15 ); color: #d97706; }
+.wte-dbg-wp-log-badge.is-deprecated { background: rgba( 99,102,241,.15 ); color: #6366f1; }
+.wte-dbg-wp-log-badge.is-notice     { background: rgba( 14,165,233,.15 ); color: #0ea5e9; }
+.wte-dbg-wp-log-list {
+	max-height: 480px;
+	overflow-y: auto;
+	padding: 8px 0;
+}
+.wte-dbg-wp-log-line {
+	padding: 3px 16px;
+	font-size: 11px;
+	line-height: 1.65;
+	font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+	white-space: pre-wrap;
+	word-break: break-all;
+	border-left: 3px solid transparent;
+	color: var( --dbg-text-dim );
+}
+.wte-dbg-wp-log-line.is-fatal      { border-color: #ef4444; color: #ef4444; background: rgba( 239,68,68,.04 ); }
+.wte-dbg-wp-log-line.is-warning    { border-color: #f59e0b; color: #d97706; background: rgba( 245,158,11,.04 ); }
+.wte-dbg-wp-log-line.is-deprecated { border-color: #6366f1; color: #6366f1; background: rgba( 99,102,241,.04 ); }
+.wte-dbg-wp-log-line.is-notice     { border-color: #0ea5e9; color: #0ea5e9; background: rgba( 14,165,233,.04 ); }
+.wte-dbg-wp-log-line + .wte-dbg-wp-log-line { border-top: 1px solid var( --dbg-border ); }
+
+/* ── WordPress subtab skeleton ── */
+.wte-dbg-wp-skel-title    { width: 110px; height: 13px; }
+.wte-dbg-wp-skel-note     { width: 190px; height: 11px; }
+.wte-dbg-wp-skel-code     { width: 88px;  height: 13px; margin-bottom: 5px; }
+.wte-dbg-wp-skel-desc     { width: 155px; height: 11px; }
+.wte-dbg-wp-skel-toggle   { width: 36px;  height: 20px; border-radius: 10px; flex-shrink: 0; }
+.wte-dbg-wp-skel-log-path { width: 230px; height: 11px; }
+.wte-dbg-wp-skel-log-lines {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 14px 16px;
+}
+.wte-dbg-wp-skel-log-line { height: 12px; }

@@ -8,9 +8,10 @@ const DEV_FEATURES  = wpteDbg.devFeatures  || {};
 
 export class NavManager {
 	constructor() {
-		this._navStack  = [];
-		this._backBtn   = document.querySelector( '.wte-dbg-back-btn' );
-		this._onLoadTab = null;
+		this._navStack   = [];
+		this._lastSubtab = {};
+		this._backBtn    = document.querySelector( '.wte-dbg-back-btn' );
+		this._onLoadTab  = null;
 	}
 
 	init( onLoadTab ) {
@@ -22,7 +23,7 @@ export class NavManager {
 
 	// ---- Stack helpers ----
 
-	push( slug, postId ) { this._navStack.push( { slug, postId } ); this._syncBackBtn(); }
+	push( slug, postId, html ) { this._navStack.push( { slug, postId, html } ); this._syncBackBtn(); }
 	pop()                { const e = this._navStack.pop(); this._syncBackBtn(); return e; }
 	get stackSize()      { return this._navStack.length; }
 	clearStack()         { this._navStack = []; this._syncBackBtn(); }
@@ -33,8 +34,9 @@ export class NavManager {
 	resolveSlug( slug ) {
 		const subs = GROUP_SUBTABS[ slug ];
 		if ( subs ) {
+			const last  = this._lastSubtab[ slug ];
 			const first = Object.keys( subs )[ 0 ];
-			if ( first ) return first;
+			return last ?? first ?? slug;
 		}
 		return slug;
 	}
@@ -53,6 +55,11 @@ export class NavManager {
 				if ( slug in subs ) { activeGroup = g; break; }
 			}
 		}
+		if ( activeGroup && activeGroup !== slug ) {
+			this._lastSubtab[ activeGroup ] = slug;
+		} else if ( ! activeGroup ) {
+			this._lastSubtab[ 'devzone' ] = slug;
+		}
 		const isNamedGroup = activeGroup !== null;
 
 		groupBtns.forEach( btn => {
@@ -66,7 +73,11 @@ export class NavManager {
 
 		if ( ! nav ) return;
 
-		nav.classList.toggle( 'is-hidden', isNamedGroup && ! hasSubtabs );
+		// Keep nav visible if the group uses __inject_markup to fill the bar.
+		const hasInject = activeGroup
+			? !! nav.querySelector( `.wte-dbg-nav-inject[data-group="${ activeGroup }"]` )
+			: false;
+		nav.classList.toggle( 'is-hidden', isNamedGroup && ! hasSubtabs && ! hasInject );
 
 		nav.querySelectorAll( '.wte-dbg-tab[data-inspector-tab]' ).forEach( el => {
 			el.style.display = isNamedGroup ? 'none' : '';
@@ -75,8 +86,9 @@ export class NavManager {
 		if ( isNamedGroup && hasSubtabs ) {
 			nav.querySelectorAll( '.wte-dbg-tab[data-group-sub]' ).forEach( el => el.remove() );
 
-			const statusNote    = nav.querySelector( '#wte-dbg-status-note' );
+			const injectDiv     = activeGroup ? nav.querySelector( `.wte-dbg-nav-inject[data-group="${ activeGroup }"]` ) : null;
 			const backBtn       = nav.querySelector( '.wte-dbg-back-btn' );
+			const insertRef     = injectDiv ?? backBtn ?? null;
 			const groupDevScope = DEV_FEATURES[ activeGroup ];
 			const groupDevSlugs = groupDevScope && groupDevScope !== '__all'
 				? groupDevScope.split( ',' ).map( s => s.trim() )
@@ -102,11 +114,17 @@ export class NavManager {
 					this._onLoadTab( subSlug );
 				} );
 
-				nav.insertBefore( a, statusNote ?? backBtn ?? null );
+				nav.insertBefore( a, insertRef );
 			}
-		} else if ( ! isNamedGroup ) {
+		} else {
+			// Named group with inject-only (no real subtabs), or no named group —
+			// either way, clear any leftover subtab links from the previous group.
 			nav.querySelectorAll( '.wte-dbg-tab[data-group-sub]' ).forEach( el => el.remove() );
 		}
+
+		nav.querySelectorAll( '.wte-dbg-nav-inject' ).forEach( div => {
+			div.style.display = ( isNamedGroup && div.dataset.group === activeGroup ) ? '' : 'none';
+		} );
 	}
 
 	// ---- Tab switching click handlers ----
@@ -124,7 +142,7 @@ export class NavManager {
 		document.querySelector( '.wte-dbg-group-btn[data-group="devzone"]' )
 			?.addEventListener( 'click', () => {
 				clearStack();
-				this._onLoadTab( 'overview' );
+				this._onLoadTab( this._lastSubtab[ 'devzone' ] || 'overview' );
 			} );
 
 		document.querySelectorAll( '.wte-dbg-group-btn[data-group]' ).forEach( btn => {
@@ -132,9 +150,7 @@ export class NavManager {
 			if ( group === 'devzone' ) return;
 			btn.addEventListener( 'click', () => {
 				clearStack();
-				const subs     = GROUP_SUBTABS[ group ] || {};
-				const firstSub = Object.keys( subs )[ 0 ];
-				this._onLoadTab( firstSub || group );
+				this._onLoadTab( group );
 			} );
 		} );
 

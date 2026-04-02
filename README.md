@@ -34,7 +34,8 @@ Once activated, navigate to **Tools → Dev Zone** in WP Admin.
 | Bookings | View booking records and their metadata |
 | Payments | Inspect payment entries linked to bookings |
 | Customers | View customer records |
-| Logs | Browse the WordPress debug log with live-reload and line count |
+| Logs — WPTE | Browse WP Travel Engine debug log entries with live-reload and line count |
+| Crontrol | List all scheduled WP-Cron events grouped by WPTE vs. other; run or schedule individual hooks; paginate and search |
 | Query | Full table browser — select any DB table, apply column filters, paginate results, and copy cell values with a single click |
 
 ## Query Tab
@@ -58,8 +59,11 @@ A collapsible, resizable panel on the right edge of the Query tab for parsing ra
 ## UI
 
 - **Dark mode** — toggle via the ☀ button in the header; preference is saved across sessions
-- **Status bar** — live loading/error notices float in the tab bar
+- **Status notice** — a single shared pill in the header shows loading progress, success, error, and cancellation messages across all tabs; auto-dismisses after a few seconds for success/error states
+- **Refresh button** — the Crontrol tab has a circular refresh button (↻) in the toolbar that spins during in-flight requests and re-enables on completion or error
+- **AJAX cancellation** — switching tabs cancels any in-flight requests from the previous tab and shows a "Cancelled" notice; within-tab refreshes abort any previous in-flight request before starting a new one
 - **Inline editing** — metadata values can be edited directly in the Trips, Bookings, Payments, and Customers tabs
+- **Collapsible meta** — the PHP/WP/WPTE version pills in the header can be hidden via the chevron toggle; preference is saved across sessions
 
 ---
 
@@ -122,10 +126,7 @@ add_filter( 'wpte_devzone_tabs', function ( array $tabs ): array {
         'subtabs' => [
             'overview' => __( 'Overview', 'my-plugin' ),
             'settings' => __( 'Settings', 'my-plugin' ),
-            'advanced' => [
-                'title'  => __( 'Advanced', 'my-plugin' ),
-                'on_dev' => true, // hidden unless hot-features mode is on
-            ],
+            'advanced' => __( 'Advanced', 'my-plugin' ),
         ],
     ];
 
@@ -142,19 +143,47 @@ Each key in `$tabs` maps to a group button slug in the header. Subtabs appear in
 | `'slug' => 'Label'` | Simple group, single tab |
 | `'slug' => [ 'title' => '...' ]` | Group with no subtabs |
 | `'slug' => [ 'title' => '...', 'subtabs' => [...] ]` | Group with subtab nav |
-| `'on_dev' => true` on group | Entire group hidden unless hot-features mode is on |
-| `'on_dev' => true` on subtab | Only that subtab hidden in normal mode |
+| `'__inject_markup' => callable` in `subtabs` | Invoke a callable to render markup in the nav bar when this group is active |
+| `'priority' => int` on group | Sort order for the group button (default `5`, lower = earlier) |
 
 ---
 
-### 3. Register a Tab for Each Subtab
+### 3. Inject Controls into the Nav Bar
+
+Use `__inject_markup` inside `subtabs` to render extra markup (buttons, labels, dropdowns) directly inside the tab navigation bar whenever your group is active. The callable is invoked server-side inside a `<div>` that is shown/hidden automatically when the group switches.
+
+```php
+add_filter( 'wpte_devzone_tabs', function ( array $tabs ): array {
+    $tabs['my-plugin'] = [
+        'title'   => __( 'My Plugin', 'my-plugin' ),
+        'subtabs' => [
+            'my-plugin-overview' => __( 'Overview', 'my-plugin' ),
+            'my-plugin-settings' => __( 'Settings', 'my-plugin' ),
+            '__inject_markup'    => function ( string $group_slug ): void {
+                ?>
+                <button type="button" class="button button-small">
+                    <?php esc_html_e( 'Refresh', 'my-plugin' ); ?>
+                </button>
+                <?php
+            },
+        ],
+    ];
+    return $tabs;
+} );
+```
+
+The inject container is a `<div class="wte-dbg-nav-inject" data-group="...">` that lives in the DOM on every page load. Its visibility is toggled by JS alongside the subtab links — no JS wiring needed. Any PHP callable works: a closure, a named function, or a `[$object, 'method']` array.
+
+---
+
+### 4. Register a Tab for Each Subtab
 
 When a group has subtabs, register one `AbstractTool` per subtab slug:
 
 ```php
 add_filter( 'wpte_devzone_tools', function ( array $tools ): array {
-    $tools[] = new MyPluginOverviewTool(); // get_slug() === 'overview' must match subtab key
-    $tools[] = new MyPluginSettingsTool(); // get_slug() === 'settings'
+    $tools[] = new MyPluginOverviewTool(); // get_slug() === 'my-plugin-overview' must match subtab key
+    $tools[] = new MyPluginSettingsTool(); // get_slug() === 'my-plugin-settings'
     return $tools;
 } );
 ```
@@ -163,7 +192,7 @@ The slug returned by `get_slug()` must exactly match the subtab key in `wpte_dev
 
 ---
 
-### 4. Inject Header Buttons
+### 5. Inject Header Buttons
 
 Add extra controls to the right side of the header bar:
 
@@ -178,30 +207,6 @@ add_action( 'wpte_devzone_header_buttons', function ( string $active_slug ): voi
 ```
 
 `$active_slug` is the currently active tab slug — use it to conditionally add `is-active` or render context-sensitive controls.
-
----
-
-### 5. Mark Features as Hot-Features Only
-
-Hot-features mode hides tabs and buttons marked `data-dev="1"`. There are two ways to gate content:
-
-**Via `wpte_devzone_tabs`** (recommended) — set `'on_dev' => true` on any group or subtab entry (see §2).
-
-**Via `wpte_devzone_dev_features`** — directly extend the derived map for custom slugs:
-
-```php
-add_filter( 'wpte_devzone_dev_features', function ( array $features ): array {
-    // Gate an entire group.
-    $features['my-plugin'] = '__all';
-
-    // Gate specific subtabs within a group.
-    $features['my-plugin'] = 'advanced,experimental';
-
-    return $features;
-} );
-```
-
-The JS reads `wpteDbg.devFeatures` and hides matching elements automatically.
 
 ---
 
@@ -223,10 +228,12 @@ fetch( ajaxurl, {
     if ( res.success ) { /* render res.data */ }
 } );
 
-// Show a status message in the Dev Zone status bar.
-window.wteDbgSetStatus( 'Loaded successfully', 'success' );
-window.wteDbgSetStatus( 'Something failed', 'error' );
-window.wteDbgClearStatus();
+// Show a status message in the shared header notice.
+window.wteDbgSetStatus( 'Loaded successfully', 'success' );   // green dot, auto-clears after 4 s
+window.wteDbgSetStatus( 'Something failed', 'error' );        // red dot, auto-clears after 4 s
+window.wteDbgSetStatus( 'Fetching data…', 'info' );           // blue dot, persists until cleared
+window.wteDbgSetStatus( 'Request cancelled', 'cancelled' );   // orange dot, auto-clears after 4 s
+window.wteDbgClearStatus();                                    // hide immediately
 ```
 
 **`wpteDbg` keys:**
@@ -238,6 +245,71 @@ window.wteDbgClearStatus();
 | `post_types` | `object` | `{ post_type: label }` for registered post tools |
 | `devFeatures` | `object` | Hot-features map |
 | `groupSubtabs` | `object` | `{ groupSlug: { subSlug: label } }` |
+
+#### Shared status notice
+
+A single `<div id="wte-dbg-wp-debug-notice" class="wte-dbg-wp-notice">` lives in the header and is always present in the DOM. Its inner `<span class="wte-dbg-loader-note">` holds the visible message text. The JS API adds one of the following classes to the wrapper to show a coloured dot:
+
+| Class | Dot colour | Auto-clears? | Typical use |
+|---|---|---|---|
+| `is-status-info` | Blue, pulsing | No | In-flight loading |
+| `is-status-success` | Green, solid | Yes (4 s default) | Completed action |
+| `is-status-error` | Red, solid | Yes (4 s default) | Failed request |
+| `is-status-cancelled` | Amber, solid | Yes (4 s default) | Aborted request |
+
+Call `wteDbgSetStatus( msg, type )` to set the message and class, or `wteDbgClearStatus()` to hide it immediately. An optional third argument `secs` overrides the auto-clear delay (e.g. `wteDbgSetStatus( 'Done.', 'success', 8 )` clears after 8 s). Passing no `type` shows the notice with the message but without a coloured dot.
+
+ES-module tabs that import `DomHelper` can call `DomHelper.updateLoaderNote( msg )` to update the visible text with a brief fade transition — used internally by the tab-loader for cycling "Loading…" messages.
+
+#### AJAX lifecycle and `destroy()`
+
+When a tab is switched, Dev Zone calls `destroy()` on the outgoing tab instance (if it exists). If your tab class makes in-flight AJAX requests, implement `destroy()` to abort them and show a cancelled notice — otherwise stale responses may manipulate detached DOM nodes or clear the status notice of the newly-loaded tab.
+
+```js
+export class MyTab {
+    constructor( contentEl ) {
+        this.contentEl  = contentEl;
+        this._fetchCtrl = null;
+    }
+
+    init() {
+        this._load();
+        return this;
+    }
+
+    destroy() {
+        if ( this._fetchCtrl ) {
+            window.wteDbgSetStatus( 'Cancelled — my tab', 'cancelled' );
+            this._fetchCtrl.abort();
+            this._fetchCtrl = null;
+        }
+    }
+
+    _load() {
+        this._fetchCtrl?.abort();
+        this._fetchCtrl = new AbortController();
+        const { signal } = this._fetchCtrl;
+
+        fetch( ajaxurl, {
+            method: 'POST',
+            signal,
+            body: new URLSearchParams( { action: 'my_action', _ajax_nonce: wpteDbg.nonce } ),
+        } )
+            .then( r => r.json() )
+            .then( res => {
+                this._fetchCtrl = null;
+                /* render */
+            } )
+            .catch( err => {
+                if ( err.name === 'AbortError' ) return;
+                this._fetchCtrl = null;
+                window.wteDbgSetStatus( 'Load failed.', 'error', 4 );
+            } );
+    }
+}
+```
+
+The tab registry in `devzone.js` stores whatever `init()` returns as the current instance, so `init()` must return `this`.
 
 ---
 
@@ -263,8 +335,8 @@ To verify the request inside any custom AJAX handler:
 |---|---|---|
 | `wpte_devzone_tools` | Filter | Add `AbstractTool` instances |
 | `wpte_devzone_tabs` | Filter | Add groups and subtabs to nav |
-| `wpte_devzone_dev_features` | Filter | Gate tabs behind hot-features mode |
 | `wpte_devzone_header_buttons` | Action | Inject header controls |
+| `{your_inject_hook}` | Action | Render markup inside the nav-bar inject container for a group (declared via `inject` key in `wpte_devzone_tabs`) |
 | `wpte_devzone_group_slugs` | Filter | Legacy — group slug array |
 | `wpte_devzone_group_buttons` | Filter | Legacy — slug-to-title map |
 | `wpte_devzone_cron_schedule_registry` | Filter | Register triggerable cron hooks in the Crontrol tab |

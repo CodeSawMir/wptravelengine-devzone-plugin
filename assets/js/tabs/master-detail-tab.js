@@ -80,7 +80,7 @@ export class MasterDetailTab {
 		);
 	}
 
-	init() {
+	init( restoreOnly = false ) {
 		const panel = this.contentEl.querySelector( '.wte-dbg-master-detail' );
 		if ( ! panel ) return;
 
@@ -112,7 +112,37 @@ export class MasterDetailTab {
 			this._currentSearch, this._currentPage, listEl, paginEl, panel, inspector
 		);
 
-		this._loadList( '', 1, listEl, paginEl, panel, inspector );
+		if ( restoreOnly ) {
+			// Re-attach click listeners to existing rendered items without hitting AJAX.
+			listEl?.querySelectorAll( '.wte-dbg-list-item' ).forEach( ( item ) => {
+				item.addEventListener( 'click', () => {
+					listEl.querySelectorAll( '.wte-dbg-list-item' ).forEach( ( i ) => i.classList.remove( 'is-active' ) );
+					item.classList.add( 'is-active' );
+					this._loadInspector( parseInt( item.dataset.postId, 10 ), inspector );
+				} );
+			} );
+			const activeItem = listEl?.querySelector( '.wte-dbg-list-item.is-active' );
+			if ( activeItem ) this.currentPostId = parseInt( activeItem.dataset.postId, 10 ) || null;
+
+			// Re-attach relation item navigation handlers — the cached HTML has the href but
+			// no JS click handler, so without this a left-click would follow the link in a new tab.
+			panel.querySelectorAll( '.wte-dbg-relation-item[href]' ).forEach( ( el ) => {
+				el.addEventListener( 'click', ( e ) => {
+					if ( e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1 ) return;
+					e.preventDefault();
+					try {
+						const url    = new URL( el.href );
+						const tab    = url.searchParams.get( 'tab' );
+						const postId = parseInt( url.searchParams.get( 'post_id' ), 10 );
+						if ( tab && postId && this._onNavigate ) {
+							this._onNavigate( tab, postId );
+						}
+					} catch ( err ) {}
+				} );
+			} );
+		} else {
+			this._loadList( '', 1, listEl, paginEl, panel, inspector );
+		}
 
 		if ( searchEl ) {
 			searchEl.addEventListener( 'input', () => {
@@ -220,6 +250,19 @@ export class MasterDetailTab {
 		return this;
 	}
 
+	destroy() {
+		const hasActive = this._listController || this._inspectorController || this._relationsController;
+		if ( hasActive ) {
+			DomHelper.setStatus( 'Cancelled \u2014 ' + this.postType, 'cancelled' );
+			this._listController?.abort();
+			this._inspectorController?.abort();
+			this._relationsController?.abort();
+			this._listController       = null;
+			this._inspectorController  = null;
+			this._relationsController  = null;
+		}
+	}
+
 	_loadList( search, page, listEl, paginEl, panel, inspector ) {
 		this._listController?.abort();
 		this._listController = new AbortController();
@@ -261,8 +304,9 @@ export class MasterDetailTab {
 					return;
 				}
 
-				const posts      = res.data.posts;
 				const pinned     = res.data.pinned || [];
+				const pinnedIds  = new Set( pinned.map( ( p ) => p.id ) );
+				const posts      = ( res.data.posts || [] ).filter( ( p ) => ! pinnedIds.has( p.id ) );
 				const total      = res.data.total;
 				const totalPages = res.data.total_pages;
 
@@ -456,6 +500,7 @@ export class MasterDetailTab {
 		body.appendChild( this._buildInspectorSection( 'Meta', this._buildMetaTreeDOM( meta ) ) );
 		body.appendChild( this._buildInspectorSection( 'Taxonomies', this._buildTaxonomiesDOM( taxonomies ) ) );
 
+		DomHelper.setupValueClicks( body );
 		inspector.appendChild( body );
 
 		this._loadRelations( post.ID );
@@ -544,14 +589,14 @@ export class MasterDetailTab {
 			hasAny = true;
 
 			const rowDiv = document.createElement( 'div' );
-			rowDiv.style.cssText = 'padding:4px 20px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;';
+			rowDiv.style.cssText = 'padding:4px 20px;display:flex;align-items:flex-start;gap:8px;';
 
 			const keySpan = DomHelper.makeKeySpan( tax );
-			keySpan.style.minWidth = '120px';
+			keySpan.style.cssText = 'min-width:120px;flex-shrink:0;padding-top:2px;';
 			rowDiv.appendChild( keySpan );
 
 			const termsWrap = document.createElement( 'span' );
-			termsWrap.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;';
+			termsWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;flex:1;';
 			terms.forEach( ( t ) => {
 				const badge = document.createElement( 'span' );
 				badge.className = 'wte-dbg-tax-term';

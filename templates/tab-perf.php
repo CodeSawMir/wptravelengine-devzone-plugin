@@ -9,10 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<div class="wte-dbg-perf-toolbar wte-dbg-bar">
 		<span class="wte-dbg-perf-toolbar-title"><?php esc_html_e( 'Performance', 'wptravelengine-devzone' ); ?></span>
-		<button type="button" class="wte-dbg-perf-refresh" title="<?php esc_attr_e( 'Refresh all', 'wptravelengine-devzone' ); ?>">&#8635;</button>
-		<div class="wte-dbg-perf-toolbar-status">
-			<span class="wte-dbg-loader-note"></span>
-		</div>
+		<button type="button" class="wte-dbg-refresh-btn" title="<?php esc_attr_e( 'Refresh all', 'wptravelengine-devzone' ); ?>"></button>
 	</div>
 
 	<div class="wte-dbg-perf-body">

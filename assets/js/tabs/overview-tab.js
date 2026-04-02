@@ -16,6 +16,15 @@ export class OverviewTab {
 		this.contentEl   = contentEl;
 		this.optionsPage = 1;
 		this.editor      = new InlineEditor( () => null, () => null );
+		this._optionCtrl = null;
+	}
+
+	destroy() {
+		if ( this._optionCtrl ) {
+			DomHelper.setStatus( 'Cancelled \u2014 settings', 'cancelled' );
+			this._optionCtrl.abort();
+			this._optionCtrl = null;
+		}
 	}
 
 	init() {
@@ -116,6 +125,10 @@ export class OverviewTab {
 		body.classList.remove( 'wte-dbg-lazy' );
 		body.classList.add( 'wte-dbg-skeleton' );
 
+		this._optionCtrl?.abort();
+		this._optionCtrl = new AbortController();
+		const { signal } = this._optionCtrl;
+
 		const params = new URLSearchParams( {
 			action:      'wpte_devzone_get_option',
 			option_name: details.dataset.optionName,
@@ -124,9 +137,10 @@ export class OverviewTab {
 
 		DomHelper.setStatus( `Loading${ Icons.ELLIPSIS }`, 'info' );
 
-		fetch( ajaxurl + '?' + params )
+		fetch( ajaxurl + '?' + params, { signal } )
 			.then( ( r ) => r.json() )
 			.then( ( res ) => {
+				this._optionCtrl = null;
 				body.classList.remove( 'wte-dbg-skeleton' );
 				DomHelper.clearStatus();
 				if ( res.success ) {
@@ -171,10 +185,12 @@ export class OverviewTab {
 					body.textContent = 'Error loading option.';
 				}
 			} )
-			.catch( () => {
+			.catch( ( err ) => {
+				if ( err.name === 'AbortError' ) return;
 				body.classList.remove( 'wte-dbg-skeleton' );
 				DomHelper.clearStatus();
 				body.textContent = 'Request failed.';
 			} );
 	}
+
 }

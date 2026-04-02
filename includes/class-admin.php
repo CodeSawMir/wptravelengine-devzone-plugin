@@ -51,6 +51,10 @@ class Admin {
 	 */
 	public static function get_tabs(): array {
 		$tabs = apply_filters( 'wpte_devzone_tabs', [
+			// 'perf'    => [
+			// 	'title'  => __( 'Perf', 'wptravelengine-devzone' ),
+			// 	'on_dev' => true,
+			// ],
 			'devzone' => [
 				'title'   => __( 'Inspect', 'wptravelengine-devzone' ),
 				'subtabs' => [
@@ -63,14 +67,23 @@ class Admin {
 			],
 			'query'   => __( 'Query', 'wptravelengine-devzone' ),
 			'cron'    => __( 'Crontrol',     'wptravelengine-devzone' ),
-			'perf'    => [
-				'title'  => __( 'Perf', 'wptravelengine-devzone' ),
-				'on_dev' => true,
-			],
+			'logs'  => [
+				'title'    => __( 'Logs', 'wptravelengine-devzone' ),
+				'priority' => 10,
+				'subtabs'  => [
+					// 'wordpress'      => [ 'title' => __( 'WordPress', 'wptravelengine-devzone' ), 'on_dev' => true ],
+					'wptravelengine' => __( 'WP Travel Engine', 'wptravelengine-devzone' ),
+				],
+			]
 		] );
 
-		$tabs['logs'] = __( 'Logs', 'wptravelengine-devzone' );
-		return $tabs;		
+		uasort( $tabs, static function ( $a, $b ): int {
+			$pa = is_array( $a ) ? ( (int) ( $a['priority'] ?? 5 ) ) : 5;
+			$pb = is_array( $b ) ? ( (int) ( $b['priority'] ?? 5 ) ) : 5;
+			return $pa <=> $pb;
+		} );
+
+		return $tabs;
 	}
 
 	/**
@@ -94,14 +107,16 @@ class Admin {
 				continue;
 			}
 			if ( ! empty( $group['subtabs'] ) ) {
-				$dev_slugs = [];
-				foreach ( $group['subtabs'] as $tab_slug => $tab_def ) {
+				$dev_slugs    = [];
+				$real_subtabs = array_filter( array_keys( $group['subtabs'] ), static fn( $k ) => $k !== '__inject_markup' );
+				foreach ( $real_subtabs as $tab_slug ) {
+					$tab_def = $group['subtabs'][ $tab_slug ];
 					if ( is_array( $tab_def ) && ! empty( $tab_def['on_dev'] ) ) {
 						$dev_slugs[] = $tab_slug;
 					}
 				}
 				if ( $dev_slugs ) {
-					$derived[ $group_slug ] = count( $dev_slugs ) === count( $group['subtabs'] )
+					$derived[ $group_slug ] = count( $dev_slugs ) === count( $real_subtabs )
 						? '__all'
 						: implode( ',', $dev_slugs );
 				}
@@ -275,6 +290,7 @@ class Admin {
 				continue;
 			}
 			foreach ( $tab['subtabs'] as $sub_slug => $sub_def ) {
+				if ( '__inject_markup' === $sub_slug ) continue;
 				$label                                   = is_array( $sub_def ) ? ( $sub_def['title'] ?? $sub_slug ) : (string) $sub_def;
 				$group_subtabs[ $group_slug ][ $sub_slug ] = $label;
 			}
